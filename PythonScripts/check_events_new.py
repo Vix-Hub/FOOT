@@ -44,16 +44,16 @@ def FindClosestMatch(event_couples, s0x, s0y, s0z, s0plate, couple, EVERBOSE):
         print(" ")
         print(" IDX " + str(idx))
         print(" ")
-        '''
-        #print(" event couples ")
-        #for el in event_couples:
-        #    print(el)
-        print(" ")
-        print(" bs ")
-        for el in bs:
+        
+        print(" event couples ")
+        for el in event_couples:
             print(el)
         print(" ")
-        '''
+        #print(" bs ")
+        #for el in bs:
+        #    print(el)
+        #print(" ")
+        
 
     if (len(bs)==len(event_couples)):
         return event_couples[idx], min(bs), gap
@@ -71,7 +71,7 @@ evt_tree = InFile.Get("events") #contains S2 track info and MC event info
 
 
 MC_ID = 2
-DEBUG_MC_EVENT = 2979
+DEBUG_MC_EVENT = 199
 DEBUG_S0_ID, DEBUG_S0_PLATE = 206150, 31
 EVERBOSE = -99
 
@@ -122,15 +122,16 @@ for entry in evt_tree:
     s0plate, s0id = entry.s0plate, entry.s0id
     if (s0plate==DEBUG_S0_PLATE and s0id==DEBUG_S0_ID and EVERBOSE==100):
         print(" Debug track is in evt_tree ")
-    couple = (s0plate, s0id)
     s0x, s0y, s0z, s0tx, s0ty = entry.s0X, entry.s0Y, entry.s0Z, entry.s0TX, entry.s0TY
     start_s0x, start_s0y, start_s0z, start_s0tx, start_s0ty = entry.s0X, entry.s0Y, entry.s0Z, entry.s0TX, entry.s0TY
     start_s0plate, start_s0id = s0plate, s0id
+    couple = (s0plate, s0id, s0x, s0y, s0z)
     n = entry.N
     mcevt = entry.MCEvt
     if (mcevt!=DEBUG_MC_EVENT and EVERBOSE==100):
         continue
-    #print(mcevt)
+    if (EVERBOSE==10):
+        print(mcevt)
     vertices = []
     for j in range(n):
         if (entry.vIDs[j] != -99):
@@ -156,6 +157,8 @@ for entry in evt_tree:
         tries.append(closest_couple[0:2])
         closest_bs.append(closest_b)
         closest_gaps.append(closest_gap)
+
+        print(closest_couple)
 
         
         if (EVERBOSE==100):
