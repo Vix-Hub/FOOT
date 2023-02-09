@@ -134,7 +134,7 @@ def CheckTrackSegmentsAid(TrkFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
 # ---------------------------------------------- #
 
 def CheckTrackSegmentsAid_FromVrec(VtxFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
-    VtxFile = r.TFile(VtxFile, "READ")
+    VtxFile = r.TFile(VtxFileName, "READ")
     vrec = VtxFile.Get("EdbVertexRec")
     n_vertices = vrec.eVTX.GetEntries()
     for i in range(n_vertices):
