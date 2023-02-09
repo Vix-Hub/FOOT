@@ -19,7 +19,7 @@ def FindClosestMatch(event_couples, s0x, s0y, s0z, s0plate, couple, EVERBOSE):
     for j, ev_couple in enumerate(event_couples):
         if (ev_couple[0:2] == couple[0:2]): #if it is the same track
             continue
-        if (ev_couple[10] >= s0plate):
+        if (ev_couple[10] >= s0plate or abs(s0plate-ev_couple[10])>5):  #last plate condition 
             continue
         slx, sly, slz = ev_couple[5], ev_couple[6], ev_couple[7]
         slftx, slfty = ev_couple[8], ev_couple[9]
@@ -71,8 +71,8 @@ evt_tree = InFile.Get("events") #contains S2 track info and MC event info
 
 
 MC_ID = 2
-DEBUG_MC_EVENT = 2008
-DEBUG_S0_ID, DEBUG_S0_PLATE = 141301, 4
+DEBUG_MC_EVENT = 2979
+DEBUG_S0_ID, DEBUG_S0_PLATE = 206150, 31
 EVERBOSE = -99
 
 TrackFileName = "b00000" + str(MC_ID) + ".0.1.2.trk.root" #S2 track file name
@@ -163,8 +163,10 @@ for entry in evt_tree:
 
         while (not (closest_couple[0:2] in vertex_couples) ):
             s0x, s0y, s0z = closest_couple[2], closest_couple[3], closest_couple[4]
-            s0plate = closest_couple[10]
+            s0plate = closest_couple[0]
             closest_couple, closest_b, closest_gap = FindClosestMatch(event_couples, s0x, s0y, s0z, s0plate, closest_couple, EVERBOSE)
+            if (EVERBOSE==100):
+                print(" Find Close Match Results: " + str(closest_couple) + " " + str(closest_b))
             closest_bs.append(closest_b)
             closest_gaps.append(closest_gap)
 
@@ -175,6 +177,7 @@ for entry in evt_tree:
                 max_b = -99
                 if (EVERBOSE==100):
                     print(" Exiting because tries ")
+                    print(tries)
                 break
             tries.append(closest_couple[0:2])
             if (EVERBOSE==100):
