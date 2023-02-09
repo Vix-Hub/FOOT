@@ -130,3 +130,20 @@ def CheckTrackSegmentsAid(TrkFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
         print(" Seg ID " + str(segment.ID()) + " Seg Plate " + str(segment.Plate()) + " Seg Aid[0] " + str(segment.Aid(0)) + " Seg Aid [1] " + str(segment.Aid(1)))
     
     return 1
+
+# ---------------------------------------------- #
+
+def CheckTrackSegmentsAid_FromVrec(VtxFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
+    VtxFile = r.TFile(VtxFile, "READ")
+    vrec = VtxFile.Get("EdbVertexRec")
+    n_vertices = vrec.eVTX.GetEntries()
+    for i in range(n_vertices):
+        vertex = vrec.eVTX.At(i)
+        for j in range(vertex.N()):
+            track = vertex.GetTrack(j)
+            if (track.GetSegmentFirst().Plate()==int(DEBUG_S0_PLATE) and track.GetSegmentFirst().ID()==int(DEBUG_S0_ID)):
+                for iseg in range(track.N()):
+                    segment = track.GetSegment(iseg)
+                    print(" Seg ID " + str(segment.ID()) + " Seg Plate " + str(segment.Plate()) + " Seg Aid[0] " + str(segment.Aid(0)) + " Seg Aid [1] " + str(segment.Aid(1)))
+    
+    return 1
