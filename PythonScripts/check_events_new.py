@@ -158,7 +158,7 @@ for entry in evt_tree:
         closest_bs.append(closest_b)
         closest_gaps.append(closest_gap)
 
-        print(closest_couple)
+        #print(closest_couple)
 
         
         if (EVERBOSE==100):
