@@ -69,11 +69,11 @@ void EventTree::Loop()
 	const int nregFirstEm1 = 47;
     const int nregLastEm1 = 48;
     const int nregFirstEm2 = 49;
-    const int nregLastEm2 = 248;
-    const int nregFirstPl1 = 357; //259;
-    const int nregFirstPl2 = 358; //260;
-    const int nregLastPl2 = 458; //360;
-    const int nregLastPB = 565; //no
+    const int nregLastEm2 = 88;
+    const int nregFirstPl1 = 197; //259;
+    const int nregFirstPl2 = 198; //260;
+    const int nregLastPl2 = 218; //360;
+    const int nregLastPB = 325; //no
     const float ZLAST = 8; //1.96;
 
 	double ax=0, ay=0, az=0, ix=0, iy=0, iz=0, fax=0, fay=0, faz=0, pax=0, pay=0,paz=0,fx=0,fy=0,fz=0;

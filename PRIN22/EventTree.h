@@ -212,7 +212,7 @@ EventTree::EventTree(TTree *tree) : fChain(0)
    if (tree == 0) {
       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("ECC_emuasada.root"); //foot_ecc
       if (!f || !f->IsOpen()) {
-         f = new TFile("ECC_emuasada.root");
+         f = new TFile("ECC_setup4x4.root");
       }
       f->GetObject("EventTree",tree);
 
