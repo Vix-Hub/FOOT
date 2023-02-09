@@ -15,9 +15,10 @@ def IsTrackInVertex(vertexFileName, DEBUG_S0_PLATE=31, DEBUG_S0_ID=100):
         vertex = vrec.eVTX.At(i)
         for j in range(vertex.N()):
             track = vertex.GetTrack(j)
-            if ((int(track.GetSegmentFirst().Plate()), int(track.GetSegmentFirst().ID()))==(DEBUG_S0_PLATE, DEBUG_S0_ID)):
-                found = 1
-                vID = vertex.ID()
+            for iseg in range(track.N()):
+                if ((int(track.GetSegment(iseg).Plate()), int(track.GetSegment(iseg).ID()))==(DEBUG_S0_PLATE, DEBUG_S0_ID)):
+                    found = 1
+                    vID = vertex.ID()
 
     return found, vID
 
