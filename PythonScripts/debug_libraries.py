@@ -116,3 +116,17 @@ def CalculateImpactParameterBetweenTracks(TrkFileName, DEBUG_S0_PLATE, DEBUG_S0_
 
     print("Calculated b " + str(CalculateImpactParameter(slx, sly, slz, sltx, slty, s0x, s0y, s0z)))
     return CalculateImpactParameter(slx, sly, slz, sltx, slty, s0x, s0y, s0z)
+
+# ---------------------------------------------- #
+
+def CheckTrackSegmentsAid(TrkFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
+    TrackFile = r.TFile(TrkFileName, "READ")
+    tracks = TrackFile.Get("tracks")
+    tracks.BuildIndex("s[0].Plate()", "s[0].ID()")
+
+    tracks.GetEntryWithIndex(int(DEBUG_S0_PLATE), int(DEBUG_S0_ID))
+
+    for segment in tracks.s:
+        print(" Seg ID " + str(segment.ID()) + " Seg Plate " + str(segment.Plate()) + " Seg Aid[0] " + str(segment.Aid(0)) + " Seg Aid [1] " + str(segment.Aid(1)))
+    
+    return 1
