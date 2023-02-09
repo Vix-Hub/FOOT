@@ -24,6 +24,17 @@ def IsTrackInVertex(vertexFileName, DEBUG_S0_PLATE=31, DEBUG_S0_ID=100):
 
 # ----------------------------------- #
 
+def GetVertex(VtxFileName, vID):
+    VtxFile = r.TFile(VtxFileName, "READ")
+    vrec = VtxFile.Get("EdbVertexRec")
+    n_vertices = vrec.eVTX.GetEntries()
+    for i in range(n_vertices):
+        vertex = vrec.eVTX.At(i)
+        if (vertex.ID()==vID):
+            return vertex
+
+# ----------------------------------- #
+
 def GetVertexTracksS0Info(vID, vertexFileName):
     VtxFile = r.TFile(vertexFileName, "READ")
     vrec = VtxFile.Get("EdbVertexRec")
@@ -141,9 +152,41 @@ def CheckTrackSegmentsAid_FromVrec(VtxFileName, DEBUG_S0_PLATE, DEBUG_S0_ID):
         vertex = vrec.eVTX.At(i)
         for j in range(vertex.N()):
             track = vertex.GetTrack(j)
-            if (track.GetSegmentFirst().Plate()==int(DEBUG_S0_PLATE) and track.GetSegmentFirst().ID()==int(DEBUG_S0_ID)):
+            found = 0
+            for iseg in range(track.N()):
+                    segment = track.GetSegment(iseg)
+                    if (segment.Plate()==int(DEBUG_S0_PLATE) and segment.ID()==int(DEBUG_S0_ID)):
+                        found = 1
+            if (found == 1):
                 for iseg in range(track.N()):
                     segment = track.GetSegment(iseg)
-                    print(" Seg ID " + str(segment.ID()) + " Seg Plate " + str(segment.Plate()) + " Seg Aid[0] " + str(segment.Aid(0)) + " Seg Aid [1] " + str(segment.Aid(1)))
+                    if (segment.Plate()>=31):
+                        print(" Seg ID " + str(segment.ID()) + " Seg Plate " + str(segment.Plate()) + " Seg Aid[0] " + str(segment.Aid(0)) + " Seg Aid [1] " + str(segment.Aid(1)))
     
     return 1
+
+# -------------------------------------------------- #
+
+def CalcDistFromTrack_toVertex(VtxFileName, TrkFileName, vID, s0_plate, s0_id):
+
+    VtxFile = r.TFile(VtxFileName, "READ")
+    vrec = VtxFile.Get("EdbVertexRec")
+    n_vertices = vrec.eVTX.GetEntries()
+    v = 0
+    for i in range(n_vertices):
+        vertex = vrec.eVTX.At(i)
+        if (vertex.ID()==vID):
+            v = vertex
+
+    TrackFile = r.TFile(TrkFileName, "READ")
+    tracks = TrackFile.Get("tracks")
+    tracks.BuildIndex("s[0].Plate()", "s[0].ID()")
+
+    tracks.GetEntryWithIndex(int(s0_plate), int(s0_id))
+    dz = tracks.s[0].Z() - v.VZ()
+    x = tracks.s[0].X() - dz*tracks.s[0].TX()
+    y = tracks.s[0].Y() - dz*tracks.s[0].TY()
+    dx = x - vertex.VX()
+    dy = y - vertex.VY()
+
+    return np.sqrt(dx*dx + dy*dy)
