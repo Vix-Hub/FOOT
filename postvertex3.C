@@ -276,6 +276,8 @@ int postvertex3_new_temp()
         ReadTreeTracksVTA(*arrTRK, *merged_arrVTX);
     }
     cout << endl << "merged_arrVTX->GetEntries(): " << merged_arrVTX->GetEntries() << endl;
+
+
     if(FAST==0||(FAST>=3 && FAST<100)){
         if(NITROGEN_SEARCH<2){
 
@@ -313,7 +315,7 @@ int postvertex3_new_temp()
         else final_varr=new_varr;
         cout << "final_varr->GetEntries(): " << final_varr->GetEntries() << endl;
 
-        if (EVERBOSE==100 && FAST==4) {
+        if (EVERBOSE==100 && FAST==4 && final_varr->GetEntries()>0) {
             EdbVertex* v = (EdbVertex*)(final_varr->At(0));
             for (int itrk=0; itrk<v->N(); itrk++) 
             {
@@ -329,7 +331,7 @@ int postvertex3_new_temp()
         cout << "CreateTree" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
         CreateTree(new_vtxtree, final_varr);
 
-        if (EVERBOSE==100 && FAST==4) {
+        if (EVERBOSE==100 && FAST==4 && final_varr->GetEntries()>0) {
             EdbVertex* v = (EdbVertex*)(final_varr->At(0));
             for (int itrk=0; itrk<v->N(); itrk++) 
             {
@@ -678,8 +680,8 @@ void ReadTreeTracksVTA(TObjArray &arrt, TObjArray &arrv){
             if(EVERBOSE==100 && ((mytrack->Track()==DEBUG_TRKID)||mytrack->MCEvt()==DEBUG_MCEVT)) cout << trid2 << "\t" << mytrack->MCEvt() << "\t" << mytrack->Track() << "\t" << mytrack->GetSegmentFirst()->ID() << "\t" << mytrack->Theta() << "\t" << theta << "\t";
             
             if(FAST==4) {
-                if (VertexS == DEBUG_VTXID) VertexS=0;
-                else if (VertexE == DEBUG_VTXID) VertexE=0;
+                if (VertexS == DEBUG_VTXID || VertexS == DEBUG_MCEVT) VertexS=0;
+                else if (VertexE == DEBUG_VTXID || VertexE == DEBUG_MCEVT) VertexE=0;
                 else continue;
             }
             
@@ -826,8 +828,8 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
         vID=vertex->ID();
 		int mcevt = (int) (vertex->GetTrack(0)->MCEvt());
         
-        if((FAST==4||FAST==100) && (DEBUG_VTXID!=-99 || mcevt!= DEBUG_MCEVT)){ //TAGLIO CUT FAST 2
-            if(vID!=DEBUG_VTXID) {
+        if((FAST==4||FAST==100) && (DEBUG_VTXID!=-99 || mcevt!= -99)){ //TAGLIO CUT FAST 2
+            if(vID!=DEBUG_VTXID && mcevt!= DEBUG_MCEVT) {
                 vertex->SetFlag(-99);
                 continue;
             } 
@@ -1130,7 +1132,8 @@ void FillVtxPlate(TObjArray &arrv){
     for(int iv=0; iv<nv; iv++){
         EdbVertex *vertex = (EdbVertex*)(arrv.At(iv));
         int vID=vertex->ID();
-        if(FAST==4 && vID!=DEBUG_VTXID) continue; //FAST 4
+        int mcevt = vertex->GetTrack(0)->MCEvt();
+        if(FAST==4 && (vID!=DEBUG_VTXID&&mcevt!=DEBUG_MCEVT)) continue; //FAST 4
         if(vertex->Flag()==-99) cout << "\t FillVtxPlate 99 " << vID << endl;
         //cout << iv << "\t" << vID << endl;
         float vz = vertex->VZ();
@@ -1173,10 +1176,10 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
     else oxy_found_filename = Form("oxyfound.root");
     TFile* oxyfoundfile = new TFile(oxy_found_filename, "READ");
     TTree* oxyinfo = oxyfoundfile->Get("oxyinfo");
-    oxyinfo->BuildIndex("vID");
+    if (oxyinfo->GetEntries()>0) oxyinfo->BuildIndex("vID");
 
     int OXYFOUND=0;
-    oxyinfo->SetBranchAddress("OXY_FOUND", &OXYFOUND);
+    if (oxyinfo->GetEntries()>0) oxyinfo->SetBranchAddress("OXY_FOUND", &OXYFOUND);
 
 
     TStopwatch t;
@@ -1185,7 +1188,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
     for(int ipl = PLMIN; ipl<=BRAGGPLATE; ipl++){ //BRAGGPLATE
         TObjArray varrpl = vtxPat[ipl];
         int nv = varrpl.GetEntries();
-        if(EVERBOSE==10) cout << "\t >>> ipl " << ipl << "\tnv " << nv << endl;
+        if(EVERBOSE==10||EVERBOSE==100) cout << "\t >>> ipl " << ipl << "\tnv " << nv << endl;
         for(int iv=0; iv<nv; iv++){
             EdbVertex *vertex  = (EdbVertex*)(varrpl.At(iv));
             if(vertex->ID()==-99||vertex->Flag()==-99) continue;
@@ -1196,8 +1199,10 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             float xy[2] = {vx,vy};
             float r = 2.;
             int idvtx= vertex->ID();
-            if (oxyinfo->GetEntryWithIndex(idvtx)) OXY_FOUND[idvtx] = OXYFOUND;
-            
+            if (oxyinfo->GetEntries()>0) {
+                if (oxyinfo->GetEntryWithIndex(idvtx) ) OXY_FOUND[idvtx] = OXYFOUND;
+                else OXY_FOUND[idvtx]=0;
+            }
             if(vplate<1 && vplate>BRAGGPLATE) continue;
             
             EdbVertex *newvertex= new EdbVertex();
@@ -1281,8 +1286,8 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
         }
         
     } //end for plates
-    
-    if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) cout << "final array" << endl;
+
+    //if (vertex && newvertex) if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) cout << "final array" << endl;
     
     TObjArray *new_varr_def = new TObjArray(); // Elimino i vertici con flag -99
     
