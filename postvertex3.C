@@ -2698,7 +2698,7 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
         int countoxy=0;
         for(int itrk=0; itrk<vertex->N(); itrk++){
             EdbTrackP *track = vertex->GetTrack(itrk);
-            if(track->Theta()<BEAMTHETA_SMALL) beamdau++;
+            if(track->Theta()<BEAMTHETA_SMALL && track->VertexS()) beamdau++;
             if(MC==11 && track->GetSegmentFirst()->W()-70==8) countoxy++;
         }
         if(beamdau>=2 && vertex->N()-beamdau<=2) {
