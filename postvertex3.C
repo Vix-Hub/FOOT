@@ -23,20 +23,20 @@
 
 #define BRICKID 2
 #define BRAGGPLATE 26 //26 per oxy 200 (GSI 1 e 2), 30 per oxy 400 (GSI 3 e 4)
-#define FAST 2 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
+#define FAST 4 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
 #define EVERBOSE 100 //1 per Print EdbCell2 // 2 found beam //3 found dau // 4 Np // 5 merge 2p vtx // 6 remove beam // 7 unione tracce // 8 merge tracks // 9 merge vtx //10 print // 11 PrepareTrk // 12 Cosmici //13 findclosetracks //100 stampa un evento particolare secondo gli ID specificati dopo //101 timing
 //100 per un evento particolare // 14 show % // 15 merge checks // 16 grid occupancy checks
-#define DEBUG_MCEVT 425 //
-#define DEBUG_VTXID  7875 //447 //10464 //6557  //88
-#define DEBUG_TRKID 381 //
+#define DEBUG_MCEVT 323 //
+#define DEBUG_VTXID  -99 //447 //10464 //6557  //88
+#define DEBUG_TRKID -99 //
 #define NITROGEN_SEARCH 1//1 // se 1 ricerca O->N+p se 2 ricerca SOLO O->N+p
 #define PULIZIA_EXTRA 0 // non funziona
 #define DIRECTION 1 // 9 = indietro, 1c = avanti
 #define N_STACKS 7
-#define DEBUG_S0_PLATE_END 8 //16
-#define DEBUG_S0_ID_END 208 //563496
-#define DEBUG_S0_PLATE_ST 15
-#define DEBUG_S0_ID_ST 215
+#define DEBUG_S0_PLATE_END 12 //16
+#define DEBUG_S0_ID_END 7370 //563496
+#define DEBUG_S0_PLATE_ST 31
+#define DEBUG_S0_ID_ST 7388
 #define ALLOW_LONGER_GAPS 1 
 int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
@@ -89,7 +89,7 @@ const float ymax = 70000;//100000;
 float THICKNESS = 2000;
 
 //verbose option
-int CHECK_OXY = 1;
+int CHECK_OXY = 0;
 
 TObjArray vtxPat[BRAGGPLATE+2];   //vertices grouped by patterns
 EdbPVRec *ali = new EdbPVRec();
@@ -110,7 +110,7 @@ TH2F *h_IP_DTh_merge = new TH2F("h_IP_DTh_merge","IP vs #Delta#theta;IP; #Delta#
 
 
 
-int postvertex3()
+int postvertex3_new_temp()
 {
     //GSI 1 (mc) 11 (dati) -> Oxy@200 MeV/n su C target 1mm
     //GSI 2 (mc) 22 (dati) -> Oxy@200 MeV/n su C2H4 target 2mm
@@ -205,7 +205,7 @@ int postvertex3()
     
     TFile *inputfile_vtx;
     inputfile_vtx = TFile::Open("vertices.root","READ"); //vertices_AnaFake
-    if(FAST>1) inputfile_vtx = TFile::Open("vertices_AnaFake.root","READ");
+    if(FAST>1 && FAST!=100) inputfile_vtx = TFile::Open("vertices_AnaFake.root","READ");
     else if(NITROGEN_SEARCH==2) inputfile_vtx = TFile::Open("vertices_improved.root","READ");
     if (inputfile_vtx == NULL) cout<<"ERROR: inputfile_vtx not found"<<endl;
     
@@ -231,7 +231,8 @@ int postvertex3()
     output_vtxname=Form("vertices_improved.root"); //vertices_improved
     if(NITROGEN_SEARCH==2) output_vtxname=Form("vertices_improved_Np.root");
     if(FAST==1) output_vtxname=Form("vertices_AnaFake.root");
-    if(FAST>=3) output_vtxname=Form("vertices_improved_fast_%d_new.root", FAST);
+    if(FAST>=3) output_vtxname=Form("vertices_improved_fast_%d_new_temp.root", FAST);
+    if(FAST==100) output_vtxname=Form("vertices_AnaFake_%d.root", FAST);
     
     cout << "Creating new vertices file: " << output_vtxname << endl;
     TFile *fvtx;
@@ -244,7 +245,7 @@ int postvertex3()
     
     FillZ_LAYER();
     
-    if((NITROGEN_SEARCH<2&&FAST==0)||FAST==1||FAST==4){
+    if((NITROGEN_SEARCH<2&&FAST==0)||FAST==1||FAST==4||FAST==100){
         cout << "AnalyseFakeVtxs" << endl;
         merged_arrVTX = AnalyseFakeVtxs(*arrVTX, vrec);
     }
@@ -252,12 +253,12 @@ int postvertex3()
     
     cout << "merged_arrVTX " << merged_arrVTX->GetEntries() << endl;
     
-    if(FAST==1){
+    if(FAST==1||FAST==100){
         CreateTree(new_vtxtree, merged_arrVTX);
         mygEVR->eVTX = merged_arrVTX;
         cout << "At the end I have " << merged_arrVTX->GetEntries() << "\t" << new_vtxtree->GetEntries() << endl; //<< "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
     }
-    if(FAST!=1){
+    if(FAST!=1 && FAST!=100){
         cout << "FillTracksCells" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;; //prima lo facevo all'inizio di tutto
         FillTracksCells(*arrTRK);
         
@@ -275,7 +276,7 @@ int postvertex3()
         ReadTreeTracksVTA(*arrTRK, *merged_arrVTX);
     }
     cout << endl << "merged_arrVTX->GetEntries(): " << merged_arrVTX->GetEntries() << endl;
-    if(FAST==0||FAST>=3){
+    if(FAST==0||(FAST>=3 && FAST<100)){
         if(NITROGEN_SEARCH<2){
 
             if (EVERBOSE==100 && FAST==3 && CHECK_OXY==1) {
@@ -289,10 +290,20 @@ int postvertex3()
             new_varr=FindCloseTracks(merged_arrVTX, vrec);
         }
         cout << "new_varr->GetEntries(): " << new_varr->GetEntries() << endl;
+
+
         if(NITROGEN_SEARCH>=1){
             cout << "FindNitrogen" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
             if(NITROGEN_SEARCH==2) new_varr=arrVTX;
             FindNitrogen(new_varr, vrec, maximp_Np, maximp_dau);
+
+            if (EVERBOSE==100 && FAST==4) {
+            EdbVertex* v = (EdbVertex*)(new_varr->At(0));
+            for (int itrk=0; itrk<v->N(); itrk++) 
+            {
+                cout << " VTA_ZPos " << v->GetVTa(itrk)->Zpos() << " for track " << (int) (v->GetTrack(itrk)->Track()) << endl;
+            }
+        }
         }
         cout << "new_varr->GetEntries(): " << new_varr->GetEntries() << endl;
         if(NITROGEN_SEARCH<2){
@@ -301,14 +312,31 @@ int postvertex3()
         }
         else final_varr=new_varr;
         cout << "final_varr->GetEntries(): " << final_varr->GetEntries() << endl;
+
+        if (EVERBOSE==100 && FAST==4) {
+            EdbVertex* v = (EdbVertex*)(final_varr->At(0));
+            for (int itrk=0; itrk<v->N(); itrk++) 
+            {
+                cout << " VTA_ZPos " << v->GetVTa(itrk)->Zpos() << " for track " << (int) (v->GetTrack(itrk)->Track()) << endl;
+            }
+        }
                 
         cout << "UnisciTracce" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
         end_tracksS1 = UnisciTracce(final_varr, maximp_unione, max_deltatheta_unione);
         
-        if (ALLOW_LONGER_GAPS == 1) UnisciTracceLongerGaps(end_tracksS1, maximp_unione, max_deltatheta_unione);
+        if (ALLOW_LONGER_GAPS == 1) UnisciTracceLongerGaps(end_tracksS1, maximp_unione, max_deltatheta_unione);    
                 
         cout << "CreateTree" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
         CreateTree(new_vtxtree, final_varr);
+
+        if (EVERBOSE==100 && FAST==4) {
+            EdbVertex* v = (EdbVertex*)(final_varr->At(0));
+            for (int itrk=0; itrk<v->N(); itrk++) 
+            {
+                cout << " VTA_ZPos " << v->GetVTa(itrk)->Zpos() << " for track " << (int) (v->GetTrack(itrk)->Track()) << endl;
+            }
+        }
+               
         mygEVR->eVTX = final_varr;
         
     }
@@ -366,7 +394,7 @@ int postvertex3()
         if(MC>0) cout << "\tN_NPP_FOUND OK\t" << N_NPP_FOUND_OK;
         cout << endl;
     }
-    if(FAST>=3) {
+    if(FAST>=3 && FAST<100) {
         cout << "EXTEND_TRACK: " << EXTEND_TRACK << endl;
         if(EXTEND_TRACK>0 && MC>0) cout << "\tEXTEND_TRACK_OK: "  << EXTEND_TRACK_OK <<  " (" << (float)EXTEND_TRACK_OK/EXTEND_TRACK*100 << "\%)" << endl;
         cout << "MERGED VTX: " << MERGEVTX << endl;
@@ -467,6 +495,16 @@ void PrepareTRK(){
     vtatracks->Branch("Theta",&temp_theta,"Theta/F"); //theta
     vtatracks->Branch("VertexS",&VertexS,"VertexS/I");
     vtatracks->Branch("VertexE",&VertexE,"VertexE/I");
+
+    TString oxy_found_filename;
+    if (FAST==4) oxy_found_filename = Form("oxyfound_%d.root", FAST);
+    else oxy_found_filename = Form("oxyfound.root");
+    TFile* oxyfoundfile = new TFile(oxy_found_filename, "RECREATE");
+    TTree* oxyinfo = new TTree("oxyinfo", "oxyinfo");
+
+    int vertexID=0, OXYFOUND=0;
+    oxyinfo->Branch("vID", &vertexID, "vID/I");
+    oxyinfo->Branch("OXY_FOUND", &OXYFOUND, "OXY_FOUND/I");
     
     map<int,int> frequencyEvent;
     map<int,int>::iterator it;
@@ -482,6 +520,7 @@ void PrepareTRK(){
             EdbVertex *v = (EdbVertex*)(varr.At(ivtx));
             v->ResetTracks();
             int idvtx = v->ID();
+            vertexID = idvtx;
             if(EVERBOSE==100 && idvtx==DEBUG_VTXID) cout << "prepare trk belonging to vtx " << idvtx << "\t" << Get_vtx_plate(v->VZ()) << endl;
             OXY_FOUND[idvtx]=0;
             mostfrequentevent[idvtx]=0;
@@ -500,7 +539,7 @@ void PrepareTRK(){
                 }
 
                 if (EVERBOSE==100 && idvtx==DEBUG_VTXID) cout << " OXY_FOUND FOR VTX " << idvtx << " : " << OXY_FOUND[idvtx] << endl;
-                if (EVERBOSE==100 && idvtx==DEBUG_VTXID) cout << " temp_theta " << temp_theta << ", VTA_Zpos " << v->GetVTa(itrk)->Zpos() << " trackN " << track->N() << " trkplate " << trkplate << endl;
+                if (EVERBOSE==100 && idvtx==DEBUG_VTXID) cout << " temp_theta " << temp_theta << ", VTA_Zpos " << v->GetVTa(itrk)->Zpos() << " trackN " << track->N() << " trkplate " << trkplate << ", trackTrack " << track->Track() << endl;
 
                 //resetto VTA
                 trid = track->GetSegmentFirst()->ID();
@@ -580,6 +619,10 @@ void PrepareTRK(){
                 
             }
             //esco dal loop delle tracce e per gli ev MC mi salvo l'evento più frequente nel vertice ivtx in ivtx-esima posizione del vettore mostfrequentevent
+            
+            OXYFOUND = OXY_FOUND[idvtx];
+            oxyinfo->Fill();
+
             if(MC==1){
                 for (it = frequencyEvent.begin(); it!=frequencyEvent.end();it++){
                     if(it->second > ntracks_event){
@@ -595,6 +638,10 @@ void PrepareTRK(){
     vtatracksfile->cd();
     vtatracks->Write();
     vtatracksfile->Close();
+
+    oxyfoundfile->cd();
+    oxyinfo->Write();
+    oxyfoundfile->Close();
 }
 
 
@@ -618,6 +665,8 @@ void ReadTreeTracksVTA(TObjArray &arrt, TObjArray &arrv){
     
     TStopwatch t;
     t.Start();
+
+    if(FAST==4 && EVERBOSE==100) cout << " arrt.GetEntries " << arrt.GetEntries() << " arrv.GetEntries " << arrv.GetEntries() << endl;
     
     for (int itrk; itrk < arrt.GetEntries(); itrk++){
         //getting track and vertices
@@ -627,6 +676,13 @@ void ReadTreeTracksVTA(TObjArray &arrt, TObjArray &arrv){
         
         if(trid2==mytrack->GetSegmentFirst()->ID()&& theta==mytrack->Theta()){
             if(EVERBOSE==100 && ((mytrack->Track()==DEBUG_TRKID)||mytrack->MCEvt()==DEBUG_MCEVT)) cout << trid2 << "\t" << mytrack->MCEvt() << "\t" << mytrack->Track() << "\t" << mytrack->GetSegmentFirst()->ID() << "\t" << mytrack->Theta() << "\t" << theta << "\t";
+            
+            if(FAST==4) {
+                if (VertexS == DEBUG_VTXID) VertexS=0;
+                else if (VertexE == DEBUG_VTXID) VertexE=0;
+                else continue;
+            }
+            
             if (VertexS >= 0){
                 EdbVertex *vtxS = (EdbVertex*) arrv.At(VertexS);
                 EdbVTA *VTAS = new EdbVTA(mytrack, vtxS);
@@ -768,12 +824,13 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
     for(int iv=0; iv<nv; iv++){
         EdbVertex *vertex = (EdbVertex*)(arrv.At(iv));
         vID=vertex->ID();
+		int mcevt = (int) (vertex->GetTrack(0)->MCEvt());
         
-        if(FAST==4 && DEBUG_VTXID!=-99){ //TAGLIO CUT FAST 2
+        if((FAST==4||FAST==100) && (DEBUG_VTXID!=-99 || mcevt!= DEBUG_MCEVT)){ //TAGLIO CUT FAST 2
             if(vID!=DEBUG_VTXID) {
                 vertex->SetFlag(-99);
                 continue;
-            }
+            } 
             else cout << "vertex id " << vID << " found " << endl;
         }
         int First_MCev=0, Second_MCev=0, First_MCtr=0, Second_MCtr=0, Removed_MCEv=0;
@@ -1110,7 +1167,18 @@ void FillVtxPlate(TObjArray &arrv){
 TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
     int count=0;
     float maximp_dau_plate=0;
-    
+
+    TString oxy_found_filename;
+    if (FAST==4) oxy_found_filename = Form("oxyfound_%d.root", FAST);
+    else oxy_found_filename = Form("oxyfound.root");
+    TFile* oxyfoundfile = new TFile(oxy_found_filename, "READ");
+    TTree* oxyinfo = oxyfoundfile->Get("oxyinfo");
+    oxyinfo->BuildIndex("vID");
+
+    int OXYFOUND=0;
+    oxyinfo->SetBranchAddress("OXY_FOUND", &OXYFOUND);
+
+
     TStopwatch t;
     t.Start();
     
@@ -1128,6 +1196,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             float xy[2] = {vx,vy};
             float r = 2.;
             int idvtx= vertex->ID();
+            if (oxyinfo->GetEntryWithIndex(idvtx)) OXY_FOUND[idvtx] = OXYFOUND;
             
             if(vplate<1 && vplate>BRAGGPLATE) continue;
             
@@ -1240,6 +1309,8 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             cout << count_newvtx << endl;
     }
     
+    oxyfoundfile->Close();
+
     return new_varr_def;
 }
 
@@ -1335,14 +1406,21 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
         for (int itrk = 0; itrk < vertex->N(); itrk++){
             EdbTrackP *track = vertex->GetTrack(itrk);
             EdbVertex *vtempE = track->VertexE();
-            //if (EVERBOSE==15) cout << "Track # " << itrk << " with s0 ID " << track->GetSegmentFirst()->ID() << endl;
+
+            if (EVERBOSE==15) cout << "Track # " << itrk << " with s0 ID " << track->GetSegmentFirst()->ID() << endl;
+            if (EVERBOSE == 15)
+            {
+                if (vtempE) cout << " Track VertexE is not NULL (ID= " << vtempE->ID() << ")" << endl;
+                EdbVertex *vtempS = track->VertexS();
+                if (vtempS) cout << " Track Vertex S is not NULL (ID= " << vtempS->ID() << ")" << endl;
+            }
             // if(EVERBOSE==7 || (EVERBOSE==100 && ((trkend->Track()==DEBUG_TRKID)|| trkend->MCEvt()==DEBUG_MCEVT)))  cout << "\t" << cand->MCEvt() << "\t" << cand->MCTrack() << "\tnseg " << cand->N() << "\t" << cand->GetSegmentFirst()->Plate() << "\t" << cand->GetSegmentLast()->Plate() << "\t" << endl;
             //if(EVERBOSE==7) cout << "\t" << itrk << "\t" << track->Track() <<"\t" << track->MCEvt() << "\t" << track->MCTrack() << endl;
             if(EVERBOSE==7 || (EVERBOSE==100 && (vertex->ID()==DEBUG_VTXID || track->Track()==DEBUG_TRKID || track->MCEvt()==DEBUG_MCEVT))) cout << "E check\t" << itrk << "\t" << track->Track() << "\t" << track->Theta() << "\t" << vertex->GetVTa(itrk)->Zpos() << " (vtx id: " << vertex->ID() << ")" << "\t" << track->MCEvt() << "\t" << track->MCTrack() << endl;
             if(!(vtempE)){//condition A: la seconda traccia non deve entrare in un vertice
                 if(vertex->GetVTa(itrk)->Zpos()==1){ //lo faccio solo per le tracce che escono dal vertice!
                     if(EVERBOSE==7 || (EVERBOSE==100 && (vertex->ID()==DEBUG_VTXID || track->Track()==DEBUG_TRKID || track->MCEvt()==DEBUG_MCEVT))) cout  << "Extend Track id " << track->ID() << "\ttr " << track->Track() << "\ttheta " << track->Theta()<< "\tincoming " << vertex->GetVTa(itrk)->Zpos() << "\tmc " << track->MCEvt() << "\t" << itrk+1 << "/" << vertex->N() <<"\tnseg " << track->N() << "\tnpl " << track->Npl() << "\tPl " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentLast()->Plate() << endl;
-                    //if (EVERBOSE==15) cout << "Extending Track # " << itrk << endl;
+                    if (EVERBOSE==15) cout << "Extending Track # " << itrk << endl;
                     int lastplate=track->GetSegmentLast()->Plate();
                     int lastplate0=lastplate;
                     int end=-99, found=1, ngapmax=-99, justonce=0;
@@ -1350,7 +1428,7 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
                         EdbSegP *lastseg=track->GetSegmentLast();
                         if(lastseg->Plate()>LASTLAYER[1]-4&&lastseg->Plate()<=LASTLAYER[2]) ngapmax=9;
                         else ngapmax=4;
-                        //if (EVERBOSE==15 && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && lastseg->Plate()!=lastplate0 ) cout << " last seg plate  " << lastseg->Plate() << endl;
+                        if (EVERBOSE==15 && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && lastseg->Plate()!=lastplate0 ) cout << " last seg plate  " << lastseg->Plate() << endl;
                         for(int iipl=lastplate+1; iipl<=lastplate+ngapmax; iipl++){
                             if(iipl>PLMAX) break;
                             xy[0] = lastseg->X()-lastseg->TX()*(lastseg->Z()-Z_LAYER[iipl]);
@@ -1414,11 +1492,11 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
         
         if(cand->GetSegmentFirst()->Prob()==9) continue;
         
-        /*if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+        if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
          bool cond = vtempS;
          cout << " cand vtempS " << cond << endl;
          cout << " Z new " << cand->GetSegmentFirst()->Z() << " Z old " << trkend->GetSegmentLast()->Z() << endl;
-         }*/
+         }
         
         // if(EVERBOSE==7 || (EVERBOSE==100 && ((trkend->Track()==DEBUG_TRKID)|| trkend->MCEvt()==DEBUG_MCEVT)))  cout << "\t" << cand->MCEvt() << "\t" << cand->MCTrack() << "\tnseg " << cand->N() << "\t" << cand->GetSegmentFirst()->Plate() << "\t" << cand->GetSegmentLast()->Plate() << "\t" << endl;
         if(!(vtempS)){//condition A: la seconda traccia non deve uscire da un vertici
@@ -1445,12 +1523,12 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
                     h_IP_DTh_merge->Fill(temp_dist, sqrt(temp_deltatheta_x*temp_deltatheta_x+temp_deltatheta_y*temp_deltatheta_y));
                 }
                 
-                /*if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+                if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
                  
                  cout << " Extend Track Calculated Parameters " << endl;
                  cout << " b " << temp_dist << " DTX_temp " << temp_deltatheta_x << " DTY_temp " << temp_deltatheta_y  << " DX temp " << temp_delta_x << " DY temp " << temp_delta_y << endl;
                  
-                 }*/
+                 }
                 
                 
                 if(TMath::Abs(temp_deltatheta_x)<max_deltatheta && TMath::Abs(temp_deltatheta_y)<max_deltatheta && TMath::Abs(temp_delta_x)<maximp && TMath::Abs(temp_delta_y)<maximp && temp_dist<dist && temp_deltatheta<max_deltatheta){ //temp_dist<dist &&
@@ -1460,21 +1538,21 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
                     
                     dist=temp_dist;
                     iitrk=itrk;
-                    /*if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+                    if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
                      
                      cout << " First Check OK -> b = " << dist << endl;
-                     }*/
+                     }
                     
                     if(EVERBOSE==7) cout << "\t\tpar " << temp_dist << "\t" << temp_deltatheta << "\t" << deltatheta_x << "\t" << deltatheta_y <<  "\t" << temp_delta_x << "\t" << temp_delta_y << endl;
                     
                     if((EVERBOSE==7 && MC==11) || (EVERBOSE==100 && ((cand->Track() == DEBUG_TRKID||trkend->Track()==DEBUG_TRKID) || cand->MCEvt()==DEBUG_MCEVT|| trkend->MCEvt()==DEBUG_MCEVT))) cout << "\t\t\t\t" << cand->MCEvt() << "\t" << cand->MCTrack() << " selected " << dist << "\t" << deltatheta << endl;
                     
-                }/* else if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END){
+                } else if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END){
                   
                   cout << " First Check NOT OK " << endl;
                   cout << " Used These Parameters: deltatheta_x " << deltatheta_x << " deltatheta_y " << deltatheta_y << " dist " << dist << endl;
                   
-                  }*/
+                  }
                 
             } //if (tr->GetSegmentFirst()->Z() < vertex->VZ()){
         } //condition A
@@ -2412,6 +2490,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
         vx=vertex->VX();
         vy=vertex->VY();
         vz=vertex->VZ();
+        if (EVERBOSE==100 && FAST==4) cout << " vertex VZ " << vertex->VZ() << ", vertex Z " << vertex->Z() << endl;
         n=vertex->N();
         vplate=Get_vtx_plate(vz);
         v_flag=vertex->Flag();
@@ -2580,7 +2659,15 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
     
     int arrentries_temp = varr->GetEntries();
     cout << "UnisciVertici After LoopVertexCells_ToMerge " << arrentries_temp << endl;
-    
+
+    if (EVERBOSE==100 && FAST==4) {
+        EdbVertex* v = (EdbVertex*)(varr->At(0));
+        for (int itrk=0; itrk<v->N(); itrk++) 
+        {
+            cout << " VTA_ZPos " << v->GetVTa(itrk)->Zpos() << " for track " << (int) (v->GetTrack(itrk)->Track()) << endl;
+        }
+    }
+        
     for (int ivtx = 0; ivtx < arrentries_temp; ivtx++){
         
         EdbVertex *vertex = (EdbVertex*) varr->At(ivtx);
@@ -2596,7 +2683,7 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
             cout << "UVb " << ivtx << ": " << vID << "\t" << vertex->Flag() << "\t" << vertex->N() << "\t" << vertex->VX() << "\t" << vertex->VY() << "\t" << vertex->VZ() << endl;
             for(int itrk=0; itrk<vertex->N(); itrk++){
                 EdbTrackP *track = vertex->GetTrack(itrk);
-                cout << "\t\t" << track->MCEvt() << "\t" << track->Track() << "\t" << track->N() << "\t" << track->Theta() << endl;
+                cout << "\t\t" << track->MCEvt() << "\t" << track->Track() << "\t" << track->N() << "\t" << track->Theta() << " VTA_Zpos " << vertex->GetVTa(itrk)->Zpos() << endl;
             }
         }
         
@@ -2688,8 +2775,53 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
                         EdbVTA *vta1 = (EdbVTA*)vertex->GetVTa(itrk);
                         if(vta->GetTrack()->Track()==vta1->GetTrack()->Track()){
                             vertex->SetFlag(-99);//add 8dec
+
+                            if ( (FAST==4||(FAST==3 && vertex->ID()==DEBUG_VTXID)) && EVERBOSE==100) {
+                                cout << " Before RemoveVTAFromVertex " << endl;
+                                for (int itrk=0; itrk<vertex->N(); itrk++) 
+                                    {
+                                        cout << " VTA_ZPos " << vertex->GetVTa(itrk)->Zpos() << " for track " << (int) (vertex->GetTrack(itrk)->Track()) << endl;
+                                        EdbTrackP *track_check = vertex->GetTrack(itrk);
+                                        EdbVertex* vtempE_check = track_check->VertexE();
+                                        EdbVertex* vtempS_check = track_check->VertexS();
+                                        if (EVERBOSE==100 && FAST==4) 
+                                        {
+                                            if (vtempE_check) cout << " Track VertexE is not NULL (ID= " << vtempE_check->ID() << ")" << endl;
+                                            if (vtempS_check) cout << " Track VertexS is not NULL (ID= " << vtempS_check->ID() << ")" << endl;
+                                            cout << " \n " << endl;
+                                        } 
+
+                                    }
+                                cout << " \n " << endl;
+                            }
+
+                            if (FAST==4 && EVERBOSE==100) cout << " vertex ID Before RemoveVTA " << vertex->ID() << " VZ " << vertex->VZ() << " Z " << vertex->Z() <<  endl;
                             vertex = vrec->RemoveVTAFromVertex(*vertex, *vta1);
+                            if (FAST==4 && EVERBOSE==100) cout << " vertex ID After RemoveVTA " << vertex->ID() << " VZ " << vertex->VZ() << " Z " << vertex->Z() <<  endl;
+                            //FixVertexVTA_Zpos(vertex); not needed 
+
                             vertex->SetFlag(16);
+
+                            if ((FAST==4|| (FAST==3 && vertex->ID()==DEBUG_VTXID)) && EVERBOSE==100) {
+                                cout << " After RemoveVTAFromVertex " << endl;
+                                for (int itrk=0; itrk<vertex->N(); itrk++) 
+                                    {
+                                        cout << " VTA_ZPos " << vertex->GetVTa(itrk)->Zpos() << " for track " << (int) (vertex->GetTrack(itrk)->Track()) << endl;
+                                        EdbTrackP *track_check = vertex->GetTrack(itrk);
+                                        EdbVertex* vtempE_check = track_check->VertexE();
+                                        EdbVertex* vtempS_check = track_check->VertexS();
+                                        if (EVERBOSE==100 && FAST==4) 
+                                        {
+                                            if (vtempE_check) cout << " Track VertexE is not NULL (ID= " << vtempE_check->ID() << ")" << endl;
+                                            if (vtempS_check) cout << " Track VertexS is not NULL (ID= " << vtempS_check->ID() << ")" << endl;
+                                        } 
+                                    }
+                                cout << " \n " << endl;
+                            }
+
+                            
+
+
                             if(EVERBOSE==12 || ( EVERBOSE==100 && vID==DEBUG_VTXID)){
                                 cout << "\tTrack " << vta->GetTrack()->Track() << " removed" << endl;
                             }
@@ -2704,8 +2836,16 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
             } //for (int ivta = 0;
             vertex->SetID(vID);
             vplate=Get_vtx_plate(vertex->VZ());
+
             if(vplate>= PLMIN && vplate<=BRAGGPLATE && vertex->Flag()!=-99){
                 vtxPat[vplate].Add(vertex);
+                if (FAST==4 && EVERBOSE==100) {
+                    cout << " Just Before Adding to varr  " << endl;
+                    for (int itrk=0; itrk<vertex->N(); itrk++) 
+                        {
+                            cout << " VTA_ZPos " << vertex->GetVTa(itrk)->Zpos() << " for track " << (int)(vertex->GetTrack(itrk)->Track()) << endl;
+                        }
+                }
                 varr->Add(vertex);
             }
             vta_toremove.Clear();
@@ -2713,7 +2853,7 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
                 vplate=Get_vtx_plate(vertex->VZ());
                 cout << "\tafter cosmic tracks removed\tvID " << vertex->ID() << "\t" << vertex->Flag() << "\tvplate " << vplate << endl;
                 for(int itrk=0; itrk<vertex->N(); itrk++){
-                    cout << "\t\t"  << vertex->GetTrack(itrk)->MCEvt() << "\t" << vertex->GetTrack(itrk)->Track() << "\t" << vertex->GetVTa(itrk)->Imp() << "\t" << vertex->Flag() << endl;
+                    cout << "\t\t"  << vertex->GetTrack(itrk)->MCEvt() << "\t" << vertex->GetTrack(itrk)->Track() << "\t" << vertex->GetVTa(itrk)->Imp() << "\t" << vertex->Flag() << " VTA_Zpos " << vertex->GetVTa(itrk)->Zpos() << endl;
                 }
             }
         } //if(cosmicremove>0)
@@ -2735,8 +2875,9 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
             }
             else continue;
             if(EVERBOSE==12 || (EVERBOSE==100 && (vID==DEBUG_VTXID|| vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT))){
-                cout << "traccia condivisa: " << track->ID() << " " << incoming << " " << vtemp_ID << endl;}
+                cout << "traccia condivisa: " << track->ID() << " " << track->Track() <<  " " << incoming << " " << vtemp_ID << endl;}
             EdbVertex *vtemp=NULL;
+            if (vtemp_ID == vertex->ID()) continue; //mod vincenzo 8 feb 
             for (int ivtx1 = 0; ivtx1 < varr->GetEntries(); ivtx1++){ //cerco l'altro vertice in varr
                 
                 EdbVertex *vtempsearch = (EdbVertex*) varr->At(ivtx1);
@@ -2753,6 +2894,7 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
                                     vertex->SetFlag(-99);
                                     EdbVTA *vta = vertex->GetVTa(itrk);
                                     vertex = vrec->RemoveVTAFromVertex(*vertex, *vta);
+                                    //FixVertexVTA_Zpos(vertex);
                                     vertex->SetFlag(20);
                                     vertex->SetID(vertexid);
                                     vplate=Get_vtx_plate(vertex->VZ());
@@ -2800,7 +2942,7 @@ TObjArray *UnisciVertici(TObjArray *varr, EdbVertexRec *vrec){
             cout << "\tInserisco vtx " << vID << "\t" << vertex->N() << "\t" << vertex->VX() << "\t" << vertex->VY() << "\t" << vertex->VZ() << "\t" << vertex->Flag() << endl;
             for(int itrk=0; itrk<vertex->N(); itrk++){
                 EdbTrackP *track = vertex->GetTrack(itrk);
-                cout << "\t\t" << track->MCEvt() << "\t" << track->Track() << "\t" << track->N() << "\t" << track->Theta() << endl;
+                cout << "\t\t" << track->MCEvt() << "\t" << track->Track() << "\t" << track->N() << "\t" << track->Theta() << " VTA_Zpos " << vertex->GetVTa(itrk)->Zpos() << endl;
             }
         }
         
@@ -2877,7 +3019,7 @@ void LoopVertexCells_ToMerge(TObjArray &varr, EdbVertexRec *vrec){//EdbVertexRec
             if (mergedvertex) {
                 int closeplate=Get_vtx_plate(mergedvertex->VZ());
                 if(closeplate>=PLMIN&&closeplate<=BRAGGPLATE){
-                varr.Add(mergedvertex);//vrec->eVTX->Add(mergedvertex);
+                varr->Add(mergedvertex);//vrec->eVTX->Add(mergedvertex);
                 }
             }
         }//end loop over cells
@@ -3286,6 +3428,21 @@ int FindPlate(EdbTrackP *cand, int plate){
 
 
 //---------------------------------------------------------------------
+
+void FixVertexVTA_Zpos(EdbVertex* vertex) {
+
+    for (int itrk=0; itrk<vertex->N(); itrk++)
+    {
+        EdbTrackP* track = vertex->GetTrack(itrk);
+        EdbVTA* vta = vertex->GetVTa(itrk);
+        (track->Z() >= vertex->VZ())? vta->SetZpos(1):vta->SetZpos(0);
+    }
+
+}
+
+
+
+// -----------------------------------------------------------------------
 
 //float CalcIP(EdbTrackP *tr, TVector3 V){
 //    //transverse distance (IP) from track to vertex (n.d.r. tranvserse with respect to beam z direction),
