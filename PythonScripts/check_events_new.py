@@ -106,7 +106,8 @@ for i in range(n_vertices):
     vertex = vrec.eVTX.At(i)
     for j in range(vertex.N()):
         track = vertex.GetTrack(j)
-        vertex_couples.append((int(track.GetSegmentFirst().Plate()), int(track.GetSegmentFirst().ID())))
+        if (vertex.GetVTa(j).Zpos()==1): #only take into account outgoing tracks 
+            vertex_couples.append((int(track.GetSegmentFirst().Plate()), int(track.GetSegmentFirst().ID())))
 
 #save first seg info and mcevent
 for track in tracks:
