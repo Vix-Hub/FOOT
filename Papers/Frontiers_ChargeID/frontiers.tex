@@ -1,0 +1,801 @@
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is just an example/guide for you to refer to when submitting manuscripts to Frontiers, it is not mandatory to use Frontiers .cls files nor frontiers.tex  %
+% This will only generate the Manuscript, the final article will be typeset by Frontiers after acceptance.   
+%                                              %
+%                                                                                                                                                         %
+% When submitting your files, remember to upload this *tex file, the pdf generated with it, the *bib file (if bibliography is not within the *tex) and all the figures.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Version 3.4 Generated 2018/06/15 %%%
+%%% You will need to have the following packages installed: datetime, fmtcount, etoolbox, fcprefix, which are normally inlcuded in WinEdt. %%%
+%%% In http://www.ctan.org/ you can find the packages and how to install them, if necessary. %%%
+%%%  NB logo1.jpg is required in the path in order to correctly compile front page header %%%
+
+%\documentclass[utf8]{frontiersSCNS} % for Science, Engineering and Humanities and Social Sciences articles
+%\documentclass[utf8]{frontiersHLTH} % for Health articles
+\documentclass[utf8]{frontiersFPHY} % for Physics and Applied Mathematics and Statistics articles
+
+\setcitestyle{square} % for Physics and Applied Mathematics and Statistics articles
+
+
+%\usepackage[euler]{textgreek}
+\usepackage{upgreek}
+\usepackage{url,hyperref,lineno,microtype,subcaption}
+\usepackage[onehalfspacing]{setspace}
+\usepackage[thickspace,amssymb]{SIunits}
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{textcomp}
+%\usepackage{textgreek}
+%\usepackage{siunitx}
+
+\linenumbers
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareFontFamily{U}{myFontFamily}{}
+\DeclareFontShape{U}{myFontFamily}{m}{n}{
+   <-> favr8r
+}{}
+\newcommand{\myupmu}{{\fontencoding{U}\fontfamily{myFontFamily}\selectfont\symbol{181}}}
+\newcommand{\myupmum}{{\fontencoding{U}\fontfamily{myFontFamily}\selectfont\symbol{180}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\C}{$^{12}$C}
+\newcommand{\twC}{$^{\mathrm{12}}$C~}
+\newcommand{\siO}{$^{\mathrm{16}}$O~}
+\newcommand{\He}{$^{\mathrm{4}}$He~}
+\newcommand{\alfa}{$\upalpha$}
+\newcommand{\poly}{C$_2$H$_4$}
+\newcommand{\eloss}{E$_{\text{loss}}$}
+\newcommand{\ekin}{$E_{\textrm{kin}}$~}
+\newcommand{\ekinu}{$E_{\textrm{kin}}/nucleon$}
+% Leave a blank line between paragraphs instead of using \\
+
+\def\keyFont{\fontsize{8}{11}\helveticabold }
+\def\firstAuthorLast{A.~Alexandrov {et~al.}} %use et al only if is more than 1 author
+
+\def\Authors{
+G.~Galati\,$^{1}$
+V.~Boccia\,$^{2,3}$
+A.~Alexandrov\,$^{3}$
+B.~Alpat\,$^{4}$
+G.~Ambrosi\,$^{4}$
+S.~Argir\`o\,$^{5,6}$
+R.~Arteche Diaz\,$^{7}$
+M.~Barbanera\,$^{4}$
+N.~Bartosik\,$^{6}$
+G.~Battistoni\,$^{8}$
+N.~Belcari\,$^{9,6}$
+E.~Bellinzona\,$^{10}$
+S.~Biondi\,$^{11,12}$
+M.~G.~Bisogni\,$^{9,4}$
+G.~Bruni\,$^{12}$
+M.~Caprai\,$^{13}$
+P.~Carra\,$^{9,4}$
+F.~Cavanna\,$^{6}$
+P.~Cerello\,$^{6}$
+E.~Ciarrocchi\,$^{9,4}$
+A.~Clozza\,$^{14}$
+S.~Colombi\,$^{11,12}$
+A.~De~Gregorio\,$^{15,16}$
+G.~De~Lellis\,$^{2,3}$
+M.~De~Simoni\,$^{15}$
+A.~Di~Crescenzo\,$^{2,3}$
+B.~Di~Ruzza\,$^{17}$
+M.~Donetti\,$^{18,6}$
+Y.~Dong\,$^{8}$
+M.~Durante\,$^{2,3}$
+R.~Faccini\,$^{16,15}$
+V.~Ferrero\,$^{6}$
+C.~Finck\,$^{19}$
+E.~Fiorina\,$^{6}$
+M.~Fischetti\,$^{15,20}$
+M.~Francesconi\,$^{4,9}$
+M.~Franchini\,$^{11,12}$
+G.~Franciosini\,$^{15,16}$
+L.~Galli\,$^{4}$
+G.~Giraudo\,$^{6}$
+R.~Hetzel\,$^{21}$
+E.~Iarocci\,$^{14}$
+M.~Ionica\,$^{13}$
+A.~Iuliano\,$^{2,3}$
+K.~Kanxheri\,$^{13}$
+A.~C.~Kraan\,$^{4}$
+C.~La~Tessa\,$^{22,10}$
+M.~Laurenza\,$^{14}$
+A.~Lauria\,$^{2,3}$
+E.~Lopez Torres\,$^{7,6}$
+A.~Manna\,$^{11,12}$
+M.~Marafini\,$^{23,15}$
+M.~Massa\,$^{4}$
+C.~Massimi\,$^{12}$
+I.~Mattei\,$^{8}$
+A.~Mengarelli\,$^{12}$
+A.~Mereghetti\,$^{18}$
+A.~Moggi\,$^{4}$
+M.~C.~Montesi\,$^{24,3}$
+M.~C.~Morone\,$^{25,26}$
+M.~Morrocchi\,$^{4,9}$
+S.~Muraro\,$^{8}$
+A.~Pastore\,$^{27}$
+N.~Pastrone\,$^{6}$
+V.~Patera\,$^{20,15}$
+F.~Peverini\,$^{13,28}$
+F.~Pennazio\,$^{6}$
+P.~Placidi\,$^{13,29}$
+M.~Pullia\,$^{18}$
+L.~Ramello\,$^{5,30}$
+C.~Reidel\,$^{31}$
+R.~Ridolfi\,$^{11,12}$
+V.~Rosso\,$^{9,4}$
+L.~Salvi\,$^{13,28}$
+C.~Sanelli\,$^{14}$
+A.~Sarti\,$^{20,15}$
+G.~Sartorelli\,$^{11,12}$
+O.~Sato\,$^{32}$
+S.~Savazzi\,$^{18}$
+L.~Scavarda\,$^{36}$
+A.~Schiavi\,$^{20,15}$
+C.~Schuy\,$^{31}$
+E.~Scifoni\,$^{10}$
+A.~Sciubba\,$^{14,20}$
+A.~S\'echer\,$^{19}$
+M.~Selvi\,$^{12}$
+L.~Servoli\,$^{13}$
+G.~Silvestre\,$^{13,28}$
+M.~Sitta\,$^{30,6}$
+R.~Spighi\,$^{12}$
+E.~Spiriti\,$^{14}$
+G.~Sportelli\,$^{9,4}$
+A.~Stahl\,$^{21}$
+V.~Tioukov\,$^{10}$
+S.~Tomassini\,$^{14}$
+F.~Tommasino\,$^{22,10}$
+M.~Toppi\,$^{20,15}$
+G.~Traini\,$^{15}$
+A.~Trigilio\,$^{15,16}$
+G.~Ubaldi\,$^{11,12}$
+A.~Valetti\,$^{5,6}$
+M.~Vanstalle\,$^{19}$
+M.~Villa\,$^{11,12}$
+U.~Weber\,$^{31}$
+R.~Zarrella\,$^{11,12}$
+A.~Zoccoli\,$^{11,12}$
+
+}
+% Affiliations should be keyed to the author's name with superscript numbers and be listed as follows: Laboratory, Institute, Department, Organization, City, State abbreviation (USA, Canada, Australia), and Country (without detailed address information such as city zip codes or street names).
+% If one of the authors has a change of address, list the new address below the correspondence details using a superscript symbol and use the same symbol to indicate the author in the author list.
+\def\Address{
+%$^{1}$ Istituto Nazionale di Fisica Nucleare (INFN), Section of Pisa, Pisa, Italy\\
+$^{1}$University of Bari, Department of Physics, Bari Italy; 
+$^{2}$University of Napoli, Department of Physics  "E.~Pancini", Napoli, Italy;
+$^{3}$INFN Section of Napoli, Napoli, Italy;
+$^{4}$INFN Section of Pisa, Pisa, Italy; 
+$^{5}$University of Torino, Department of Physics, Torino, Italy;
+$^{6}$INFN Section of Torino, Torino, Italy;
+$^{7}$CEADEN, Centro de Aplicaciones Tecnologicas y Desarrollo Nuclear,  Havana, Cuba;
+$^{8}$INFN Section of Milano, Milano, Italy;
+$^{9}$University of Pisa, Department of Physics, Pisa, Italy;
+$^{10}$Trento Institute for Fundamental Physics and Applications, Istituto Nazionale di Fisica Nucleare (TIFPA-INFN), Trento, Italy;
+$^{11}$University of Bologna, Department of Physics and Astronomy, Bologna, Italy;
+$^{12}$INFN Section of Bologna, Bologna, Italy;
+$^{13}$INFN Section of Perugia, Perugia, Italy;
+$^{14}$INFN Laboratori Nazionali di Frascati, Frascati, Italy;
+$^{15}$INFN Section of Roma 1, Rome, Italy;
+$^{16}$University of Rome La Sapienza, Department of Physics, Rome, Italy;
+$^{17}$University of Foggia, Foggia, Italy;
+$^{18}$Centro Nazionale di Adroterapia Oncologica (CNAO), Pavia, Italy;
+$^{19}$Universit\'e de Strasbourg, CNRS, IPHC UMR 7871, F-67000 Strasbourg, France;
+$^{20}$University of Rome La Sapienza, Department of Scienze di Base e Applicate per l'Ingegneria (SBAI), Rome, Italy;
+$^{21}$RWTH Aachen University, Physics Institute III B, Aachen, Germany;
+$^{22}$University of Trento, Department of Physics, Trento, Italy;
+$^{23}$Museo Storico della Fisica e Centro Studi e Ricerche Enrico Fermi, Rome, Italy;
+$^{24}$University of Napoli, Department of Chemistry, Napoli, Italy
+$^{25}$University of Rome Tor Vergata, Department of Physics, Rome, Italy;
+$^{26}$INFN Section of Roma Tor Vergata, Rome, Italy;
+$^{27}$INFN Section of Bari, Bari, Italy;
+$^{28}$University of Perugia, Department of Physics and Geology, Perugia, Italy;
+$^{29}$University of Perugia, Department of Engineering, Perugia, Italy;
+$^{30}$University of Piemonte Orientale, Department of Science and Technological Innovation, Alessandria, Italy;
+$^{31}$Biophysics Department, GSI Helmholtzzentrum f\"ur Schwerionenforschung, Darmstadt, Germany;
+$^{32}$Nagoya University, Department of Physics, Nagoya, Japan;
+$^{36}$ALTEC, Aerospace Logistic Technology Engineering Company, Corso Marche 79, 10146 Torino, Italy;
+
+
+%$^{23}$University of Milano, Department of Physics, Milano, Italy;
+%$^{31}$Gran Sasso Science Institute, L'Aquila, Italy;
+%$^{32}$Technische Universit\"at Darmstadt Institut f\"ur Festk\"orperphysik,  Darmstadt, Germany;
+
+}
+% The Corresponding Author should be marked with an asterisk
+% Provide the exact contact address (this time including street name and city zip code) and email of the corresponding author
+\def\corrAuthor{FOOT editorial board}
+\def\corrEmail{foot.editorialboard}
+
+
+\begin{document}
+\onecolumn
+\firstpage{1}
+
+\title[Running Title]{Charge identification of fragments produced by interaction of $^{16}$O beam at $200 MeV/n$ and $400 MeV/n$ on C and C$_2$H$_4$ target} 
+
+\author[\firstAuthorLast ]{\Authors} %This field will be automatically populated
+\address{} %This field will be automatically populated
+\correspondance{} %This field will be automatically populated
+
+\extraAuth{}% If there are more than 1 corresponding author, comment this line and uncomment the next one.
+%\extraAuth{corresponding Author2 \\ Laboratory X2, Institute X2, Department X2, Organization X2, Street X2, City X2 , State XX2 (only USA, Canada and Australia), Zip Code2, X2 Country X2, email2@uni2.edu}
+
+
+\maketitle
+%\fontsize{}{}
+\begin{abstract}
+
+%%% Leave the Abstract empty if your article does not require one, please see the Summary Table for full details.
+\section{}
+
+\tiny
+ \keyFont{ \section{Keywords:} particle therapy, space radioprotection, fragmentation, cross-sections, protons RBE} %All article types: you may provide up to 8 keywords; at least 5 are mandatory.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+In the last decade the use of charged particles (such as protons, helium, carbon and oxygen ions) to treat tumors has widely increased with respect to traditional radiotherapy, as testified by the statistics published by the Particle Therapy Co-Operative Group \cite{ptcog}. Charged particles possess a more favorable depth-dose profile culminating in a narrow region known as the Bragg Peak (BP) and a higher Relative Biological Effectiveness (RBE) for cell killing with respect to photons. \\
+RBE is the result of the interplay between physical (i.e. particle type, dose, linear energy transfer) and biological (i.e. tissue type, cell cycle phase, oxygenation level) parameters. Despite the experience accumulated in proton therapy in recent years, there are large fluctuations in published data (mostly \textit{in vitro}) concerning proton RBE. At present, the clinically accepted value is equal to 1.1, even though many studies have reported an increase above this value towards the distal edge of the SOBP \cite{tang, grun2013physical}. \\
+For clinical practice, the re-assessment of RBE and a reduction of its uncertainty are mandatory. In case of proton beams, a significant contribution to the RBE is due to the fragmentation of the target nuclei in the patient's tissues. Recent studies \cite{trento2021} have shown that target fragmentation can have a significant impact in the beam entrance channel where healthy tissues are located. At present, there is a lack of experimental data concerning target fragmentation processes of interest to proton therapy. This is due to the complexity of the detection of the produced fragments, as they have small ranges down to a few microns~\cite{Tommasino2015}. The current lack of data hinders the benchmarking of MC simulations, thus limiting the possibility to optimize current treatment plans. 
+
+\noindent
+The FOOT (FragmentatiOn Of Target) experiment aims to measure target fragmentation induced by proton beams in the human tissues in the energy range relevant for therapeutic applications (150–250 MeV for protons and 200–400 MeV/n for carbon ions).
+To this aim, a double core detector, made by a magnetic spectrometer for high Z and low angles particles, and by an emulsion spectrometer for low Z and high angles scattered fragments, is currently being realised. The experiment employs an inverse kinematic approach, in which a particle beam (oxygen or carbon ions) impinges on a hydrogen-enriched target generating secondary fragments. These fragments can be interpreted as the result of target fragmentation induced by protons, in the reference frame where the impinging ions are stationary [citare articolo battistoni?]. Because a pure hydrogen target would lead to several experimental complications, two different materials, carbon and polyethylene, are used as targets and the fragmentation cross section for hydrogen is estimated as a linear combination of the cross sections obtained for these materials. 
+
+In a previous work~\cite{Galati2021} the charge identification of the secondary fragments generated by the interaction of $^{16}$O (200 MeV/n) beam on a C$_2$H$_4$ target by the emulsion spectrometer was reported. In this paper, we extend the analysis to the fragments generated by the interaction of $^{16}$O (200 MeV/n) beam on a C target and of $^{16}$O (400 MeV/n) beam on a C and C$_2$H$_4$ target. 
+ Our analysis is based on a well established technique consisting of a controlled fading of nuclear emulsions by means of different thermal treatments that extend the dynamic range of the emulsions' response enabling the identification of particles with different charges and ionization powers. The results obtained by our analysis will determine the cross sections of target fragments induced by the proton irradiation with energies in the range of interest for Particle Therapy.\\
+\newline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Material and methods}
+\label{sec:material}
+\newline
+
+\subsection{The emulsion detector}
+\label{sec:emulsion detector}
+
+The emulsion detector is composed of three different sections, as shown in fig.~\ref{fig:app_scheme}. 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/apparatus-scheme.png}
+\caption{Scheme of the Emulsion Cloud Chamber.}
+\label{fig:app_scheme}
+\end{figure}
+
+The first section, made out of 30 emulsion films interleaved with layers of passive material, is designed to reconstruct the vertices (\textit{vertexing}) where beam particles interact with atoms of the target and secondary fragments are produced.
+The second section, composed of 36 emulsion films, is aimed at the charge identification of the fragments crossing it, through dedicated thermal treatments of the emulsions before the chemical development.
+Section III consists of a sequence of emulsion films and passive layers of different thicknesses and densities to stop the fragments. By applying a combination of the range method and the Multiple Coulomb Scattering (MCS) analysis, it is possible to determine the momentum of the stopped particles.
+For a more detailed description on the emulsion detector structure, we refer to~\cite{Galati2021}.
+
+The nuclear emulsion, that is the active part of the detector, consists of two sensitive layers (each 70~$\mu$m thick), called top and bottom, deposited on both sides of a 210~$\mu$m thick plastic base, resulting in a total thickness of 350~$\mu$m. In the emulsion gelatin, a large number of small AgBr crystals are embedded. When a charged particle crosses the emulsion layer, a sequence of AgBr crystals is sensitized along its trajectory, producing a latent image. After a chemical development procedure, the latent image turns into a sequence of dark silver grains, which can be seen with an optical microscope ~\cite{Alexandrov2015,Alexandrov2016,Alexandrov2017}. The density of these grains is proportional to the particles ionization. Nuclear emulsion films used were produced by the Nagoya University (Japan) and Slavich Company \footnote{https://newslavich.com} (Russia). Their sensitivity is 30 grains over a track length of 100~$\mu$m for a minimum ionizing particle (MIP). Slavich emulsions have been used in section 1 of the detector, while the Nagoya ones have been used in section 2 and 3. 
+\\
+Four emulsion detectors have been realized: Emulsion Cloud Chamber 1 and 2 (respectively, ECC1 andd ECC2), exposed to  $^{16}$O at 200~MeV/n, and Emulsion Cloud Chamber 3 and 4 (respictively, ECC3 and ECC4), exposed to $^{16}$O  at 400~MeV/n. These chambers differ in the target materials used in the vertexing sections: in ECC1 and ECC3 30 carbon foils were used (thickness 1~mm, purity $99.99\%$, density 2.250~g/cm$^{3}$); in ECC2 and ECC4 the 30 emulsions are interleaved with 30 polyethilene (C$_2$H$_4$) foils (thickness 2~mm, density 0.96~g/cm$^{3}$).
+\\
+
+%da mettere dopo
+From the moment they are produced and until their chemical development, nuclear emulsion films are sensitive to charged particles. In particular, during their lifetime,
+they integrate all particle tracks from cosmic rays and environmental radioactivity. To avoid an unwanted background, before the detector assembly, films were transported
+in a random order, so that cosmic rays accumulated during that period have a different alignment and cannot be reconstructed as penetrating tracks. Nevertheless, they can
+still contribute to the background in case of random association of two or more aligned base-tracks.
+\\
+\\
+
+%
+\subsubsection{Emulsion spectrometer exposure}
+The emulsion spectrometer was installed in cave A of the GSI facility (fig.~\ref{fig:setup}). 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/exp_setup.png}
+\caption{Experimental setup of the emulsion spectrometer used during the 2019 data taking at GSI facility.}
+\label{fig:setup}
+\end{figure}
+
+The incident beam flux was monitored by the Start Counter, made of a thin plastic scintillator, and by the Beam Monitor, consisting of a drift chamber that provides the beam spatial distribution, that are in common with the FOOT electronic detector.
+
+For each ECC, the number of incident $^{16}$O ions was optimised to get a maximum occupancy of around 1000 particles/cm$^{2}$, taking into account also the fragments produced by interactions along the detector. It was a trade-off between the need to avoid the pile-up of interactions in emulsions and the requirement for large statistics. The corresponding number of triggered events in the start counter is indicated in Table~\ref{tab:ECC} for ECC exposure. The beam had a Gaussian shape (~1 mm sigma) and was used to scan a square area of 2.4 cm side (in a grid of 25 × 25 points), starting from the center and following a squared spiral shape with 1 mm pitch.\\
+\\
+
+%
+\begin {table}
+	\footnotesize
+    \centering
+    \caption{Scheme of the four ECCs exposed to $^{16}$O beams with the indication of number of incident ions for each exposure.}
+    \hfill
+    \begin{center}
+    %\begin{tabular}{ccccc} 
+    \begin{tabular}{r|cccc} 
+    %\hline
+    \toprule
+    \textbf{ECC id}   &   \textbf{Energy (MeV/n}   &   \textbf{Target material in S1}   &   \textbf{thickness (mm)}   &   \textbf{Number of incident particles}   \\
+    %\hline
+    \midrule
+    ECC1       &   200   &   C      &   1.0   &  ?? \\
+    ECC2       &   200   &   C$_2$H$_4$   &   2.0   &  25000 \\
+    ECC3       &   400   &   C      &   1.0   &  ??  \\
+    ECC4       &   400   &   C$_2$H$_4$   &   2.0   &  ??   \\
+    \midrule
+    \end{tabular}
+    \label{tab:ECC}
+    \end{center}
+\end {table}
+%
+
+\newline
+\subsubsection{track reconstruction}
+...
+
+\newline
+\subsubsection{Charge identification}
+
+The nuclear emulsion response to the incoming particle's energy loss is linear over a certain dynamic range: i.e., the grain density is proportional to the particle energy loss. Highly ionizing particles produce a saturation effect due to finite range of the grain density, thus precluding the charge measurement.
+
+To extend the dynamic range, the emulsions are thermally treated before their chemical development. The treatment consists of keeping them for 24 h at temperatures above $28^{\circ}$C with a relative humidity around $95\%$. By tuning the temperatures, a controlled fading is induced, which can partially or totally erase the density grains of less ionizing particles~\cite{Nakamura2006}. The use of films that underwent different thermal treatments allows to recover the original ionization of the track, thus reconstructing the particle's charge.
+
+The Section II was divided into nine~cells of four~emulsion films each, denoted as $Rx$, with~$x \in \left \{0,1,2,3\right \}$. Each of these films underwent a specific thermal treatment: $R0$ films did not undergo any treatment, $R1$, $R2$ and $R3$ ones were kept for 24 hours at $95\%$ relative humidity and at a temperature of $28^{\circ}$C, $34^{\circ}$C and $36^{\circ}$C, respectively. Applying these thermal treatments, the number of residual grains along the track will be progressively reduced, according to their ionization. 
+For example, the erased fraction of base-tracks for cosmic rays has been measured to be larger than $99\%$ in R1, while proton base-tracks are erased with an efficiency larger than $96\%$ in R2.
+\\
+
+\subsubsection{Data Analysis}
+The charge identification analysis takes into account the response of each track to the thermal treatments. The progressive erasure of each base-track is quantified by a variable named "volume" ($VRx$) which is defined as the sum of the number of pixels, where each pixel is weighted with its brightness, of the clusters in the digital images produced during the scanning procedure. The volume variables are expressed in arbitrary units and they are proportional to the incoming particles' specific ionization in a limited dynamic range. The more aggressive thermal treatments completely erase the base-tracks belonging to the least ionizing fragments. Therefore, it is useful to study the number of base-tracks $k_{x}$ belonging to each track for each set of thermal treatments $Rx$ and to calculate the average volume variables:
+$$ VRX_{av} = \frac{\sum_{k_{x}} VRx} {k_{x}}$$
+These variables quantify the response of a track to the thermal treatments. Alongside the volume variables, a track's slope with respect to the beam direction is used to identify nuclear fragments from the background, mainly composed of cosmic MIPs, as well as to separate fragments with different charges. This variable is denoted with $\tan{\theta}$, the tangent of the inclination of the most upstream fitted track segment. \\
+In this work, two complementary methods have been used: a cut-based (CB) analysis to separate MIP cosmic rays and nuclear fragments with $Z\leq2$ and a Principal Components Analysis (PCA) to identify the charges $Z\geq2$. The effectiveness of this approach was demonstrated in \cite{Galati2021} and further improvements in the cut definition and the application of the PCA have been made since.
+The CB approach employed the tracks' slope and the first two average volume variables ($VR0_{av}$ and $VR1_{av}$) to separate charge populations with net cuts. With respect to our previous work, the shape of the cuts has been improved to achieve a better discrimination between signal and background. However, this approach was not powerful enough to distinguish the charges of the heavier fragments and the PCA was used to achieve this goal. This technique consists of the application of a linear transformation to a set of variables $\textbf{x}$ in order to obtain a new set $\textbf{p}$ (the principal components) with the condition that these new variables have the highest possible variance and thus represent the most meaningful features for classification purposes \cite{PCA}. It can be shown that the set formed by the eigenvectors of the covariance matrix $C = \textbf{y}\textbf{y}^{T}$, where $\textbf{y} = \textbf{x} - <\textbf{x}>$, corresponds to the principal components. 
+The covariance matrix is real, positive definite, symmetric and with non-null, positive eigenvalues. For our purposes, the starting set is composed of 2 or more average volume variables: the PCA produced the principal components and the first principal component had the highest variance and was used for charge identification. The properties of the covariance matrix imply that the correlation between the average volume variables and the particles' specific ionization will be preserved after the transformation. In the following, we will adopt this notation: given the variables $VRN_{av}$ and $VRM_{av}$, the first principal component will be indicated as $VP_{NM}$. The distributions of the $VP$ variables have been used to classify the most ionizing fragments and a probabilistic approach to assign the charges has been used. 
+\\
+Note su stima errore?
+
+
+
+
+%
+\begin{comment}
+se vuoi mettere un commento
+\end{comment}
+\newline
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+\newline
+\section{Results}
+The procedure used to identify the fragments' charges considers the second section of the Emulsion Cloud Chamber as a stand-alone detector and employs the information given by the controlled fading technique previously described. \\
+\\
+In the following, the analysis of 200 MeV/n $^{16}O$ and 400 MeV/n $^{16}O$ impinging on carbon and polyethylene is presented and discussed. First we will present the analysis carried out for 200 MeV/n data and then move to 400 MeV/n. \\
+The GSI1 dataset refers to the exposure of a carbon target to a 200 MeV/n $^{16}O$ beam. According to MC simulations the Bragg Peak of the oxygens occurs before the beginning of Section 2. Therefore, tracks in this section were either left by nuclear fragments or cosmic MIPs or were produced by random base-track association during the reconstruction. \\
+The discrimination of beam fragments from cosmic rays relies on the latter being mainly composed of MIPs and thus having lower ionization. Moreover, tracks belonging to cosmic rays will generally have higher angles with respect to the beam direction since the Emulsion Cloud Chambers were transported with films in the vertical plane after assembly. These observations are confirmed by figure \ref{fig:GSI1_VR0_tan} which shows the distribution of $VR0_{av}$ with respect to $\tan{\theta}$, for all tracks having at most one base-track in the thermally treated films.
+\begin{figure}[ht]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Figures/GSI1_VR0tan.png} % first figure itself
+        \caption{$VR0_{av}$ vs $\tan{\theta}$ distribution for the tracks in GSI1 (Section 2) satisfying the cut $k_{1}<2, \; k_{2}<2, \; k_{3}<2$. Two distinct populations are visible, identified respectively as cosmic MIPs (below the red curve) and Z=1 fragments (above the red curve). Red Curve: $VR0_{av} = 3225\cdot(1 + e^{0.65\cdot\tan^{2}{\theta}})$.}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{Figures/GSI2_VR0tan.png} % second figure itself
+        \caption{second figure caption}
+    \end{minipage}
+    \label{fig:GSI12_VR0tan}
+\end{figure}
+
+
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\linewidth]{Figures/GSI1_VR0tan.png}
+\caption{$VR0_{av}$ vs $\tan{\theta}$ distribution for the tracks in GSI1 (Section 2) satisfying the cut $k_{1}<2, \; k_{2}<2, \; k_{3}<2$. Two distinct populations are visible, identified respectively as cosmic MIPs (below the red curve) and Z=1 fragments (above the red curve). Red Curve: $VR0_{av} = 3225\cdot(1 + e^{0.65\cdot\tan^{2}{\theta}})$.}
+\label{fig:GSI1_VR0_tan}
+\end{figure}
+\noindent This implies that the most ionizing fragments are excluded from this plot. Two populations are clearly visible: tracks below the cut in figure \ref{fig:GSI1_VR0_tan} have been identified as cosmic MIPs due to their lower average volume and their wider angular distribution. The definition of the cut separating the two populations has been improved with respect to our previous work to more closely match their shapes. \\
+Previous studies [articoloCatania] have shown that the thermal treatments completely erase tracks belonging to 80 MeV protons. Therefore, it is reasonable to identify the tracks above the cut as $Z=1$ fragments with energy equal or higher than 80 MeV. No further distinction can be achieved with the use of $VR0_{av}$ and the next step is the analysis of the average volume in R1 films. 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.4\linewidth]{Figures/GSI1_VR1VR0.png}
+\caption{$VR1_{av}$ vs $VR0_{av}$ distribution for all tracks in GSI1 (Section 2) identified as fragments and satisfying the cut $k_{1}\geq2$. Red line: $VR1_{av} = 4875$.}
+\label{fig:GSI1_VR1VR0}
+\end{figure}
+\noindent Figure \ref{fig:GSI1_VR1VR0} shows the distribution of the $VR1_{av}$ variable with respect to the $VR0_{av}$ variable for all the tracks identified as fragments satisfying the cut $k_{1}\geq1$. It is possible to identify two different populations by the use of a sharp horizontal cut. Figure \ref{fig:GSI1_VR1VR02} shows how the distribution changes when the cut $k_{2}<2, k_{3}<2$ is applied. Most tracks belonging to the population below the red line do not have a statistically relevant number of segments in the R2 and R3 films and the same applies to a small fraction of tracks above the cut. This observation points to the identification of tracks below the cut as a lower energy component of $Z=1$ fragments that managed to survive the R1 treatment. Tracks above the red line belong to the following atomic species $Z\geq2$ and, among those, the ones satisfying the cut $k_{2}<2, k_{3}<2$ belong to the less ionizing particles and are identified as $Z=2$ fragments. 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width = .4\textwidth]{Figures/GSI1_VR1VR02.png}
+    \caption{$VR1_{av}$ vs $VR0_{av}$ distribution for all tracks in GSI1 (Section 2) identified as fragments and satisfying the cut $k_{1}\geq2, k_{2}<2, \; k_{3}<2$.}
+    \label{fig:GSI1_VR1VR02}
+\end{figure}
+\noindent This classification is also supported by the shape of the angular distributions of the tracks above and below the cut (mettere? GSI1\_Z1l/Z2h): tracks above the cut (identified as $Z=2$) have a narrower angular distribution and this is coherent with them having a higher mass. \\
+Once again, no further distinction can be achieved with $VR1_{av}$ and it becomes necessary to examine the average volumes in the R2 and R3 regions. [Distribuzioni VR2:VR1 e VR3:VR2?] \\
+Unlike the previous average volume variables, a cut-based approach cannot be used for $VR2_{av}$ and $VR3_{av}$ because their distributions do not clearly show different charge populations. In order to overcome this limitation, the information given by each average volume variable was successfully combined with the Principal Component Analysis (PCA). Among the different possible combinations, the one that has proven to be more effective for charge identification has been $VP_{123}$ which is a linear combination of $VR1_{av}$, $VR2_{av}$ and $VR3_{av}$. This variable has been used to classify all tracks having at least one base-track in R1, R2 and R3 regions and that had been excluded by previous cuts (i.e. having at least 2 base-tracks in either R2 or R3). 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width = .4\textwidth]{Figures/GSI1_VP1232n.png}
+    \caption{$VP_{123}$ variable obtained with the PCA for all tracks in GSI1 satisfying either $k_{1}\geq1, k_{2} \geq 1, k_{3}\geq2$ or $k_{1}\geq1, k_{2} \geq 2, k_{3}\geq1$. The distribution has been fit with a sum of three Gaussian functions. }
+    \label{fig:GSI1_VP123}
+\end{figure}
+\noindent Given the way the $VP$ variables are calculated, we expect that higher values of these variables correspond to higher specific ionizations. Following this observation, the $VP_{123}$ distribution has been fit with a sum of three Gaussians (figure \ref{fig:GSI1_VP123}) each corresponding to a different atomic species: $Z=2$, $Z=3$ or $Z\geq4$. Charges equal or larger than $Z=4$ could not be disentangled because of the saturation of the response of the emulsion films. The fit shown in figure \ref{fig:GSI1_VP123} also had to satisfy the requirement that the height of the $Z=2$ Gaussian should be higher than the height of the $Z=3$ Gaussian and the same applies for the $Z=3$ and $Z>3$ Gaussians. Moreover, it should be noted that the fir starts after a threshold and does not take into account the left tail of the first Gaussian. This is due to the fact that a fraction of $Z=2$ fragments had already been classified and the corresponding Gaussian is partially erased. After performing the fit, the charge is assigned to each track by generating a random number between 0 and 1 and comparing it to the probabilities defined as the ratio of the value of each Gaussian and the total fit. This procedure was needed to take into account the overlap between different populations. If one of the three average volume variables used for the calculation of $VP_{123}$ was not available, the classification was performed by the use of alternative combinations like $VP_{012}$ and $VP_{013}$. The angular distributions of the populations identified either with the CB analysis or with PCA is shown in figure \ref{fig:GSI1_FragAng}. As expected, the mean values of these distributions decrease with Z. 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width = .4\textwidth]{Figures/GSI1_FragAng.png}
+    \caption{Angular distributions of the fragments identified for the GSI1 dataset.}
+    \label{fig:GSI1_FragAng}
+\end{figure}
+\noindent noindent Table \ref{GSI1_tab} shows the total number of tracks classified as fragments in the GSI1 dataset, as well as the relative fractions of each charge. 
+Systematic errors in the classification arise either from the arbitrary definition of the sharp cut to separate the fragments from cosmic rays or by the uncertainties related to the fit parameters for the PCA variables. These errors were estimated by using the approach described in Section \ref{err_eval}.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c|c}
+        \textbf{Z} &  \textbf{Cut-Based} & \textbf{PCA} & \textbf{Total} & \textbf{\%} & \textbf{Syst. Err.} & \textbf{Stat. Err} (\%)\\
+        \hline 
+         1 & 23754 & / & 23754 & 69 & 5 & 0.6 \\
+          2 & 715 & 5861 & 6576 & 19 & 1.1 & 1.2 \\
+           3 & / & 3093 & 3093 & 9 & 1.5 & 1.8 \\
+            $>3$ & /  & 1029 & 1029 & 3 & 0.4 & 3.0 \\
+            \hline
+            Total & 24469 & 9983 & 34452 \\
+            \hline
+    \end{tabular}
+    \caption{Total number of tracks classified as fragments in the GSI1 dataset. For each charge, the number of tracks identified with the cut-based analysis and with the PCA is shown as well as the fraction relative to the total number of fragments. The statistical error due to the finite size of the samples and the systematic error related to the cuts and fit parameters are included. }
+    \label{GSI1_tab}
+\end{table}
+
+Table \ref{GSI2_tab} shows the total number of tracks that were identified as fragments as well as their percentage with respect to the total for the GSI2 dataset. The results shown in table \ref{GSI2_tab} are in good agreement with the ones obtained by a previous analysis (see \cite{Galati2021}).
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|c|c|c|c|c|c}
+        \textbf{Z} &  \textbf{Cut-Based} & \textbf{PCA} & \textbf{Total} & \textbf{\%} & \textbf{Syst. Err} (\%) & \textbf{Stat. Err} (\%)\\
+        \hline 
+         1 & 18717 & / & 18717 & 71 & 3 & 0.7 \\
+          2 & 1008 & 3604 & 4612 & 18 & 1.2 & 1.5 \\
+           3 & / & 2199 & 2199 & 8 & 1.4 & 2.1 \\
+            $>3$ & /  & 788 & 788 & 3 & 0.3 & 3.6 \\
+            \hline
+            Total & 19725 & 6591 & 26316 \\
+            \hline
+    \end{tabular}
+    \caption{Total number of tracks classified as fragments in the GSI2 dataset. For each charge, the number of tracks identified with the cut-based analysis and with the PCA is shown as well as the relative fraction of fragments. The statistical error due to the finite size of the samples and the systematic error related to the cuts and fit parameters are included. }
+    \label{GSI2_tab}
+\end{table}
+
+
+
+
+
+Partiamo con GSI2 e mostriamo il primo passo, cioè la separazione cosmici fondo. Bisognerebbe fare un'immagine a quattro anche con GSI3 e GSI4 e descrivere i plot. Si potrebbe usare l'occasione per spiegare le differenze principal tra GSI3-4 e 12 (cioè presenza ossigeni...) 
+Poi, GSI2 e GSI1 continuano con VR1 VR0 e taglio netto. GSI3 e GSI4 hanno distribuzioni diverse che arrivano anche ad usare VP01 per la identificazione. 
+Come mai non uso VP01 per GSI1 e GSI2? Una possibile spiegazione è che la differenza non è tanta e la statistica è abbastanza elevata per poter usare comunque il taglio netto. In gsi34 ci sono pochi e quindi si lavora più di fino. 
+COSA SERVE
+\begin{itemize}
+    \item plot con taglio cosmici frammenti per 1234
+    \item numeri complessivi di tracce analizzate in ogni passaggio con 1234
+    \item plot pca (almeno VP123) per 1234
+    \item distribuzioni angolari finali e tabelle finali con calcolo errori!
+\end{itemize}
+
+
+
+(fig.~\ref{fig:ang_distr_200}). 
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/200MeV_angular_distr.png}
+\caption{Angular distribution at 200 MeV/n.}
+\label{fig:ang_distr_200}
+\end{figure}
+\\
+
+(fig.~\ref{fig:ang_distr_400}). 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/400MeV_angular_distribution.png}
+\caption{Angular distribution at 400 MeV/n.}
+\label{fig:ang_distr_400}
+\end{figure}
+\\
+
+(fig.~\ref{fig:VR3_VR2_400}). 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/400MeV_VR3vsVR2.png}
+\caption{Angular distribution at 200 MeV/n.}
+\label{fig:VR3_VR2_400}
+\end{figure}
+\\
+
+(fig.~\ref{fig:PCA_400}). 
+\begin{figure}[ht]
+\centering
+\includegraphics[width=1\linewidth]{Figures/400MeV_PCA.png}
+\caption{PCA at 400 MeV/n.}
+\label{fig:PCA_400}
+\end{figure}
+\\
+
+
+
+
+As shown in Table~\ref{tab:Charge_id_200}
+%
+\begin {table}
+	\footnotesize
+    \centering
+    \caption{Charge identification at 200 MeV/n.}
+    \hfill
+    \begin{center}
+    %\begin{tabular}{ccccc} 
+    \begin{tabular}{r|cccccc} 
+    %\hline
+    \toprule
+    \textbf{$Z$}   &  \textbf{Cut-based}   &   \textbf{PCA}   &   \textbf{total}   &   \textbf{$\%$} &   \textbf{Stat. Err. ($\%$)} & \textbf{Syst. Err ($\%$)}   \\
+    %\hline
+    \midrule
+    1  &   23754   &   / &   23754   &  69 &  0.6 &  5 \\
+    2  &   715  &   5861   &   6576  &  19 &  1.2 &  2 \\
+    3  &   /   &   3093    &   3093   &  9 &  1.8 &  2 \\
+    $>$3 & /   &   1029  &  1029  &     3 &  3.0 &  1 \\
+    \midrule
+    \end{tabular}
+    \label{tab:Charge_id_200}
+    \end{center}
+\end {table}
+%
+
+
+As shown in Table~\ref{tab:Charge_id_400}
+
+%
+\begin {table}
+	\footnotesize
+    \centeringhttps://www.overleaf.com/project/63eddb0d7ba958bb9fa34082
+    \caption{Charge identification at 400 MeV/n.}
+    \hfill
+    \begin{center}
+    %\begin{tabular}{ccccc} 
+    \begin{tabular}{r|cccccc} 
+    %\hline
+    \toprule
+    \textbf{$Z$}   &  \textbf{Cut-based}   &   \textbf{PCA}   &   \textbf{total}   &   \textbf{$\%$} &   \textbf{Stat. Err. ($\%$)} & \textbf{Syst. Err ($\%$)}   \\
+    %\hline
+    \midrule
+    1  &   114607   &   968 &   15605   &  44.0 &  0.4 &  4 \\
+    2  &   /   &   4949   &   4949  &     14.5 &  0.2 &  0.1 \\
+    3  &   /   &   470    &   470   &     1.2  &  0.06 &  / \\
+    4  &   /   &   241    &   241   &     0.6  &  0.04 &  / \\
+    5  &   /   &   359    &   357   &     1.0  &  0.05 &  / \\
+    $>$5 & /   &   13247  &  13247  &     38.0 &  0.3 &  / \\
+    \midrule
+    \end{tabular}
+    \label{tab:Charge_id_400}
+    \end{center}
+\end {table}
+%
+
+
+
+
+\newline
+\section{Conclusions}
+%
+
+
+
+\section*{Conflict of Interest Statement}
+%All financial, commercial or other relationships that might be perceived by the academic community as representing a potential conflict of interest must be disclosed. If no such relationship exists, authors will be asked to confirm the following statement: 
+
+The authors declare that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest.
+
+\section*{Author Contributions}
+%The Author Contributions section is mandatory for all articles, including articles by sole authors. If an appropriate statement is not provided on submission, a standard one will be inserted during the production process. The Author Contributions statement must describe the contributions of individual authors referred to by their initials and, in doing so, all authors agree to be accountable for the content of the work. Please see  \href{http://home.frontiersin.org/about/author-guidelines#AuthorandContributors}{here} for full authorship criteria.
+
+
+
+%\bibliographystyle{frontiersinSCNS_ENG_HUMS} % for Science, Engineering and Humanities and Social Sciences articles, for Humanities and Social Sciences articles please include page numbers in the in-text citations
+\bibliographystyle{frontiersinHLTH&FPHY} % for Health, Physics and Mathematics articles
+%\bibliography{test}
+
+%%% Make sure to upload the bib file along with the tex file and PDF
+%%% Please see the test.bib file for some examples of references
+
+%\section*{Figure captions}
+
+%%% Please be aware that for original research articles we only permit a combined number of 15 figures and tables, one figure with multiple subfigures will count as only one figure.
+%%% Use this if adding the figures directly in the mansucript, if so, please remember to also upload the files when submitting your article
+%%% There is no need for adding the file termination, as long as you indicate where the file is saved. In the examples below the files (logo1.eps and logos.eps) are in the Frontiers LaTeX folder
+%%% If using *.tif files convert them to .jpg or .png
+%%%  NB logo1.eps is required in the path in order to correctly compile front page header %%%
+
+%\begin{figure}[h!]
+%\begin{center}
+%\includegraphics[width=10cm]{logo1}% This is a *.eps file
+%\end{center}
+%\caption{ Enter the caption for your figure here.  Repeat as  necessary for each of your figures}\label{fig:1}
+%\end{figure}
+
+%%% If you are submitting a figure with subfigures please combine these into one image file with part labels integrated.
+%%% If you don't add the figures in the LaTeX files, please upload them when submitting the article.
+%%% Frontiers will add the figures at the end of the provisional pdf automatically
+%%% The use of LaTeX coding to draw Diagrams/Figures/Structures should be avoided. They should be external callouts including graphics.
+
+%\end{document}
+
+\begin{thebibliography}{99}
+
+\bibitem{ptcog} https://www.ptcog.ch/
+
+\bibitem{tang} Tang JT, Inoue T, Yamazaki H, Fukushima S, Fournier-Bidoz N, Koizumi M et al. Comparison of radiobiological effective depths in 65-MeV modulated proton beams. Br J Cancer (1997) 76:220–225. doi:10.1038/bjc.1997.365
+
+\bibitem{grun2013physical} Gr{\"u}n R, Friedrich T, Kr{\"a}mer M, Zink K, Durante M, Engenhart-Cabillic R et al. hysical and biological factors determining the effective proton range. Medical physics 2013 Nov;40(11):111716. doi: 10.1118/1.4824321. 
+
+\bibitem{trento2021} Bellinzona E V, Grzanka L, Attili A, Tommasino F, Friedrich T, Kr\"{a}mer R et al. Biological Impact of Target Fragments on Proton Treatment Plans: An Analysis Based on the Current Cross-Section Data and a Full Mixed Field Approach.  Cancers 2021, 13(19), 4768; https://doi.org/10.3390/cancers13194768. 
+
+\bibitem{Tommasino2015} Tommasino F and Durante M. Proton Radiobiology. Cancers (2015) 7(1):353-381. doi:10.3390/cancers7010353
+
+\bibitem{Galati2021} Galati~G, Alexandrov~A, Alpat~B, Ambrosi~G, Argirò~S, Diaz~RA et al. Charge identification of fragments with the emulsion spectrometer of the FOOT experiment.Open Phys (2021) 19:383–394. doi: 10.1515/phys-2021-0032
+
+\bibitem{PCA} Jolliffe I, Principal Component Analysis.  In: Lovric, M. (eds) International Encyclopedia of Statistical Science (2011). Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-642-04898-2\_455
+
+\bibitem{Alexandrov2015} Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. A new fast scanning system for the measurement of large angle tracks in nuclear emulsions. JINST (2015) 11:P11006. doi:10.1088/1748-0221/10/11/P11006
+
+\bibitem{Alexandrov2016}  Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. A new generation scanning system for the high-speed analysis of nuclear emulsions. JINST (2016) 11:P06002. doi:10.1088/1748-0221/11/06/P06002
+
+\bibitem{Alexandrov2017} Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. The continuous motion technique  for the new generation scanning system. Scientific reports (2017) 7:7310
+
+\bibitem{Nakamura2006} Nakamura T, et al. The OPERA film: new nuclear emulsion for large-scale, high-precision experiments. NIMA-A (2006) 80(86):556. doi:10.1016/j.nima.2005.08.109
+	
+
+%%% da qui in poi vecchie referenze dell'articolo di Toppi
+
+\bibitem{cpt} Jermann~M. Particle Therapy Statistics in 2014. International Journal of Particle Therapy (2015) 2(1):50-54. doi:10.14338/IJPT-15-00013
+
+\bibitem{durante} Durante~M, Loeffler~JS. Charged particles in radiation oncology. Nat Rev Clin Oncol (2010) 7(1):37‐43. doi:10.1038/nrclinonc.2009.183
+
+\bibitem{tomma} Tommasino~F, Scifoni~E and Durante M. Journal of Particle Therapy (2015) 2(3):428-438. doi:10.14338/IJPT-15-00027.1
+
+\bibitem{kramer} Kramer M, Scifoni E, Schuy C, Rovituso M, Tinganelli W, Maier A, et al. Helium ions for radiotherapy? Physical and biological verifications of a novel treatment modality. Med Phys (2016) 43(4):1995. doi:10.1118/1.4944593
+
+\bibitem{schardt} Schardt D, Schall I, Geissel H, Irnich H, Kraft G, Magel A, et al. Advances in Space Research (1996) 17(2):87-94. doi:10.1016/0273-1177(95)00516-H
+
+\bibitem{tps} Krämer M, Durante M. Ion beam transport calculations and treatment plans in particle therapy. Eur Phys J D (2010) 60:195–202. doi:10.1140/epjd/e2010-00077-8
+
+\bibitem{nucmod2} B\"ohlen TT, Cerutti F, Dosanjh M, Ferrari A, Gudowska I, Mairani A et al. Benchmarking nuclear models of FLUKA and GEANT4 for carbon ion therapy. Phys Med Biol (2010) 55(19):5833-5847. doi:10.1088/0031-9155/55/19/014
+
+\bibitem{FIRST2012} Pleskac~R, Abou-Haidar~Z, Agodi~C, Alvarez MAG, Aumann T, Battistoni G et al. The FIRST experiment at GSI. Nucl Instrum Meth A (2012) 678:130-138. doi:10.1016/j.nima.2012.02.020 
+
+\bibitem{thwaites} Thwaites D. Accuracy required and achievable in radiotherapy dosimetry:
+have modern technology and techniques changed our views? Journal of Physics: Conference Series (2013) 444:012006. doi:10.1088/1742-6596/444/1/012006
+%\bibitem{haettner} Haettner E, Iwase H, Kramer M, Kraft G \& Schardt D 2013, Phys. Med. Biol. 58 (23), 8265.
+%\bibitem{guntzer} Gunzert-Marx K, Iwase H, Schardt D \& Simon R S, 2008,  New Journal of Physics 10 (7) 075003.
+%\bibitem{zeitlin2007fragmentation} C.~Zeitlin,et al.,{Phys. Rev. C} {\bf 76} no. 1 (2007) 014911.
+
+\bibitem{lns} De Napoli M, Agodi C, Battistoni G, Blancato AA, Cirrone GAP, Cuttone G et al. Carbon fragmentation measurements and validation of the GEANT4 nuclear reaction models for hadrontherapy. Phys Med Biol (2012) 57:7651–7671. doi:10.1088/0031-9155/57/22/7651
+
+\bibitem{ganil0} Dudouet J, Labalme M, Cussol D, Finck Ch, Rescigno R, Rousseau M et al. Zero-degree measurements of \twC fragmentation at 95~MeV/nucleon on thin targets. Phys Rev C (2014) 89:064615. doi:10.1103/PhysRevC.89.064615
+
+\bibitem{first} Toppi M, Abou-Haidar Z, Agodi C, Alvarez MAG, Aumann T, Balestra F et al. Measurement of fragmentation cross sections of \twC ions on a thin gold target with the FIRST apparatus. Phys Rev C (2016) 93:064601. doi:10.1103/PhysRevC.93.064601
+
+\bibitem{marafini} Marafini M, Paramatti R, Pinci D, Battistoni G, Collamati F, De Lucia E et al. Secondary radiation measurements for particle therapy applications: nuclear fragmentation produced by \He ion beams in a PMMA target. Phys Med Biol (2017) 62:1291-1309. doi:10.1088/1361-6560/aa5307
+
+\bibitem{rovituso} Rovituso M, Schuy C, Weber U, Brons S, Cortés-Giraldo MA, La Tessa C et al. Fragmentation of 120 and 200 MeV/u \He ions in water and PMMA targets. Phys Med Biol (2017) 62:1310-1326. doi:10.1088/1361-6560/aa5302
+%\bibitem{lem} M.~Scholz, A.M.~Kellerer, W.~Kraft-Weyrather, G.~Kraft, Radiat. Environ. Biophys. {\bf 36} (1997) 59.
+
+\bibitem{cancers} Tommasino F and Durante M. Proton Radiobiology. Cancers (2015) 7(1):353-381. doi:10.3390/cancers7010353
+
+\bibitem{maira} Mairani A, Dokic I, Magro G, Tessonnier T, Bauer J, B\"ohlen TT et al. A phenomenological relative biological effectiveness approach for proton therapy based on an improved description of the mixed radiation field. Phys Med Biol (2017) 62:1378-1395. doi:10.1088/1361-6560/aa51f7
+
+\bibitem{radiospace} Durante M and Cucinotta FA. Physical basis of radiation protection in space travel. Rev Mod Phys (2011) 83:1245. doi:10.1103/RevModPhys.83.1245
+
+\bibitem{radiospace2} Heinbockel JH, Slaba TC, Blattnig SR, Tripathi RK, Townsend LW, Handler T et al. Comparison of the transport codes HZETRN, HETC and FLUKA for a solar particle event. Advances in Space Research (2011) 47:1079-1088. doi:10.1016/j.asr.2010.11.012.
+
+\bibitem{durante2} Durante M, Space radiation protection: Destination Mars, Life Sciences in Space Research (2014) 1:2-9. doi:10.1016/j.lssr.2014.01.002.
+
+\bibitem{wilson} Wilson JW, Miller J, Konradi A, and Cucinotta FA. Shielding strategies for human space exploration. NASA Conference Publication 3370 (1997)
+
+\bibitem{Norbury12} Norbury JW, Miller J, Adamczyk AM, Heilbronn LH, Townsend LW, Blattnig SR et al. Nuclear data for space radiation. Radiation Meas (2012) 45(5):315-363. doi:10.1016/j.radmeas.2012.03.004
+
+\bibitem{patera} Patera V, Argir\'o S, Barbosa D, Battistoni G, Belcari N, Bruni G et al. The Foot (Fragmentation Of Target) Experiment, PoS (INPC2016) 128
+
+\bibitem{battistoni} Battistoni G, Alexandrov A, Argir\'o S, Barbosa D, Belcari N, Bisognic MG et al. The Foot (Fragmentation Of Target) Experiment, PoS BORMIO2017 (2017) 023
+
+\bibitem{webber} Webber WR, Kish JC and Schrier DA. Total charge and mass changing cross sections of relativistic nuclei in hydrogen, helium, and carbon targets. Phys Rev C (1990) 41(2):520. doi:10.1103/PhysRevC.41.52.0.
+
+\bibitem{ganil} Dudouet J, Juliani D, Labalme M, Cussol D, Angel\'ique JC, Braunn B et al. Double-differential fragmentation cross-section measurements of 95 MeV/nucleon \twC beams on thin targets for hadron therapy. Phys Rev C (2013) 88(2):064615. doi:10.1103/PhysRevC.88.024606
+
+\bibitem{fluka} Ferrari A, Sala P, Fass\'o A, Ranft J. FLUKA: A Multi-Particle Transport Code. (2005). Technical Report No.: CERN-2005-10, INFN/TC-05/11, SLAC-R-773, CERN, INFN, SLAC.
+
+\bibitem{bohlen2014fluka} B\"{o}hlen TT, Cerutti F, Chin M, Fass\'o A, Ferrari A, Ortega P et al.  e FLUKA code: developments and challenges for high energy and medical applications. Nucl Data Sheets (2014) 120:211–4. doi:10.1016/j.nds.2014.07.049
+
+\bibitem{TWpaper} Morrocchi M, Ciarrocchi E, Alexandrov A, Alpat B, Ambrosi G, Argir\'o S et al. Development and characterization of a $\Delta E$-TOF detector prototype for the FOOT experiment. Nucl. Instrum. Meth. A (2019) 916:116-124. doi:10.1016/j.nima.2018.09.086.
+
+\bibitem{Cfrag_60_90} Mattei I, Alexandrov A, Solestizi LA, Ambrosi G, Argir\'o S, Bartosik N et al. Measurement of \twC Fragmentation Cross Sections on C, O and H in the Energy Range of interest for Particle Therapy Applications. IEEE TRANSACTIONS ON RADIATION AND PLASMA MEDICAL SCIENCES (2020) 4. doi:10.1109/TRPMS.2020.2972197
+
+\bibitem{Montesi2019} Montesi MC, Lauria A, Alexandrov A, Solestizi LA, Ambrosi G, Argir\'o S et al. Ion charge separation with new generation of nuclear emulsion films. De Gruyter, Open Phys (2019) 17:233–240. doi:10.1515/phys-2019-0024.
+
+%% Ustream detectors
+\bibitem{WaveDaq} Galli L, Baldini AM, Cei A, Chiappini M, Francesconi M, Grassi M et al. WaveDAQ: An highly integrated trigger and data acquisition system. Nucl Instrum Meth A (2019) 936:399–400. doi:10.1016/j.nima.2018.07.067.
+
+\bibitem{yun2020} Yunsheng D. Battistoni G et al. The Drift Chamber detector of the FOOT experiment: performance analysis and external calibration. In preparation.
+
+\bibitem{FIRSTir} Abou-Haidar Z, Agodi C, Alvarez MAG, Anelli A, Aumann T, Battistoni G et al. Performance of upstream interaction region detectors for the FIRST experiment at GSI. JINST (2012) 7:P02006. doi:10.1088/1748-0221/7/02/P02006.
+%% VTX + ITR
+\bibitem{vertex} Rescigno R, Finck Ch, Juliani D, Spiriti E, Baudot J, Abou-Haidar Z et al. Performance of the reconstruction algorithms of the FIRST experiment pixel sensors vertex detector. Nucl Instrum Meth A (2014) 767:34–40. doi:10.1016/j.nima.2014.08.024.
+
+\bibitem{PicselWebSite} Strasbourg In2p3 PICSEL group: \url{www.iphc.cnrs.fr/PICSEL.html}
+
+\bibitem{LGreinerNIM2011} Greiner L, Anderssen E, Matis HW, Ritter HG, Schambach J, Silber J et al. A MAPS based vertex detector for the STAR experiment at RHIC. Nucl Instrum Meth A (2011) 650:68-72. doi.org/10.1016/j.nima.2010.12.006.
+
+\bibitem{IValinJINST2012} Valin I, Hu-Guo C, Baudot J, Bertolone G, Besson A, Colledani C et al. A reticle size CMOS pixel sensor dedicated to the STAR HFT. JINST (2012) 7:C01102. doi:10.1088/1748-0221/7/01/C01102.
+
+\bibitem{spiriti} Spiriti E, Finck Ch, Baudot J, Divay C, Juliani D, Labalme M et al. CMOS active pixel sensors response to low energy light ions. Nucl Instrum Meth A (2017) 875:35–40. doi:10.1016/j.nima.2017.08.058.
+
+\bibitem{MimosaInMagneticField} de Boer W, Bartsch V, Bol J, Dierlamm A, Grigoriev E, Hauler F et al. Measurements with a CMOS pixel sensor in magnetic fields. Nucl Instrum Meth A (2002) 487:163-169. doi:10.1016/S0168-9002(02)00960-9.
+
+\bibitem{PlumeWebSite} PLUME web site: \url{www.iphc.cnrs.fr/PLUME.html}
+
+%% MSD
+\bibitem{Energy_loss} Meroli S, Passeri D and Servoli L. Energy loss measurement for charged particles in very thin silicon layers. JINST (2011) 6:P06013. doi:10.1088/1748-0221/6/06/P06013.
+
+\bibitem{AMS_ions_01}Alpat B, Ambrosi G, Balboni C, Battiston R, Biland A, Bourquin M et al. High-precision tracking and charge selection with silicon strip detectors for relativistic ions. Nucl Instrum Meth A (2000) 446:522-535. doi:10.1016/S0168-9002(99)01184-5.
+
+\bibitem{AMS_ions_02} Zuccon P, On behalf of the AMS Tracker collaboration. The AMS silicon tracker: Construction and performance. Nucl Instrum Meth A(2008) 596:74-78. doi:10.1016/j.nima.2008.07.116.
+
+\bibitem{CMS_sigma} Adriani O, Babucci E, Bacchetta N, Bagliesi G, Bartalini P, Basti A et al. Beam test results for single- and double-sided silicon detector prototypes of the CMS central detector. Nucl Instrum Meth A (1997) 396:76-92. doi:10.1016/S0168-9002(97)00750-X.
+
+\bibitem{AMS_sigma} Alpat B, Ambrosi G, Azzarello Ph, Battiston R, Bertucci B, Bourquin M et al. The internal alignment and position resolution of the AMS-02 silicon tracker determined with cosmic-ray muons. Nucl Instrum Meth A (2010) 613:207-217. doi:10.1016/j.nima.2009.11.065
+
+%% TOF
+\bibitem{ciarrocchi} Ciarrocchi E, Belcari N, Camarlinghi N, Carra P, Del Guerra A, Francesconi M et al. The $\Delta$E-TOF detector of the FOOT experiment: Experimental tests and Monte Carlo simulations. Nucl Instrum Meth A (2019) 936:78-79. doi:10.1016/j.nima.2018.08.117.
+
+\bibitem{kraan} Kraan AC, Battistoni G, Belcari N, Camarlinghi N, Carra P, Ciarrocchi E et al. Charge identification performance of a $\Delta$E-TOF detector prototype for the FOOT experiment. Nucl Instrum Meth A (2020) 958:162422. doi:10.1016/j.nima.2019.162422.
+
+\bibitem{galli} Galli L, Kraan AC, Ciarrocchi E, Battistoni G, Belcari N, Camarlinghi N et al. Fragment charge identification technique with a plastic scintillator detector using clinical carbon beams. Nucl Intrum Meth A (2020) 953:163146. doi:10.1016/j.nima.2019.163146.
+
+%% Calorimeter
+\bibitem{LScavarda} Scavarda L, On behalf of the FOOT collaboration. Design and performance of the Calorimeter for the FOOT experiment. Submitted to Il Nuovo Cimento, 2020.
+
+\bibitem{LScavarda1} Scavarda L, On behalf of the FOOT collaboration. The Foot Experiment: Measuring Proton and Light Nuclei Fragmentation Cross Sections up to 700~MeV/A. Bull Russ Acad Sci Phys (2020) 84:480–484. doi:10.3103/S1062873820040267.
+
+% FOOT Performances
+\bibitem{spighi} Spighi R, Alexandrov A, Alpat B, Ambrosi G, Argir\'o S, Battistoni G et al. FOOT: FragmentatiOn Of Target Experiment, IL NUOVO CIMENTO C (2019) 42:134. doi:10.1393/ncc/i2019-19134-6.
+
+\bibitem{valle} Valle SM, Alexandrov A, Alpat B, Ambrosi G, Argir\'o S, Battistoni G, Belcari N  et al. FOOT: a new experiment to measure nuclear fragmentation at intermediate energies. Perspectives in Science (2019) 12:100415. doi:10.1016/j.pisc.2019.100415.
+
+\bibitem{alm} Cho WS, Gainer JS, Kim D, Lim SH, Matchev KT, Moortgat F et al. OPTIMASS: a package for the minimization of kinematic mass functions with constraints. JHEP 01 (2016) 026. doi:10.1007/JHEP01(2016)026.
+
+% Emulsion bibliography
+%\bibitem{DeLellisNiwa2011} G.~De Lellis, A.~Ereditato and K.~Niwa, Nuclear Emulsions, in: C.W.~Fabjan, H.~Schopper. Elementary Particles: Detectors for Particles and Radiation, vol. 21B, Berlino, Springer (2011) 216
+\bibitem{Alexandrov2014} Alexandrov A, Tioukov V and Vladymyrov M. Further progress for a fast scanning of nuclear emulsions with Large Angle Scanning System. JINST (2014) 9:C02034. doi:10.1088/1748-0221/9/02/C02034.
+
+%\bibitem{Alexandrov2015} Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. A new fast scanning system for the measurement of large angle tracks in nuclear emulsions. JINST (2015) 11:P11006. doi:10.1088/1748-0221/10/11/P11006.
+
+%\bibitem{Alexandrov2016}  Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. A new generation scanning system for the high-speed analysis of nuclear emulsions. JINST (2016) 11:P06002. doi:10.1088/1748-0221/11/06/P06002.
+
+%\bibitem{Alexandrov2017} Alexandrov A, Buonaura A, Consiglio L, D'Ambrosio N, De Lellis G, Di Crescenzo A et al. The continuous motion technique  for the new generation scanning system. Scientific reports (2017) 7:7310.
+
+\bibitem{DeLellis2007} De Lellis G, Buontempo S, Di Capua F, Marotta F, Migliozzi P, Petukhov Y et al. Emulsion Cloud Chamber technique to measure the fragmentation of high-energy carbon beam. JINST (2007) 2:P06004. doi:10.1088/1748-0221/2/06/P06004.
+
+\bibitem{DeLellis2011} De Lellis G, Buontempo S, Di Capua F, Di Crescenzo A, Migliozzi P, Petukhov Y et al. Measurements of the fragmentation of Carbon nuclei used in hadron therapy. Nuclear Physics A(2011) 853(1):124-134. doi:10.1016/j.nuclphysa.2011.01.019.
+
+%% first emulsions
+\bibitem{Lauria2015} Alexandrov A, Consiglio L, De Lellis G, Di Crescenzo A, Lauria A, Montesi MC et al. Measurement of large angle fragments induced by 400~MeV/n carbon ion beams. Meas Sci Technol (2015) 26:094001. doi:10.1088/0957-0233/26/9/094001.
+
+\bibitem{Montesi2017} Alexandrov A, De Lellis G, Di Crescenzo A, Lauria A, Montesi MC, Pastore A et al. Measurements of \twC ions beam fragmentation at large angle with an Emulsion Cloud Chamber. JINST (2017) 12:P08013. doi:10.1088/1748-0221/12/08/P08013.
+
+\bibitem{nist} National Institute of Standards and Technology, 100 Bureau Drive Gaithersburg, MD 20899, \url{https://www.nist.gov}
+
+\bibitem{Agafonova} Agafonova N, Aleksandrov A, Altinok O, Anokhina A, Aoki S, Ariga A et al. Momentum measuremets by the multiple coulomb scattering method in the OPERA lead-emulsion target. New J Phys (2012) 14:013026. doi:10.1088/1367-2630/14/1/013026.
+
+\bibitem{delellis2003} De Serio M, Ieva M, Simone S, Giorgini M, Sioli M, Sirri G et al. Momentum measurement by the angular method in the Emulsion Cloud Chamber. Nucl Instrum Meth A (2003) 512(3):539-545. doi:10.1016/S0168-9002(03)02016-3.
+%
+\end{thebibliography}
+%
+%
+\end{document}
+
