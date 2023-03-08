@@ -190,19 +190,3 @@ def CalcDistFromTrack_toVertex(VtxFileName, TrkFileName, vID, s0_plate, s0_id):
     dy = y - vertex.VY()
 
     return np.sqrt(dx*dx + dy*dy)
-
-# ----------------------------------- #
-def PrintTrack(TrkFileName, DEBUG_S0_PLATE=31, DEBUG_S0_ID=100):
-    
-    TrackFile = r.TFile(TrkFileName, "READ")
-    tracks = TrackFile.Get("tracks")
-    tracks.BuildIndex("s[0].Plate()", "s[0].ID()")
-
-    tracks.GetEntryWithIndex(int(DEBUG_S0_PLATE), int(DEBUG_S0_ID))
-
-    for iseg, seg in enumerate(tracks.s):
-        print(" Segment # " + str(iseg) + ", Plate " + str(seg.Plate()) + ", ID " + str(seg.ID()) + " Aid(1) " + str(seg.Aid(1)))
-
-    return 1
-
-# ----------------------------------- #
