@@ -4,11 +4,11 @@ import fedrarootlogon
 import time
 
 MC_ID = 2
-DEBUG_TRK_ID = 4
+DEBUG_TRK_ID = 13234
 EVERBOSE = 1
 Nmax = 100
 TrackFileName = "b00000" + str(MC_ID) + ".0.1.2.trk.root" #S2 track file name
-VertexFileName = "vertices_improved_fast_3_new_2_MCr.root" #Vertex File name
+VertexFileName = "vertices_improved_fast_3_Z.root" #Vertex File name
 #OutFileName = "find_events.root"
 
 TrackFile = r.TFile(TrackFileName, "READ")
@@ -29,9 +29,18 @@ for i in range(n_vertices):
     vertex = vrec.eVTX.At(i)
     for j in range(vertex.N()):
         track = vertex.GetTrack(j)
+
+        if (not (track.GetSegment(0).MCEvt() in vertex_MC_evts)):
+            vertex_MC_evts.append(track.GetSegment(0).MCEvt()) #add the MCevt even if the track does not reach S2
+            vertex_ids.append(vertex.ID()) #need to be same length as previous list
+
+        if(track.Track()==DEBUG_TRK_ID or track.ID()==DEBUG_TRK_ID):
+            print(" Here for debug track with segment last plate " + str(track.GetSegmentLast().Plate()) + " and first seg aid(1) " + str(track.GetSegmentFirst().Aid(1)) + " and last seg aid (1) " + str(track.GetSegmentLast().Aid(1)) +  "\n")
         if (track.GetSegmentLast().Plate()>31 and track.GetSegmentFirst().Aid(1)==0 and track.GetSegmentLast().Aid(1)==0): #if the track reaches S2 and is not broken and is a primary fragment
             for iseg in range(track.N()):
                 if (track.GetSegment(iseg).Plate()>=31):
+                    if(track.Track()==DEBUG_TRK_ID or track.ID()==DEBUG_TRK_ID):
+                        print(" Appending " + str((track.GetSegment(iseg).Plate(), track.GetSegment(iseg).ID())) + " for debug track")
                     vertex_couples.append((track.GetSegment(iseg).Plate(), track.GetSegment(iseg).ID()))
                     outfile3.write( str( track.GetSegment(iseg).Plate()) + " " + str(track.GetSegment(iseg).ID()))
                     outfile3.write("\n")
@@ -41,6 +50,7 @@ for i in range(n_vertices):
 
 outfile3.close()
 
+print("Found " + str(len(vertex_couples)) + " tracks connected to vertices in S2")
 
 tracks = TrackFile.Get("tracks")
 
