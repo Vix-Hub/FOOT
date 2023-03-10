@@ -26,8 +26,8 @@
 #define FAST 4 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
 #define EVERBOSE 100 //1 per Print EdbCell2 // 2 found beam //3 found dau // 4 Np // 5 merge 2p vtx // 6 remove beam // 7 unione tracce // 8 merge tracks // 9 merge vtx //10 print // 11 PrepareTrk // 12 Cosmici //13 findclosetracks //100 stampa un evento particolare secondo gli ID specificati dopo //101 timing
 //100 per un evento particolare // 14 show % // 15 merge checks // 16 grid occupancy checks
-#define DEBUG_MCEVT 323 //
-#define DEBUG_VTXID  -99 //447 //10464 //6557  //88
+#define DEBUG_MCEVT -99 //
+#define DEBUG_VTXID  6660 //447 //10464 //6557  //88
 #define DEBUG_TRKID -99 //
 #define NITROGEN_SEARCH 1//1 // se 1 ricerca O->N+p se 2 ricerca SOLO O->N+p
 #define PULIZIA_EXTRA 0 // non funziona
@@ -833,7 +833,7 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
                 vertex->SetFlag(-99);
                 continue;
             } 
-            else cout << "vertex id " << vID << " found " << endl;
+            else cout << "vertex id " << vID << " found with flag " << vertex->Flag() <<  endl;
         }
         int First_MCev=0, Second_MCev=0, First_MCtr=0, Second_MCtr=0, Removed_MCEv=0;
         
@@ -1191,6 +1191,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
         if(EVERBOSE==10||EVERBOSE==100) cout << "\t >>> ipl " << ipl << "\tnv " << nv << endl;
         for(int iv=0; iv<nv; iv++){
             EdbVertex *vertex  = (EdbVertex*)(varrpl.At(iv));
+            if (EVERBOSE==100 && FAST==4) cout << " Vertex Flag (Start FindCloseTracks) " << vertex->Flag() << " ID " << vertex->ID() << " N " << vertex->N() << endl;
             if(vertex->ID()==-99||vertex->Flag()==-99) continue;
             float vx = vertex->VX();
             float vy = vertex->VY();
@@ -1242,7 +1243,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
                 }
             }
             
-            if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) cout << "\tFindCT-D " << newvertex->ID() << "\t" << ipl << "\t" << newvertex->N() << "\t" << newvertex->VZ() << endl;
+            if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) cout << "\tFindCT-D " << newvertex->ID() << "\t" << ipl << "\t" << newvertex->N() << "\t" << newvertex->VZ() << " \t " << newvertex->Flag() << endl;
             
             TObjArray tr_grid_dau;
             int modifiedvtx=0;
@@ -1258,16 +1259,23 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
                 else maximp_dau_plate=maximp_dau;
                 newvertex->SetFlag(-99);
                 modifiedvtx += DaughtersSearch(newvertex, tr_grid_dau, vrec, maximp_dau_plate);
+				if (EVERBOSE == 100 && modifiedvtx) cout << " modified vertex " << modifiedvtx<< endl;
                 if(!(newvertex)) continue;
                 tr_grid_dau.Clear();
             }
             newvertex->SetID(tempid);
-            if(modifiedvtx==0) newvertex->SetFlag(tempflag);
+            if(modifiedvtx==0) { newvertex->SetFlag(tempflag); cout << " newvertex flag = " << newvertex->Flag() << endl; }
             else if(modifiedvtx>0) { //newvertex->Flag()!=-99 &&
                 newvertex->SetFlag(100);
+				if (EVERBOSE == 100 && FAST==4) cout << " set flag 100 to newvertex " << endl;
                 //vtxPat[ipl].Add(newvertex);
             }
 
+			if (EVERBOSE == 100 && FAST==4) cout << " newvertex flag " << newvertex->Flag() << "\t" << " vertex ID " <<  newvertex->ID()  << " vertex N " <<  newvertex->N() << "\t" << endl;
+            
+            //vertex->SetFlag(newvertex->Flag()); 
+            vtxPat[ipl][iv] = newvertex;
+            if (EVERBOSE==100 && FAST==4) { TObjArray varrplNEW = vtxPat[8];  EdbVertex *vertexNEW  = (EdbVertex*)(varrplNEW.At(iv)); cout << " Vertex NEW Flag " << vertexNEW->Flag() << endl;}
             //{if(newvertex->Flag()!=-99 && modifiedvtx==1) new_varrpl->Add(newvertex);
             
             if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) {
@@ -1301,6 +1309,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             cout << "\t >>> ipl " << ipl << "\tnv " << nv << "\t";
         for(int iv=0; iv<nv; iv++){
             EdbVertex *vertex  = (EdbVertex*)(varrpl.At(iv));
+			if (EVERBOSE == 100) cout << " vertex flag " << vertex->Flag() << "\t" << " vertex ID " <<  vertex->ID()  << " vertex N " <<  vertex->N() << "\t";
             if(vertex->Flag()!=-99) {
                 new_varr_def->Add(vertex);
                 count_newvtx++;
@@ -2055,7 +2064,7 @@ EdbVertex * SelectOneBeam(EdbVertex *vertex, EdbVertexRec *vrec){
     if(EVERBOSE==6||(EVERBOSE==100 && vertex->ID()==DEBUG_VTXID)){
         cout << "SelectOneBeam end " << vertex->ID() << endl;
         for(int i=0; i<vertex->N(); i++){
-            cout << i << "\t" << vertex->GetVTa(i)->Imp() << endl;
+            cout << i << "\t" << vertex->GetVTa(i)->Imp() << " " << vertex->GetTrack(i)->Track() <<  endl;
         }
     }
     return vertex;
