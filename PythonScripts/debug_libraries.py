@@ -190,3 +190,55 @@ def CalcDistFromTrack_toVertex(VtxFileName, TrkFileName, vID, s0_plate, s0_id):
     dy = y - vertex.VY()
 
     return np.sqrt(dx*dx + dy*dy)
+
+# -------------------------------------------------- #
+
+def Count_Merged_Vertex_Tracks(VtxFileName):
+
+    VtxFile = r.TFile(VtxFileName, "READ")
+    vrec = VtxFile.Get("EdbVertexRec")
+    n_vertices = vrec.eVTX.GetEntries()
+    merged_trks = 0
+    affected_vertices = 0
+
+    for i in range(n_vertices):
+        vertex = vrec.eVTX.At(i)
+        counted = 0
+        for j in range(vertex.N()):
+            track = vertex.GetTrack(j)
+            start_MCevt = track.GetSegmentFirst().MCEvt()
+            for iseg in range(track.N()):
+                seg = track.GetSegment(iseg)
+                current_MCevt = seg.MCEvt()
+                if (current_MCevt != start_MCevt):
+                    merged_trks += 1 
+                    if (counted == 0):
+                        affected_vertices += 1
+                        counted = 1
+
+    return merged_trks, affected_vertices
+
+
+# -------------------------------------------------- #
+
+
+def PrintVertexTracksInfo(VtxFileName, vID, modality):
+    
+    VtxFile = r.TFile(VtxFileName, "READ")
+    vrec = VtxFile.Get("EdbVertexRec")
+    n_vertices = vrec.eVTX.GetEntries()
+
+    if (modality == 1):
+        vertex = vrec.eVTX.At(vID)
+        for j in range(vertex.N()):
+            track = vertex.GetTrack(j)
+            print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " \n")
+    else:
+        for i in range(n_vertices):
+            vertex = vrec.eVTX.At(i)
+            if (vertex.ID() == vID):
+                for j in range(vertex.N()):
+                    track = vertex.GetTrack(j)
+                    print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " \n")
+
+    return 1 
