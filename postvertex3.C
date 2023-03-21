@@ -27,7 +27,7 @@
 #define EVERBOSE 100 //1 per Print EdbCell2 // 2 found beam //3 found dau // 4 Np // 5 merge 2p vtx // 6 remove beam // 7 unione tracce // 8 merge tracks // 9 merge vtx //10 print // 11 PrepareTrk // 12 Cosmici //13 findclosetracks //100 stampa un evento particolare secondo gli ID specificati dopo //101 timing
 //100 per un evento particolare // 14 show % // 15 merge checks // 16 grid occupancy checks
 #define DEBUG_MCEVT -99 //
-#define DEBUG_VTXID  6660 //447 //10464 //6557  //88
+#define DEBUG_VTXID  4629 //447 //10464 //6557  //88
 #define DEBUG_TRKID -99 //
 #define NITROGEN_SEARCH 1//1 // se 1 ricerca O->N+p se 2 ricerca SOLO O->N+p
 #define PULIZIA_EXTRA 0 // non funziona
@@ -36,7 +36,7 @@
 #define DEBUG_S0_PLATE_END 12 //16
 #define DEBUG_S0_ID_END 7370 //563496
 #define DEBUG_S0_PLATE_ST 31
-#define DEBUG_S0_ID_ST 7388
+#define DEBUG_S0_ID_ST 132182
 #define ALLOW_LONGER_GAPS 1 
 int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
@@ -687,6 +687,7 @@ void ReadTreeTracksVTA(TObjArray &arrt, TObjArray &arrv){
             
             if (VertexS >= 0){
                 EdbVertex *vtxS = (EdbVertex*) arrv.At(VertexS);
+                if (EVERBOSE==100) cout << " In ReadTreeTracks Vertex S" << VertexS << " Vertex ID " << vtxS->ID() << endl; 
                 EdbVTA *VTAS = new EdbVTA(mytrack, vtxS);
                 VTAS->SetZpos(1);
                 //adding them to tracks and vertices
@@ -695,6 +696,7 @@ void ReadTreeTracksVTA(TObjArray &arrt, TObjArray &arrv){
             }//end vertexS condition
             if (VertexE >= 0){
                 EdbVertex *vtxE = (EdbVertex*) arrv.At(VertexE);
+                if (EVERBOSE==100) cout << " In ReadTreeTracks Vertex E" << VertexE << " Vertex ID " << vtxE->ID() << endl;
                 //building VTAs
                 EdbVTA *VTAE = new EdbVTA(mytrack, vtxE);
                 VTAE->SetZpos(0);
@@ -769,7 +771,7 @@ void FillTracksCells(TObjArray &arrt){
         
         gridtr_DAU[plate_tr].AddObject( x_tr, y_tr, (TObject*)t ); //nel caso dei dau voglio solo le tracce che effettivamente iniziano lì
         gridtr_DAU_end[plate_tr_end].AddObject(x_tr, y_tr, (TObject*)t); //nel caso dei dau voglio solo le tracce che effettivamente finiscono lì
-        if(t->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && t->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && EVERBOSE==15) {
+        if(t->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && t->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && (EVERBOSE==15 || EVERBOSE==100)) {
             cout << " Candidate for track is added to gridtr_DAU with x_tr " << x_tr << " and y_tr " << y_tr << endl;
         }
         
@@ -1275,7 +1277,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             
             //vertex->SetFlag(newvertex->Flag()); 
             vtxPat[ipl][iv] = newvertex;
-            if (EVERBOSE==100 && FAST==4) { TObjArray varrplNEW = vtxPat[8];  EdbVertex *vertexNEW  = (EdbVertex*)(varrplNEW.At(iv)); cout << " Vertex NEW Flag " << vertexNEW->Flag() << endl;}
+            
             //{if(newvertex->Flag()!=-99 && modifiedvtx==1) new_varrpl->Add(newvertex);
             
             if(EVERBOSE==13 || (EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID))) {
@@ -1421,7 +1423,7 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
             EdbTrackP *track = vertex->GetTrack(itrk);
             EdbVertex *vtempE = track->VertexE();
 
-            if (EVERBOSE==15) cout << "Track # " << itrk << " with s0 ID " << track->GetSegmentFirst()->ID() << endl;
+            if ((EVERBOSE==15 || EVERBOSE==100)) cout << "Track # " << itrk << " with s0 ID " << track->GetSegmentFirst()->ID() << endl;
             if (EVERBOSE == 15)
             {
                 if (vtempE) cout << " Track VertexE is not NULL (ID= " << vtempE->ID() << ")" << endl;
@@ -1434,15 +1436,15 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
             if(!(vtempE)){//condition A: la seconda traccia non deve entrare in un vertice
                 if(vertex->GetVTa(itrk)->Zpos()==1){ //lo faccio solo per le tracce che escono dal vertice!
                     if(EVERBOSE==7 || (EVERBOSE==100 && (vertex->ID()==DEBUG_VTXID || track->Track()==DEBUG_TRKID || track->MCEvt()==DEBUG_MCEVT))) cout  << "Extend Track id " << track->ID() << "\ttr " << track->Track() << "\ttheta " << track->Theta()<< "\tincoming " << vertex->GetVTa(itrk)->Zpos() << "\tmc " << track->MCEvt() << "\t" << itrk+1 << "/" << vertex->N() <<"\tnseg " << track->N() << "\tnpl " << track->Npl() << "\tPl " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentLast()->Plate() << endl;
-                    if (EVERBOSE==15) cout << "Extending Track # " << itrk << endl;
+                    if ((EVERBOSE==15 || EVERBOSE==100)) cout << "Extending Track # " << itrk << endl;
                     int lastplate=track->GetSegmentLast()->Plate();
                     int lastplate0=lastplate;
                     int end=-99, found=1, ngapmax=-99, justonce=0;
                     while(lastplate<PLMAX && found==1){
-                        EdbSegP *lastseg=track->GetSegmentLast();
+                        EdbSegP *lastseg=track->GetSegmentFLast();
                         if(lastseg->Plate()>LASTLAYER[1]-4&&lastseg->Plate()<=LASTLAYER[2]) ngapmax=9;
                         else ngapmax=4;
-                        if (EVERBOSE==15 && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && lastseg->Plate()!=lastplate0 ) cout << " last seg plate  " << lastseg->Plate() << endl;
+                        if ((EVERBOSE==15 || EVERBOSE==100) && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && lastseg->Plate()!=lastplate0 ) cout << " last seg plate  " << lastseg->Plate() << endl;
                         for(int iipl=lastplate+1; iipl<=lastplate+ngapmax; iipl++){
                             if(iipl>PLMAX) break;
                             xy[0] = lastseg->X()-lastseg->TX()*(lastseg->Z()-Z_LAYER[iipl]);
@@ -1450,7 +1452,7 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
                             int n_grid = gridtr_DAU[iipl].SelectObjectsC(xy, r, tr_grid);
                             if(EVERBOSE==100 && (vertex->ID()==DEBUG_VTXID || track->Track()==DEBUG_TRKID || track->MCEvt()==DEBUG_MCEVT)) cout << "\t searching in plate " << iipl << " cell " << "\t" << xy[0] << " " << xy[1] << "\t between " << n_grid << " tracks" << endl;
                             
-                            if (EVERBOSE==15 && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END ) {
+                            if ((EVERBOSE==15 || EVERBOSE==100) && track->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END && track->GetSegmentFirst()->ID()==DEBUG_S0_ID_END ) {
                                 cout << " Checking Grid Plate " << iipl << endl;
                                 cout << " Ngapmax " << ngapmax << endl;
                                 if (iipl == DEBUG_S0_PLATE_ST) {
@@ -1506,7 +1508,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
         
         if(cand->GetSegmentFirst()->Prob()==9) continue;
         
-        if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+        if ((EVERBOSE==15 || EVERBOSE==100) && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
          bool cond = vtempS;
          cout << " cand vtempS " << cond << endl;
          cout << " Z new " << cand->GetSegmentFirst()->Z() << " Z old " << trkend->GetSegmentLast()->Z() << endl;
@@ -1519,15 +1521,15 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
             if (trkend->GetSegmentLast()->Z() < cand->GetSegmentFirst()->Z()){ //next segment should start after end of first one
                 
                 //transverse IP to vertex
-                temp_dist = CalcDist(trkend->GetSegmentLast(),cand->GetSegmentFirst());
-                temp_deltatheta = trkend->GetSegmentLast()->Theta()-cand->GetSegmentFirst()->Theta();
-                temp_deltatheta_x = trkend->GetSegmentLast()->TX()-cand->GetSegmentFirst()->TX();
-                temp_deltatheta_y = trkend->GetSegmentLast()->TY()-cand->GetSegmentFirst()->TY();
-                temp_dz=trkend->GetSegmentLast()->Z()-cand->GetSegmentFirst()->Z();
-                temp_x=trkend->GetSegmentLast()->X()-temp_dz*trkend->GetSegmentLast()->TX();
-                temp_y=trkend->GetSegmentLast()->Y()-temp_dz*trkend->GetSegmentLast()->TY();
-                temp_delta_x=temp_x-cand->GetSegmentFirst()->X();
-                temp_delta_y=temp_y-cand->GetSegmentFirst()->Y();
+                temp_dist = CalcDist(trkend->GetSegmentFLast(),cand->GetSegmentFFirst());
+                temp_deltatheta = trkend->GetSegmentFLast()->Theta()-cand->GetSegmentFFirst()->Theta();
+                temp_deltatheta_x = trkend->GetSegmentFLast()->TX()-cand->GetSegmentFFirst()->TX();
+                temp_deltatheta_y = trkend->GetSegmentFLast()->TY()-cand->GetSegmentFFirst()->TY();
+                temp_dz=trkend->GetSegmentFLast()->Z()-cand->GetSegmentFFirst()->Z();
+                temp_x=trkend->GetSegmentFLast()->X()-temp_dz*trkend->GetSegmentFLast()->TX();
+                temp_y=trkend->GetSegmentFLast()->Y()-temp_dz*trkend->GetSegmentFLast()->TY();
+                temp_delta_x=temp_x-cand->GetSegmentFFirst()->X();
+                temp_delta_y=temp_y-cand->GetSegmentFFirst()->Y();
                 //if(TMath::Abs(temp_delta_x)<50 && TMath::Abs(temp_delta_y)<50) cout << "\t\t" << temp_dist << "\t" << temp_deltatheta << "\t" << dist << "\t" << deltatheta << "\t" << temp_x << "\t" << temp_delta_x << "\t" << temp_y << "\t" << temp_delta_y << endl;
                 
                 if(cand->GetSegmentFirst()->Plate()>LASTLAYER[1]){
@@ -1537,7 +1539,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
                     h_IP_DTh_merge->Fill(temp_dist, sqrt(temp_deltatheta_x*temp_deltatheta_x+temp_deltatheta_y*temp_deltatheta_y));
                 }
                 
-                if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+                if ((EVERBOSE==15 || EVERBOSE==100) && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
                  
                  cout << " Extend Track Calculated Parameters " << endl;
                  cout << " b " << temp_dist << " DTX_temp " << temp_deltatheta_x << " DTY_temp " << temp_deltatheta_y  << " DX temp " << temp_delta_x << " DY temp " << temp_delta_y << endl;
@@ -1552,7 +1554,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
                     
                     dist=temp_dist;
                     iitrk=itrk;
-                    if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
+                    if ((EVERBOSE==15 || EVERBOSE==100) && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END) {
                      
                      cout << " First Check OK -> b = " << dist << endl;
                      }
@@ -1561,7 +1563,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
                     
                     if((EVERBOSE==7 && MC==11) || (EVERBOSE==100 && ((cand->Track() == DEBUG_TRKID||trkend->Track()==DEBUG_TRKID) || cand->MCEvt()==DEBUG_MCEVT|| trkend->MCEvt()==DEBUG_MCEVT))) cout << "\t\t\t\t" << cand->MCEvt() << "\t" << cand->MCTrack() << " selected " << dist << "\t" << deltatheta << endl;
                     
-                } else if (EVERBOSE==15 && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END){
+                } else if ((EVERBOSE==15 || EVERBOSE==100) && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && trkend->GetSegmentFirst()->ID()==DEBUG_S0_ID_END && trkend->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_END){
                   
                   cout << " First Check NOT OK " << endl;
                   cout << " Used These Parameters: deltatheta_x " << deltatheta_x << " deltatheta_y " << deltatheta_y << " dist " << dist << endl;
@@ -1589,7 +1591,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
         
         MergeTrack(trkend, cand);
         
-        if(cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && EVERBOSE==15) {
+        if(cand->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_ST && cand->GetSegmentFirst()->ID()==DEBUG_S0_ID_ST && (EVERBOSE==15 || EVERBOSE==100)) {
             cout << " Candidate in S2 has been merged to track with s0_plate " << trkend->GetSegmentFirst()->Plate() << " s0_id " << trkend->GetSegmentFirst()->ID() << endl;
         }
         
@@ -1610,7 +1612,7 @@ int ExtendTrack(EdbTrackP *trkend, TObjArray &tracks, float maximp, float max_de
 
 void UnisciTracceLongerGaps(TObjArray *end_tracksS1, float maximp, float max_deltatheta) {
     
-    if (EVERBOSE==14||EVERBOSE==16||EVERBOSE==15) cout << " Found " << end_tracksS1->GetEntries() << " tracks possibly having distant candidates " << endl;
+    if (EVERBOSE==14||EVERBOSE==16||(EVERBOSE==15 || EVERBOSE==100)) cout << " Found " << end_tracksS1->GetEntries() << " tracks possibly having distant candidates " << endl;
     TStopwatch t2;
     t2.Start();
     
