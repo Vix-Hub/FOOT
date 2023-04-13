@@ -91,11 +91,11 @@ void add_stack(int S)
     
     cout << endl << endl;
     
-    TString setfilename=Form("%sb%06d/b%06d.0.0.0.set.root", folderpath.Data(), IDBRICK, IDBRICK); //set di tutto il brick
+    TString setfilename=Form("%sb%06d_SmallSample/b%06d/b%06d.0.0.0.set.root", folderpath.Data(), IDBRICK, IDBRICK, IDBRICK); //set di tutto il brick
     TFile *setfile = TFile::Open(setfilename);
     EdbScanSet *scanset = (EdbScanSet*) setfile->Get("set");
 
-    TString path=Form("%sb%06d/b%06d.%d.0.0.trk.root", folderpath.Data(), IDBRICK, IDBRICK, S);
+    TString path=Form("%sb%06d_SmallSample/b%06d/b%06d.%d.0.0.trk.root", folderpath.Data(), IDBRICK, IDBRICK, IDBRICK, S);
     TFile *file = new TFile(path, "READ");
     
     EdbBrickP brick=scanset->Brick();
