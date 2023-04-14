@@ -387,15 +387,6 @@ int connect_tracks() {
                 EdbSegP *sf = (EdbSegP*)fitted_segments_new->At(i);
                 new((*segments_new_ordered)[counter]) EdbSegP(*s);
                 new((*fitted_segments_new_ordered)[counter]) EdbSegP(*sf);
-                if (counter==0) { //put first seg info in new_trk
-                    EdbSegP* tempseg =(EdbSegP*)fitted_segments_new->At(i);
-                    new_trk->SetX(tempseg->X());
-                    new_trk->SetY(tempseg->Y());
-                    new_trk->SetZ(tempseg->Z());
-                    new_trk->SetTX(tempseg->TX());
-                    new_trk->SetTY(tempseg->TY());
-                    new_trk->SetFlag(tempseg->Flag());
-                }
                 counter = counter + 1;
             }
             //new_trk->SetCounters();
