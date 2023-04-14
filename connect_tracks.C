@@ -153,7 +153,7 @@ int connect_tracks() {
     int S0 = 1, SL = 2;
     int start_s2_position = 0;
 
-    TFile *trkfile = TFile::Open(Form("b000%i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL));
+    TFile *trkfile = TFile::Open(Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL));
     TTree* tracks = (TTree*) trkfile->Get("tracks");
 
     // End of First Section Cuts
@@ -231,7 +231,7 @@ int connect_tracks() {
                 if (z_value != 0) break;
         }
         Z_LAYER[i] = z_value;
-        cout << " i " << i << endl;
+        //cout << " i " << i << endl;
     }
     for (int i=START_PLATE_S2+1; i<=PLMAX; i++) {
         z_value = 0;
@@ -294,7 +294,7 @@ int connect_tracks() {
     TStopwatch t;
     t.Start();
 
-    cout << " here " << endl;
+    //cout << " here " << endl;
 
     for (int iplS2=1; iplS2<PLATE_MAX_S2-START_PLATE_S2; iplS2++) {
         int N_trks_S2 = gridtr_S2[iplS2].SelectObjects(tr_grid_s2);
