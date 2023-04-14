@@ -3,8 +3,7 @@
 #include<string>
 
 
-#define BRICKID 222
-#define BRAGGPLATE 26
+#define IDBRICK 333
 #define EVERBOSE -99
 
 const int DEBUG_S0_PLATE=31; //31
@@ -151,7 +150,6 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
 
 int connect_tracks() {
 
-    int IDBRICK = 222;
     int S0 = 1, SL = 2;
     int start_s2_position = 0;
 
@@ -391,7 +389,7 @@ int connect_tracks() {
             }
             //new_trk->SetCounters();
             
-            trk_new = (EdbSegP*)segments_new.At(segments_new->GetEntries()-1);
+            trk_new = (EdbSegP*)segments_new->At(segments_new->GetEntries()-1);
             //cout << " hello it's me, new_trk " << new_trk->Theta() << " " << new_trk->X() << " npl " << new_trk->Npl() << " " << new_trk->MCEvt() <<endl;
             //cout << " hello it's me, trk_new " << trk_new->Theta() << " " << trk_new->X() << endl;
             //trk_new->ForceCOV(new_trk->COV());    //leads to segmentation violation maybe recalculate COV?
