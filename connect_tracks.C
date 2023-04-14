@@ -27,12 +27,6 @@ TObjArray *arrTRK = new TObjArray();   // original tracks
 int MERGED=0;
 float Z_LAYER[PLMAX+1]={0};
 
-void bubbleSort(std::vector<double>& v);
-int findValuePosition(const std::vector<double>& myVector, double valueToFind);
-void FillTracksCells(TObjArray &arrt);
-double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
-int IsElementInVector(const std::vector<string>& myVector, string value);
-EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
 
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1){
     //prendo il primo segmento della traccia, lo proietto alla z del vertice e calcolo la distanza
@@ -68,7 +62,7 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
     if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
     int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
     float b=0, r=500, b_back=0;
-    
+
     std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
     TObjArray candidate_tracks, tr_grid_s1;
@@ -91,12 +85,12 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
             if(EVERBOSE==101) cout << " Checking Grid corresponding to plate # " << ipl+START_PLATE_S2-1 << ", found " << n_trk_cell << " objects " << endl;
             if (EVERBOSE==101) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
             for (int itrk1=0; itrk1<n_trk_cell; itrk1++) {
-                EdbTrackP* end_trk = (EdbTrackP*)tr_grid_s1.At(itrk1);
-                EdbSegP* end_seg = (EdbSegP*)end_trk->GetSegmentLast();
-                EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
+                end_trk = (EdbTrackP*)tr_grid_s1.At(itrk1);
+                end_seg = (EdbSegP*)end_trk->GetSegmentLast();
+                end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
                 b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
                 b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
-                if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << endl;
+                if (EVERBOSE==100) cout << " Calculated (b+b_back)/2 with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << (b+b_back)/2 << endl;
                 impact_parameters.push_back(b);
                 impact_parameters_back.push_back(b_back);
                 merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
@@ -111,17 +105,18 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
     bubbleSort(sorted_IPs);
     float current_b=0, current_b_back=0;
     int pos=0;
-    //cout << " after b calc sorted IP size " << sorted_IPs.size() <<  endl;
+    EdbTrackP *to_merge_trk;
 
     if (sorted_IPs.size()>0) {  //if at least one candidate was found
         for (int icand=0; icand<sorted_IPs.size(); icand++) {
             current_b = sorted_IPs[icand];
             pos = findValuePosition(impact_parameters, current_b);
-            EdbTrackP *to_merge_trk = (EdbTrackP*)candidate_tracks.At(pos);
-            if (to_merge_trk==NULL) continue;
+            
+            to_merge_trk = (EdbTrackP*)candidate_tracks.At(pos);
             current_b_back = impact_parameters_back[pos];
-            //std::string tr_string = Form("%i_%i", merge_s0plate_cand[pos], merge_s0id_cand[pos]);
-            if (to_merge_trk->Flag()!=300 && current_b<MAX_B && current_b_back<MAX_B) { //if the candidate was not used
+            if (EVERBOSE==100) cout << " pos " << pos << endl;
+            if (EVERBOSE==100) cout << " current b " << current_b << " current_b_back " << current_b_back << " flag " << to_merge_trk->Flag() << endl;
+            if (to_merge_trk->Flag()!=300 && (current_b+current_b_back)/2<MAX_B) { //if the candidate was not used
 
                 MERGED += 1;
                 to_merge_trk->SetFlag(300);
@@ -169,7 +164,7 @@ int connect_tracks() {
 
     // Read Tracks (need XYZ s0 and sL and sfTX sfTY)
 
-    EdbSegP *trk=0;
+    EdbSegP *trk;
     TClonesArray *segments = new TClonesArray("EdbSegP");
     TClonesArray *fitted_segments = new TClonesArray("EdbSegP");
     
@@ -198,14 +193,13 @@ int connect_tracks() {
 
         EdbTrackP *temptrack = new EdbTrackP(); 
 		//fill temptrack with segments
-        
 		for (int k = 0; k<nseg; k++) {
 
 		  temptrack->SetID(trk->ID());
-		  EdbSegP* seg = (EdbSegP*)segments->At(k);
-		  EdbSegP *segf = (EdbSegP*)fitted_segments->At(k);
-		  //seg->SetDZ(300);
-		  //segf->SetDZ(300);
+		  EdbSegP* seg = segments->At(k);
+		  EdbSegP *segf = fitted_segments->At(k);
+		  seg->SetDZ(300);
+		  segf->SetDZ(300);
 		  temptrack->AddSegment(new EdbSegP(*((EdbSegP*)(seg))));
 		  temptrack->AddSegmentF(new EdbSegP(*((EdbSegP*)(segf))));
 		  temptrack->SetSegmentsTrack(temptrack->ID()); //track segments association
@@ -274,10 +268,10 @@ int connect_tracks() {
     
     cout << " Found " << N_trks_S2 << " trks " << endl;
 
-    TFile *merge_file = TFile::Open(Form("b000%i.0.%i.%i.trk_merged.root", IDBRICK, S0, SL), "RECREATE");
+    TFile *merge_file = TFile::Open(Form("b00000%i.0.%i.%i.trk_merged.root", IDBRICK, S0, SL), "RECREATE");
     TTree *tracks_new = new TTree();
 
-    EdbSegP *trk_new=0;
+    EdbSegP *trk_new;
     TClonesArray *segments_new = new TClonesArray("EdbSegP");
     TClonesArray *fitted_segments_new = new TClonesArray("EdbSegP");
 
@@ -304,7 +298,7 @@ int connect_tracks() {
 
         for (int itrk2=0; itrk2<N_trks_S2; itrk2++) {
 
-            EdbTrackP *start_trk = (EdbTrackP*)tr_grid_s2.At(itrk2);
+            start_trk = (EdbTrackP*)tr_grid_s2.At(itrk2);
             //if (itrk2>100) break;
             if (EVERBOSE==100 && (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE)) continue;
             int backpos = start_trk->N()-1;
@@ -320,8 +314,7 @@ int connect_tracks() {
 
             // Look for pieces to merge in S1
             EdbTrackP* to_merge_trk = FindClosestCandidate(3+iplS2, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
-            EdbTrackP* ausiliary=NULL;
-            //cout << " FindClose 1 " << endl;
+            EdbTrackP* ausiliary;
             if (EVERBOSE == 100) cout << " added segs after first search " << added_segs << endl;
             if (EVERBOSE==100 && start_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID && start_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE) {
                 if (to_merge_trk) cout << " Found Candidate " << endl;
@@ -331,7 +324,6 @@ int connect_tracks() {
                 while(to_merge_trk!=NULL) {
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
                     ausiliary = FindClosestCandidate(4, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
-                    //cout << " FindClose 2 " << endl;
                     if (EVERBOSE == 100) cout << " added segs after second search " << added_segs << endl;
                     if (ausiliary==NULL) { break; }
                     to_merge_trk->Clear();
@@ -375,34 +367,28 @@ int connect_tracks() {
             int start_plate = to_merge_trk->GetSegmentFirst()->Plate();
             npl_new = final_plate - start_plate;
 
-            EdbTrackP *new_trk = new EdbTrackP();
+            //EdbTrackP *new_trk = new EdbTrackP();
             int counter = 0;
+            
             for (int i=segments_new->GetEntries()-1; i>0; i--) { //do it backwards to start from S1
-                new_trk->SetID(trid_new);
+                /*new_trk->SetID(trid_new);
                 new_trk->AddSegment((EdbSegP*)segments_new->At(i));
                 new_trk->GetSegment(new_trk->N()-1)->SetDZ(300);
                 new_trk->SetSegmentsTrack(new_trk->ID()); //track segments association
-                new_trk->SetCounters();	
+                new_trk->SetCounters();	*/
                 EdbSegP *s = (EdbSegP*)segments_new->At(i);
                 EdbSegP *sf = (EdbSegP*)fitted_segments_new->At(i);
                 new((*segments_new_ordered)[counter]) EdbSegP(*s);
                 new((*fitted_segments_new_ordered)[counter]) EdbSegP(*sf);
-                if (counter==0) { //put first seg info in new_trk
-                    EdbSegP* tempseg =(EdbSegP*)fitted_segments_new->At(i);
-                    new_trk->SetX(tempseg->X());
-                    new_trk->SetY(tempseg->Y());
-                    new_trk->SetZ(tempseg->Z());
-                    new_trk->SetTX(tempseg->TX());
-                    new_trk->SetTY(tempseg->TY());
-                    new_trk->SetFlag(tempseg->Flag());
-                }
                 counter = counter + 1;
             }
-            new_trk->SetCounters();
+            //new_trk->SetCounters();
             
-            trk_new->Copy(*new_trk);
-            //cout << " hello it's me, new_trk " << new_trk->Theta() << " " << new_trk->X() << " npl " << new_trk->Npl() << " " << new_trk->MCEvt() <<endl;
-            //cout << " hello it's me, trk_new " << trk_new->Theta() << " " << trk_new->X() << endl;
+            trk_new = (EdbSegP*)segments_new.At(segments_new->GetEntries()-1);
+            if (EVERBOSE==100) {
+                //cout << " hello it's me, new_trk " << new_trk->Theta() << " " << new_trk->X() << " npl " << new_trk->Npl() << " " << new_trk->MCEvt() <<endl;
+                cout << " hello it's me, trk_new " << trk_new->Theta() << " " << trk_new->X() << endl;
+            }
             //trk_new->ForceCOV(new_trk->COV());    //leads to segmentation violation maybe recalculate COV?
             trk_new->SetVid( 0, tracks_new->GetEntries() ); 
 
@@ -413,7 +399,7 @@ int connect_tracks() {
             segments_new_ordered->Clear();
             fitted_segments_new_ordered->Clear();
             //candidate_tracks.Clear();
-            new_trk->Clear();
+            //new_trk->Clear();
 
             if (itrk2%1000==0) { cout << " Completed " << 100.*itrk2/N_trks_S2 << " %, Iteration Time: " <<  t.RealTime() << " s " << endl; t.Reset(); t.Start();}  
         }
@@ -442,7 +428,8 @@ int connect_tracks() {
             npl_new = s1_trk->Npl();
             trid_new = s1_trk->ID(); //trid is first track ID
 
-            trk_new->Copy(*s1_trk);
+            //trk_new->Copy(*s1_trk);
+            trk_new = s1_trk->GetSegment(0);
             trk_new->SetVid(0, tracks_new->GetEntries() ); 
             tracks_new->Fill();
 
@@ -456,7 +443,6 @@ int connect_tracks() {
     merge_file->cd();
     tracks_new->Write("tracks");
     merge_file->Close();
-    
     
     return 1;
 }
@@ -508,6 +494,7 @@ void bubbleSort(std::vector<double>& v) {
 
 
 int findValuePosition(const std::vector<double>& myVector, double valueToFind) {
+
   for (int i = 0; i < myVector.size(); i++) {
     if (myVector[i] == valueToFind) {
       return i;
