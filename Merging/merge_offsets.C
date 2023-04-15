@@ -204,7 +204,7 @@ int merge_offsets() {
         if (i%1000==0) { cout << " Completed " << 100.*i/SL_s0_X.size() << " %, Iteration time: " << t.RealTime() << " s" << endl; t.Reset(); t.Start(); }
         merge_best->Fill(b_min, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
         merge_comp->Fill(save_bf, save_bback, b_min);
-        merge_best_info->Fill(mcevt_S2, mcevt_S1);
+        merge_best_info->Fill(mcevt_S2, save_mcevt);
         
     }
 
