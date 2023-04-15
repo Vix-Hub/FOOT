@@ -15,7 +15,7 @@ int merge_offsets() {
 
 
     // End of First Section Cuts
-    int PLATE_MIN=25, PLATE_MAX=31, NSEG_MIN=2;
+    int PLATE_MIN=26, PLATE_MAX=31, NSEG_MIN=3;
     float X_min=35000, X_max=90000, Y_min = 25000, Y_max=75000;
     // Start of Second Section 
     int PLATE_MAX_S2 = 40, thr = 3000, START_PLATE_S2=31;
