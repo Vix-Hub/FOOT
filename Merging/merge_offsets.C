@@ -125,7 +125,7 @@ int merge_offsets() {
 
     TFile *outfile = TFile::Open(Form("%i_S%i_S%i_offsets.root", IDBRICK, S0, SL), "RECREATE");
     TNtuple *merge_all = new TNtuple("t_merge", "Impact Parameter between ALL selected tracks ", "b:DTX:DTY:DXp:DYp:b_back:DXp_back:DYp_back:DXp_middle:DYp_middle");
-    TNtuple *merge_best = new TNtuple("merge_best", "Only Best Candidates (b forward)", "b:s0_id:s0_plate:s0_idS1:s0_plateS1:DXp:DYp:DX_middle:DY_middle:DXp2:DYp2:s0TX:s0TY:b_back:s0_flag");
+    TNtuple *merge_best = new TNtuple("merge_best", "Only Best Candidates (b+b_back / 2)", "b:s0_id:s0_plate:s0_idS1:s0_plateS1:DXp:DYp:DX_middle:DY_middle:DXp2:DYp2:s0TX:s0TY:b_back:s0_flag");
     TNtuple *merge_comp = new TNtuple("merge_comp", "Comparing b forward, b back, b middle for best b middle candidates ", "b:b_back:b_middle");
 
     cout << " size " << SL_s0_X.size() << endl;
@@ -194,10 +194,9 @@ int merge_offsets() {
         }
 
         if (i%1000==0) { cout << " Completed " << 100.*i/SL_s0_X.size() << " %, Iteration time: " << t.RealTime() << " s" << endl; t.Reset(); t.Start(); }
-        if (b_min<MAX_B) {
-            merge_best->Fill(b_min, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
-            merge_comp->Fill(save_bf, save_bback, b_min);
-        }
+        merge_best->Fill(b_min, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
+        merge_comp->Fill(save_bf, save_bback, b_min);
+        
     }
 
     outfile->cd();
