@@ -4,10 +4,10 @@
 
 
 #define IDBRICK 2
-#define EVERBOSE 100
+#define EVERBOSE -99
 
 const int DEBUG_S0_PLATE=31; //31
-const int DEBUG_S0_ID=1291406; //91690
+const int DEBUG_S0_ID=1395973; //91690
 
 const float xmin = 35000;//0;
 const float xmax = 90000;//125000;
@@ -97,12 +97,15 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
                 b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
                 b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
                 if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << endl;
-                impact_parameters.push_back(b); 
-                impact_parameters_back.push_back(b_back);
-                impact_parameters_mean.push_back((b+b_back)/2);
-                merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
-                merge_s0id_cand.push_back(end_trk->GetSegmentFirst()->ID());
-                candidate_tracks.Add((EdbTrackP*)end_trk);
+                if (b<MAX_B && b_back<MAX_B) {
+                    impact_parameters.push_back(b); 
+                    impact_parameters_back.push_back(b_back);
+                    impact_parameters_mean.push_back((double)(b+b_back)/2);
+                    merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
+                    merge_s0id_cand.push_back(end_trk->GetSegmentFirst()->ID());
+                    candidate_tracks.Add((EdbTrackP*)end_trk);
+                }
+                
             }
 
             tr_grid_s1.Clear();
