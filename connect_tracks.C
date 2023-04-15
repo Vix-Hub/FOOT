@@ -3,8 +3,8 @@
 #include<string>
 
 
-#define IDBRICK 333
-#define EVERBOSE -99
+#define IDBRICK 2
+#define EVERBOSE 100
 
 const int DEBUG_S0_PLATE=31; //31
 const int DEBUG_S0_ID=1291406; //91690
@@ -32,6 +32,7 @@ void FillTracksCells(TObjArray &arrt);
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
 int IsElementInVector(const std::vector<string>& myVector, string value);
 EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
+void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2);
 
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1){
     //prendo il primo segmento della traccia, lo proietto alla z del vertice e calcolo la distanza
@@ -68,7 +69,7 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
     int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
     float b=0, r=500, b_back=0;
     
-    std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back;
+    std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
     TObjArray candidate_tracks, tr_grid_s1;
 
@@ -96,8 +97,9 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
                 b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
                 b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
                 if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << endl;
-                impact_parameters.push_back(b);
+                impact_parameters.push_back(b); 
                 impact_parameters_back.push_back(b_back);
+                impact_parameters_mean.push_back((b+b_back)/2);
                 merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
                 merge_s0id_cand.push_back(end_trk->GetSegmentFirst()->ID());
                 candidate_tracks.Add((EdbTrackP*)end_trk);
@@ -106,15 +108,16 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
             tr_grid_s1.Clear();
     }
 
-    sorted_IPs = impact_parameters;
-    bubbleSort(sorted_IPs);
-    float current_b=0, current_b_back=0;
+    sorted_IPs = impact_parameters_mean;
+    sorted_IPs_for = impact_parameters;
+    bubbleSort_NEW(sorted_IPs, sorted_IPs_for); //sort by (b+b_back)/2 
+    float current_b=0, current_b_back=0, current_b_mean=0;
     int pos=0;
     //cout << " after b calc sorted IP size " << sorted_IPs.size() <<  endl;
 
     if (sorted_IPs.size()>0) {  //if at least one candidate was found
         for (int icand=0; icand<sorted_IPs.size(); icand++) {
-            current_b = sorted_IPs[icand];
+            current_b = sorted_IPs_for[icand];
             pos = findValuePosition(impact_parameters, current_b);
             EdbTrackP *to_merge_trk = (EdbTrackP*)candidate_tracks.At(pos);
             if (to_merge_trk==NULL) continue;
@@ -152,8 +155,13 @@ int connect_tracks() {
 
     int S0 = 1, SL = 2;
     int start_s2_position = 0;
+    int MC = 0;
+    if (IDBRICK < 10) MC = 1;
 
-    TFile *trkfile = TFile::Open(Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL));
+    TString file_name = Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL);
+    if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.root", IDBRICK, S0, SL);
+
+    TFile *trkfile = TFile::Open(file_name, "READ");
     TTree* tracks = (TTree*) trkfile->Get("tracks");
 
     // End of First Section Cuts
@@ -505,4 +513,17 @@ int findValuePosition(const std::vector<double>& myVector, double valueToFind) {
   }
 
   return -1; // return -1 if value is not found
+}
+
+
+void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2) {
+    int n = v.size();
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < n-i-1; j++) {
+            if (v[j] > v[j+1]) {
+                std::swap(v[j], v[j+1]);
+                std::swap(v2[j], v2[j+1]);
+            }
+        }
+    }
 }
