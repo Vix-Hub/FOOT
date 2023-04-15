@@ -118,7 +118,7 @@ int merge_offsets2() {
 
     double b_back=0, b_for=0;
     float x0=0, x1=0, y0=0, y1=0, z0=0, z1=0, tx0=0, ty0=0, tx1=0, ty1=0;
-    float dtx=0, dty=0, dxp=0, dyp=0, dx=0, dy=0, dxp2=0, dyp2=0, dx_middle=0, dy_middle=0;
+    float dtx=0, dty=0, dxp=0, dyp=0, dx=0, dy=0, dxp2=0, dyp2=0, dx_middle=0, dy_middle=0, dz=0;
 
     TStopwatch t;
     t.Start();
@@ -175,6 +175,7 @@ int merge_offsets2() {
             dyp2 = y0 - (z0-z1)*ty0 - y1;
             dx = x1 - x0;
             dy = y1 - y0;
+	    dz = z1 - z0;
 
             double dz_middle = TMath::Abs(dz/2);
             double x1_middle = x1+dz_middle*tx1;
