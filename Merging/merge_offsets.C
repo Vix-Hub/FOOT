@@ -19,10 +19,6 @@ int merge_offsets() {
     float X_min=35000, X_max=90000, Y_min = 25000, Y_max=75000;
     // Start of Second Section 
     int PLATE_MAX_S2 = 40, thr = 3000, START_PLATE_S2=31;
-    float X_min2 = X_min-thr;
-    float Y_min2 = Y_min-thr;
-    float X_max2 = X_max+thr;
-    float Y_max2 = Y_max+thr;
 
     // Merge Cuts
     float DT_MAX = 0.5, B_MAX=500;
@@ -183,8 +179,8 @@ int merge_offsets() {
             mcevt_S1 = S0_s0_MCEvt[j];
             mc_trkS1 = S0_s0_MCtrk[j];
 
-            b_for = CalcDist(x0, y0, z0, x1, y1, z1, tx0, ty0);
-            b_back = CalcDist(x1, y1, z1, x0, y0, z0, tx1, ty1);
+            b_back = CalcDist(x0, y0, z0, x1, y1, z1, tx0, ty0);
+            b_for = CalcDist(x1, y1, z1, x0, y0, z0, tx1, ty1);
             b_middle = CalcDistMiddle(x1, y1, z1, tx1, ty1, x0, y0, z0, tx0, ty0);
 
             dtx = tx1 - tx0;
