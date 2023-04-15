@@ -212,6 +212,7 @@ int merge_offsets() {
     merge_all->Write();
     merge_best->Write();
     merge_comp->Write();
+    merge_best_info->Write();
     outfile->Close();
 
     return 1;
