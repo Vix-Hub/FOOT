@@ -272,7 +272,7 @@ int connect_tracks() {
     
     cout << " Found " << N_trks_S2 << " trks " << endl;
 
-    TFile *merge_file = TFile::Open(Form("b000%i.0.%i.%i.trk_merged.root", IDBRICK, S0, SL), "RECREATE");
+    TFile *merge_file = TFile::Open(Form("b%06i.0.%i.%i.trk_merged.root", IDBRICK, S0, SL), "RECREATE");
     TTree *tracks_new = new TTree();
 
     EdbSegP *trk_new=0;
