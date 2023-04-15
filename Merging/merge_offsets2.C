@@ -203,6 +203,7 @@ int merge_offsets2() {
     outfile->cd();
     merge_all->Write();
     merge_best->Write();
+    merge_comp->Write();
     outfile->Close();
 
     return 1;
