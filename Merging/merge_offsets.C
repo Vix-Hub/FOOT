@@ -1,5 +1,10 @@
 
 #define IDBRICK 2
+#define EVERBOSE 100
+#define DEBUG_S0_PLATE 31
+#define DEBUG_S0_ID 411417
+#define DEBUG_S0_PLATE_S1 25
+#define DEBUG_S0_ID_S1 411412
 
 double CalcDistMiddle(float x1, float y1, float z1, float tx1, float ty1, float x2, float y2, float z2, float tx2, float ty2);
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
@@ -81,9 +86,9 @@ int merge_offsets() {
 
             //cout << " here " << endl;
 
-            SL_s0_X.push_back(seg0->X()+X_off_manual);
-            SL_s0_Y.push_back(seg0->Y()+Y_off_manual);
-            SL_s0_Z.push_back(seg0->Z());
+            SL_s0_X.push_back(segf0->X()+X_off_manual);
+            SL_s0_Y.push_back(segf0->Y()+Y_off_manual);
+            SL_s0_Z.push_back(segf0->Z());
 
             SL_sf0_TX.push_back(segf0->TX());
             SL_sf0_TY.push_back(segf0->TY());
@@ -101,9 +106,9 @@ int merge_offsets() {
 
             EdbSegP* segfL = (EdbSegP*)fitted_segments->At(nseg-1);
 
-            S0_sl_X.push_back(segL->X());
-            S0_sl_Y.push_back(segL->Y());
-            S0_sl_Z.push_back(segL->Z());
+            S0_sl_X.push_back(segfL->X());
+            S0_sl_Y.push_back(segfL->Y());
+            S0_sl_Z.push_back(segfL->Z());
 
             S0_sfl_TX.push_back(segfL->TX());
             S0_sfl_TY.push_back(segfL->TY());
@@ -182,6 +187,10 @@ int merge_offsets() {
             b_back = CalcDist(x0, y0, z0, x1, y1, z1, tx0, ty0);
             b_for = CalcDist(x1, y1, z1, x0, y0, z0, tx1, ty1);
             b_middle = CalcDistMiddle(x1, y1, z1, tx1, ty1, x0, y0, z0, tx0, ty0);
+
+            if (EVERBOSE==100 && plate2==DEBUG_S0_PLATE_S1 && id2==DEBUG_S0_ID_S1 && plate==DEBUG_S0_PLATE && id == DEBUG_S0_ID) {
+                cout << " Calculated b_back: " << b_back << endl;
+            }
 
             dtx = tx1 - tx0;
             dty = ty1 - ty0;
