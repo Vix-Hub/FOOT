@@ -189,7 +189,7 @@ int merge_offsets() {
             b_middle = CalcDistMiddle(x1, y1, z1, tx1, ty1, x0, y0, z0, tx0, ty0);
 
             if (EVERBOSE==100 && plate2==DEBUG_S0_PLATE_S1 && id2==DEBUG_S0_ID_S1 && plate==DEBUG_S0_PLATE && id == DEBUG_S0_ID) {
-                cout << " Calculated b_back: " << b_back << " b " << b << endl;
+                cout << " Calculated b_back: " << b_back << " b " << b_for << endl;
             }
 
             dtx = tx1 - tx0;
