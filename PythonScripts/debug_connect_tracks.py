@@ -2,6 +2,8 @@ import ROOT as r
 import fedrarootlogon
 import numpy as np 
 
+DISPLAY = 0
+
 merge_file = r.TFile("2_S1_S2_offsets.root", "READ")
 merge_best = merge_file.Get("merge_best")
 
@@ -41,7 +43,8 @@ for couple in s0_couples_S1:
             lost_tracks.append(s0_couplesS2)
         if (good == len(indices)):
             count_good += len(indices) - 1
-            print(s0_couplesS2)
+            if (DISPLAY == 1):
+                print(s0_couplesS2)
              
 print("Shared best candidates: " + str(count))
 print(" Shared best candidates all with good b, b_back (tracks that end with no candidate) " + str(count_good))
@@ -55,11 +58,12 @@ unconnected_couples = []
 
 for track in tracks:
     if (track.nseg>2 and track.s[0].Plate()>30 and track.s[0].Plate()<40): #not connected with same cuts in merge_offsets
-        position = total_S2_couples.index(((track.s[0].Plate(), track.s[0].ID())))
+        position = total_S2_couples.index((track.s[0].Plate(), track.s[0].ID()))
         if ( (bs[position]<100 and b_backs[position]<100)):
             unconnected_couples.append((track.s[0].Plate(), track.s[0].ID()))
 
 print(" Printing tracks to use to debug connect tracks ")
+print(len(unconnected_couples))
 
 for unconnected in unconnected_couples:
     if (not (unconnected in lost_tracks)):
