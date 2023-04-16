@@ -272,6 +272,15 @@ int connect_tracks() {
     cout << " --- Filling Cells --- " << endl;
     FillTracksCells(*arrTRK);
     cout << " --- Cells Ready --- " << endl;
+    if (EVERBOSE==100) {
+        TObjArray check;
+        int check_n = gridtr_S1[DEBUG_S0_PLATE_S1].SelectObjects(check);
+        cout << " got " << check_n << " objects from plate " << DEBUG_S0_PLATE_S1 << endl;
+        for (int i=0; i<check_n; i++) {
+            EdbTrackP* check_trk = (EdbTrackP*)check.At(i);
+            if (check_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " found " << endl;
+        }
+    }
 
     TObjArray tr_grid_s1, tr_grid_s2;
     EdbTrackP *start_trk, *end_trk, *merged_trk;
