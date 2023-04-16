@@ -7,9 +7,10 @@
 #define EVERBOSE 100
 
 const int DEBUG_S0_PLATE=31; //31
-const int DEBUG_S0_ID=411417; //91690
-const int DEBUG_S0_PLATE_S1=25;
-const int DEBUG_S0_ID_S1 = 411412;
+const int DEBUG_S0_ID=1767; //91690
+const int DEBUG_S0_PLATE_S1=28;
+const int DEBUG_S0_ID_S1 = 1764;
+const int DEBUG_SL_PLATE_S1 = 30;
 
 const float xmin = 35000;//0;
 const float xmax = 90000;//125000;
@@ -25,7 +26,7 @@ EdbCell2 gridtr_S2[int(PLMAX-START_PLATE_S2)+1];
 EdbCell2 gridtr_ALL[1+PLMAX]; //first cell left left empty
 
 TObjArray *arrTRK = new TObjArray();   // original tracks
-int MERGED=0;
+int MERGED=0, MERGED_FIRST_STEP=0;
 float Z_LAYER[PLMAX+1]={0};
 
 void bubbleSort(std::vector<double>& v);
@@ -69,7 +70,7 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
     float xy[2] = {0,0};
     if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
     int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
-    float b=0, r=500, b_back=0;
+    float b=0, r=500., b_back=0;
     
     std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
@@ -274,10 +275,18 @@ int connect_tracks() {
     cout << " --- Cells Ready --- " << endl;
     if (EVERBOSE==100) {
         TObjArray check;
-        int check_n = gridtr_S1[DEBUG_S0_PLATE_S1].SelectObjects(check);
+        int check_n = gridtr_S1[DEBUG_SL_PLATE_S1].SelectObjects(check);
         cout << " got " << check_n << " objects from plate " << DEBUG_S0_PLATE_S1 << endl;
         for (int i=0; i<check_n; i++) {
             EdbTrackP* check_trk = (EdbTrackP*)check.At(i);
+            if (check_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " found " << endl;
+        }
+        TObjArray check_single;
+        float xy_single[2] = {66030.3, 29739};
+        int check_n2 = gridtr_S1[DEBUG_SL_PLATE_S1].SelectObjectsC(xy_single, 500, check_single);
+        cout << " check_n2 " << check_n2 << endl;
+        for (int i=0; i<check_n2; i++) {
+            EdbTrackP* check_trk = (EdbTrackP*)check_single.At(i);
             if (check_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " found " << endl;
         }
     }
@@ -329,6 +338,7 @@ int connect_tracks() {
             EdbTrackP *start_trk = (EdbTrackP*)tr_grid_s2.At(itrk2);
             //if (itrk2>100) break;
             if (EVERBOSE==100 && (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE)) continue;
+            if (EVERBOSE==100) cout << " Started looking " << endl;
             int backpos = start_trk->N()-1;
             // Add segments of S2 track to arrays to save later
             for (int iseg=0; iseg<start_trk->N(); iseg++) {
@@ -350,6 +360,7 @@ int connect_tracks() {
                 else cout << " No Candidate Found! " << endl;
             }
             if (to_merge_trk!=NULL) {
+                MERGED_FIRST_STEP += 1;
                 while(to_merge_trk!=NULL) {
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
                     ausiliary = FindClosestCandidate(4, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
@@ -439,6 +450,7 @@ int connect_tracks() {
     
 
     cout << " MERGED " << MERGED << endl;
+    cout << " MERGED FIRST STEP " << MERGED_FIRST_STEP << endl;
 
     //add not used S1 tracks (with flag != 300) 
     for (int ipl=1; ipl<=START_PLATE_S2; ipl++) {
@@ -481,7 +493,7 @@ void FillTracksCells(TObjArray &arrt){
     const int cellsize=1000;
     const int ncellsX = (int)(xmax-xmin)/cellsize;//35;
     const int ncellsY = (int)(ymax-ymin)/cellsize;//50;
-    const int maxpercell = 100000; 
+    const long int maxpercell = 100000; 
     for(int i=1; i<=START_PLATE_S2; i++) gridtr_S1[i].InitCell(ncellsX, xmin, xmax, ncellsY, ymin, ymax, maxpercell );
     for(int i=1; i<=PLMAX-START_PLATE_S2; i++) { gridtr_S2[i].InitCell(ncellsX, xmin, xmax, ncellsY, ymin, ymax, maxpercell ); }
 
@@ -503,6 +515,7 @@ void FillTracksCells(TObjArray &arrt){
         float theta_tr = t->Theta();
 
         if (EVERBOSE==100 && plate_tr==DEBUG_S0_PLATE_S1 && t->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " Adding Candidate to grid with plate_tr_end " << plate_tr_end << endl;
+        if (EVERBOSE==100 && plate_tr==DEBUG_S0_PLATE && t->GetSegmentFirst()->ID()==DEBUG_S0_ID) cout << " Adding S2 Candidate to grid with plate_tr " << plate_tr << endl;
         
         if (plate_tr > START_PLATE_S2) { gridtr_S2[plate_tr-START_PLATE_S2].AddObject( x_tr, y_tr, (TObject*)t ); } //organizzo le tracce in S2 in base al piatto di inizio
         else gridtr_S1[plate_tr_end].AddObject(x_tr_end, y_tr_end, (TObject*)t);  // tracce in S1 in base al piatto in cui finiscono
