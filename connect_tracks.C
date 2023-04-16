@@ -4,10 +4,10 @@
 
 
 #define IDBRICK 2
-#define EVERBOSE -99
+#define EVERBOSE 100
 
 const int DEBUG_S0_PLATE=31; //31
-const int DEBUG_S0_ID=1395973; //91690
+const int DEBUG_S0_ID=411417; //91690
 
 const float xmin = 35000;//0;
 const float xmax = 90000;//125000;
@@ -88,15 +88,15 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
             //cout << " nplate S1 " << ipl+START_PLATE_S2-1 << endl;
             if (ipl+START_PLATE_S2-1<PLMIN) continue;
             int n_trk_cell = gridtr_S1[ipl+START_PLATE_S2-1].SelectObjectsC(xy, r, tr_grid_s1); //tracce in S1
-            if(EVERBOSE==101) cout << " Checking Grid corresponding to plate # " << ipl+START_PLATE_S2-1 << ", found " << n_trk_cell << " objects " << endl;
-            if (EVERBOSE==101) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
+            if(EVERBOSE==100) cout << " Checking Grid corresponding to plate # " << ipl+START_PLATE_S2-1 << ", found " << n_trk_cell << " objects " << endl;
+            if (EVERBOSE==100) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
             for (int itrk1=0; itrk1<n_trk_cell; itrk1++) {
                 EdbTrackP* end_trk = (EdbTrackP*)tr_grid_s1.At(itrk1);
                 EdbSegP* end_seg = (EdbSegP*)end_trk->GetSegmentLast();
                 EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
                 b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
                 b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
-                if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << endl;
+                if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back << endl;
                 if (b<MAX_B && b_back<MAX_B) {
                     impact_parameters.push_back(b); 
                     impact_parameters_back.push_back(b_back);
