@@ -188,7 +188,7 @@ int merge_offsets() {
             b_for = CalcDist(x1, y1, z1, x0, y0, z0, tx1, ty1);
             b_middle = CalcDistMiddle(x1, y1, z1, tx1, ty1, x0, y0, z0, tx0, ty0);
 
-            if (EVERBOSE==100 && plate2==DEBUG_S0_PLATE_S1 && id2==DEBUG_S0_ID_S1 && plate==DEBUG_S0_PLATE && id == DEBUG_S0_ID) {
+            if (EVERBOSE==100 && plate==DEBUG_S0_PLATE && id == DEBUG_S0_ID && (b_for+b_back)/2 < 250) {
                 cout << " Calculated b_back: " << b_back << " b " << b_for << endl;
             }
 
@@ -219,7 +219,7 @@ int merge_offsets() {
         }
 
         if (i%1000==0) { cout << " Completed " << 100.*i/SL_s0_X.size() << " %, Iteration time: " << t.RealTime() << " s" << endl; t.Reset(); t.Start(); }
-        merge_best->Fill(b_min, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
+        merge_best->Fill(save_bf, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
         merge_comp->Fill(save_bf, save_bback, b_min);
         merge_best_info->Fill(mcevt_S2, save_mcevt, mc_trkS2, save_mctrk, ngap);
         
