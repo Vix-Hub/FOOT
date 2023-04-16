@@ -47,7 +47,7 @@ print(" Shared best candidates all with good b, b_back (tracks that end with no 
 
 ## Now check which tracks are not connected 
 merged_file = r.TFile("b000002.0.1.2.trk_merged.root", "READ")
-tracks = merge_file.Get("tracks")
+tracks = merged_file.Get("tracks")
 
 unconnected_couples = []
 
