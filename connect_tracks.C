@@ -8,6 +8,8 @@
 
 const int DEBUG_S0_PLATE=31; //31
 const int DEBUG_S0_ID=411417; //91690
+const int DEBUG_S0_PLATE_S1=25;
+const int DEBUG_S0_ID_S1 = 411412;
 
 const float xmin = 35000;//0;
 const float xmax = 90000;//125000;
@@ -490,6 +492,8 @@ void FillTracksCells(TObjArray &arrt){
         int plate_tr_end = t->GetSegmentLast()->Plate();
         
         float theta_tr = t->Theta();
+
+        if (EVERBOSE==100 && plate_tr==DEBUG_S0_PLATE_S1 && t->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " Adding Candidate to grid with plate_tr_end " << plate_tr_end << endl;
         
         if (plate_tr > START_PLATE_S2) { gridtr_S2[plate_tr-START_PLATE_S2].AddObject( x_tr, y_tr, (TObject*)t ); } //organizzo le tracce in S2 in base al piatto di inizio
         else gridtr_S1[plate_tr_end].AddObject(x_tr_end, y_tr_end, (TObject*)t);  // tracce in S1 in base al piatto in cui finiscono
