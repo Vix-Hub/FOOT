@@ -2,9 +2,9 @@
 #define IDBRICK 2
 #define EVERBOSE 100
 #define DEBUG_S0_PLATE 31
-#define DEBUG_S0_ID 411417
-#define DEBUG_S0_PLATE_S1 25
-#define DEBUG_S0_ID_S1 411412
+#define DEBUG_S0_ID 166547
+#define DEBUG_S0_PLATE_S1 22
+#define DEBUG_S0_ID_S1 166538
 
 double CalcDistMiddle(float x1, float y1, float z1, float tx1, float ty1, float x2, float y2, float z2, float tx2, float ty2);
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
@@ -189,7 +189,7 @@ int merge_offsets() {
             b_middle = CalcDistMiddle(x1, y1, z1, tx1, ty1, x0, y0, z0, tx0, ty0);
 
             if (EVERBOSE==100 && plate2==DEBUG_S0_PLATE_S1 && id2==DEBUG_S0_ID_S1 && plate==DEBUG_S0_PLATE && id == DEBUG_S0_ID) {
-                cout << " Calculated b_back: " << b_back << endl;
+                cout << " Calculated b_back: " << b_back << " b " << b << endl;
             }
 
             dtx = tx1 - tx0;
