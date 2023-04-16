@@ -3,6 +3,7 @@ import fedrarootlogon
 import numpy as np 
 
 DISPLAY = 0
+MANUAL_CHECK = 1
 
 merge_file = r.TFile("2_S1_S2_offsets.root", "READ")
 merge_best = merge_file.Get("merge_best")
@@ -30,17 +31,13 @@ for couple in s0_couples_S1:
     if (s0_couples_S1.count(couple)>1):
         count += 1
         indices = [i for i, x in enumerate(s0_couples_S1) if x == couple]
-        ips, ipsb = [], []
         s0_couplesS2 = []
         good = 0
         for pos in indices:
-            ips.append(bs[pos])
-            ipsb.append(b_backs[pos])
             s0_couplesS2.append((s0_plates[pos], s0_ids[pos]))
             if (bs[pos]<100 and b_backs[pos]<100):
                 good += 1
-        if (len(indices)>1):
-            lost_tracks.append(s0_couplesS2)
+        lost_tracks.append(s0_couplesS2)
         if (good == len(indices)):
             count_good += len(indices) - 1
             if (DISPLAY == 1):
@@ -49,6 +46,8 @@ for couple in s0_couples_S1:
 print("Shared best candidates: " + str(count))
 print(" Shared best candidates all with good b, b_back (tracks that end with no candidate) " + str(count_good))
 
+if (MANUAL_CHECK==1):
+    print((31, 1411979) in lost_tracks)
 
 ## Now check which tracks are not connected 
 merged_file = r.TFile("b000002.0.1.2.trk_merged.root", "READ")
