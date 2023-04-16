@@ -7,6 +7,7 @@ merge_best = merge_file.Get("merge_best")
 
 s0_idS1s, s0_plateS1s, s0_ids, s0_plates, bs, b_backs = [], [], [], [], [], []
 s0_couples_S1 = []
+total_S2_couples = []
 
 for entry in merge_best:
     s0_idS1s.append(entry.s0_idS1)
@@ -14,6 +15,7 @@ for entry in merge_best:
     s0_couples_S1.append((entry.s0_plateS1, entry.s0_idS1))
     s0_ids.append(entry.s0_id)
     s0_plates.append(entry.s0_plate)
+    total_S2_couples.append((entry.s0_plate, entry.s0_id))
 
     bs.append(entry.b)
     b_backs.append(entry.b_back)
@@ -53,7 +55,9 @@ unconnected_couples = []
 
 for track in tracks:
     if (track.nseg>2 and track.s[0].Plate()>30 and track.s[0].Plate()<40): #not connected with same cuts in merge_offsets
-        unconnected_couples.append((track.s[0].Plate(), track.s[0].ID()))
+        position = total_S2_couples.index(((track.s[0].Plate(), track.s[0].ID())))
+        if ( (bs[position]<100 and b_backs[position]<100)):
+            unconnected_couples.append((track.s[0].Plate(), track.s[0].ID()))
 
 print(" Printing tracks to use to debug connect tracks ")
 
