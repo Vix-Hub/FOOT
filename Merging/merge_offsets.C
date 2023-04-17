@@ -145,7 +145,7 @@ int merge_offsets() {
     cout << " size " << SL_s0_X.size() << endl;
     float b_min = 0;
     int plate=0, id=0, id2=0, plate2=0, save_plate=0, save_id=0, flag=0, save_mcevt=0, save_mctrk=0, ngap=0;
-    float save_dxp=0, save_dyp=0, save_dx=0, save_dy=0, save_dyp2=0, save_dxp2=0, save_bback=0, save_bf=0;
+    float save_dxp=0, save_dyp=0, save_dx=0, save_dy=0, save_dyp2=0, save_dxp2=0, save_bback=0, save_bf=0, save_dtx=0, save_dty=0;
     float b_middle=0, save_bmid=0;
     int lastplate=0, save_ngap=0;
 
@@ -214,14 +214,14 @@ int merge_offsets() {
 
             if (b_for<MAX_B && b_back<MAX_B) merge_all->Fill(b_for, dtx, dty, dxp, dyp, b_back, dxp2, dyp2, dx_middle, dy_middle);
             if ( (b_for+b_back)/2<b_min) { b_min = (b_for+b_back)/2; save_id = id2; save_plate = plate2; save_dxp=dxp; save_dyp=dyp; save_dx=dx_middle; save_dy=dy_middle; save_dyp2=dyp2; save_dxp2=dxp2;
-                                save_bback = b_back; save_bmid=b_middle; save_bf=b_for; save_mcevt=mcevt_S1; save_mctrk=mc_trkS1; save_ngap=ngap;}
+                                save_bback = b_back; save_bmid=b_middle; save_bf=b_for; save_mcevt=mcevt_S1; save_mctrk=mc_trkS1; save_ngap=ngap; save_dtx=dtx; save_dty=dty;}
 
         }
 
         if (i%1000==0) { cout << " Completed " << 100.*i/SL_s0_X.size() << " %, Iteration time: " << t.RealTime() << " s" << endl; t.Reset(); t.Start(); }
         merge_best->Fill(save_bf, id, plate, save_id, save_plate, save_dxp, save_dyp, save_dx, save_dy, save_dxp2, save_dyp2, tx0, ty0, save_bback, flag);
         merge_comp->Fill(save_bf, save_bback, b_min);
-        merge_best_info->Fill(mcevt_S2, save_mcevt, mc_trkS2, save_mctrk, ngap, x0, y0, dtx, dty);
+        merge_best_info->Fill(mcevt_S2, save_mcevt, mc_trkS2, save_mctrk, ngap, x0, y0, save_dtx, save_dty);
         
     }
 
