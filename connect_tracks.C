@@ -362,8 +362,8 @@ int connect_tracks() {
             }
             if (to_merge_trk!=NULL) {
                 MERGED_FIRST_STEP += 1;
-                if (STOP_AT_FIRST_MERGE) continue; 
                 while(to_merge_trk!=NULL) {
+                    if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
                     ausiliary = FindClosestCandidate(4, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
                     //cout << " FindClose 2 " << endl;
