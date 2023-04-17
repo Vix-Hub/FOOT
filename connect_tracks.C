@@ -5,6 +5,7 @@
 
 #define IDBRICK 2
 #define EVERBOSE 100
+#define STOP_AT_FIRST_MERGE 1
 
 const int DEBUG_S0_PLATE=31; //31
 const int DEBUG_S0_ID=1767; //91690
@@ -361,6 +362,7 @@ int connect_tracks() {
             }
             if (to_merge_trk!=NULL) {
                 MERGED_FIRST_STEP += 1;
+                if (STOP_AT_FIRST_MERGE) continue; 
                 while(to_merge_trk!=NULL) {
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
                     ausiliary = FindClosestCandidate(4, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
