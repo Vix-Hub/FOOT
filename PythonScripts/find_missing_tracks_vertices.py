@@ -16,7 +16,8 @@ VertexFile = r.TFile("vertices.root", "READ")
 vrec = VertexFile.Get("EdbVertexRec")
 
 outfile = r.TFile("missing_tracks_vertices.root", "RECREATE")
-tup = r.TNtuple("t_missing", "Info Concerning Merged Tracks not connected to any vertices in vertices.root ", "nseg:npl:s0_plate:s0_id:s0X:s0Y:s0Z:s0TX:s0TY:s0_MCEvt:s0_MCtrk")
+tup = r.TNtuple("t_missing", "Info Concerning Merged Tracks not connected to any vertices in vertices.root ", "nseg:npl:s0_plate:s0_id:s0X:s0Y:s0Z:s0TX:s0TY:s0_MCEvt:s0_MCtrk:s0flag:Z_first:Z_last")
+aus_tup = r.TNtuple("t_missing2", "more info", "sLX:sLY:sLZ:sLTX:sLTY")
 
 vertex_trk_couples = [] 
 
@@ -34,10 +35,12 @@ for j, track in enumerate(tracks):
     elif (track.s[0].Plate()<S0_END_PLATE and track.s[track.nseg-1].Plate()>S0_END_PLATE):
         current_couple = (track.s[0].Plate(), track.s[0].ID())
         if (not current_couple in vertex_trk_couples):
-            tup.Fill(track.nseg, track.npl, track.s[0].Plate(), track.s[0].ID(), track.s[0].X(), track.s[0].Y(), track.s[0].Z(), track.s[0].TX(), track.s[0].TY(), track.s[0].MCEvt(), track.s[0].MCTrack())
+            tup.Fill(track.nseg, track.npl, track.s[0].Plate(), track.s[0].ID(), track.s[0].X(), track.s[0].Y(), track.s[0].Z(), track.s[0].TX(), track.s[0].TY(), track.s[0].MCEvt(), track.s[0].MCTrack(), tracks.s[0].Flag(), tracks.s[0].W()-70, tracks.s[tracks.nseg-1].W()-70)
+            aus_tup.Fill(track.s[track.nseg-1].X(), track.s[track.nseg-1].Y(), track.s[track.nseg-1].Z(), track.s[track.nseg-1].TX(), track.s[track.nseg-1].TY())
     if (j%10000==0):
         print(" Completed " + str(100.*j/tracks.GetEntries()) + " % ")
 
 outfile.cd()
 tup.Write()
+aus_tup.Write()
 outfile.Close()
