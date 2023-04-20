@@ -232,7 +232,7 @@ def PrintVertexTracksInfo(VtxFileName, vID, modality):
         vertex = vrec.eVTX.At(vID)
         for j in range(vertex.N()):
             track = vertex.GetTrack(j)
-            print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " \n")
+            print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " " + str(track.GetSegmentLast().Plate()) + " " + str(track.GetSegmentLast().ID()) + " \n")
     else:
         for i in range(n_vertices):
             vertex = vrec.eVTX.At(i)
@@ -246,7 +246,7 @@ def PrintVertexTracksInfo(VtxFileName, vID, modality):
 
 # -----------------------------------------------  #
 
-def PrintTrack(TrkFileName, s0plate, s0id):
+def PrintTrack(TrkFileName, s0plate, s0id, EVERBOSE=1):
     
     TrackFile = r.TFile(TrkFileName, "READ")
     tracks = TrackFile.Get("tracks")
@@ -255,8 +255,11 @@ def PrintTrack(TrkFileName, s0plate, s0id):
     tracks.GetEntryWithIndex(int(s0plate), int(s0id))
 
     for iseg, seg in enumerate(tracks.s):
-        print(" Seg # " + str(iseg) + " Plate " + str(seg.Plate()) + " ID " + str(seg.ID()) + " MCEvt " + str(seg.MCEvt()) + " W-70 " + str(seg.W()-70) + " X, Y, Z, TX, TY ")
+        print(" Seg # " + str(iseg) + " Plate " + str(seg.Plate()) + " ID " + str(seg.ID()) + " MCEvt " + str(seg.MCEvt()) + " W-70 " + str(seg.W()-70) + "\n X, Y, Z, TX, TY ")
         print([seg.X(), seg.Y(), seg.Z(), seg.TX(), seg.TY()])
+        print(" seg.firstplate " + str(seg.Vid(0)) + " TRUE lastplate " + str(seg.Vid(1)))
         print("\n")
+        if(EVERBOSE==0):
+            break
 
     return 1
