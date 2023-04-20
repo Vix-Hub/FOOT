@@ -15,12 +15,14 @@ long_tracks, initial_vIDs = [], []
 kept_tracks = []
 
 initial_N, init_X, init_Y, init_Z = [], [], [], []
+vids, nlongs = [], []
 
 outFile = r.TFile("deleted_vertices.root", "RECREATE")
-tup = r.TNtuple("t_del", "info about vertices deleted in FAST=1 and that were in vertices_merged", "vID:N:vx:vy:vz")
+tup = r.TNtuple("t_del", "info about vertices deleted in FAST=1 and that were in vertices_merged", "vID:N:vx:vy:vz:Nlong")
 
 for i in range(n1):
     v1 = vrec1.eVTX.At(i)
+    nlong = 0
     for j in range(v1.N()):
         track = v1.GetTrack(j)
         if (track.GetSegmentFirst().Plate() < 30 and track.GetSegmentLast().Plate()>30):
@@ -30,6 +32,9 @@ for i in range(n1):
             init_X.append(v1.X())
             init_Y.append(v1.Y())
             init_Z.append(v1.Z())
+            nlong += 1
+    vids.append(v1.ID())
+    nlongs.append(nlong)
 
 # find long tracks removed 
 
@@ -42,7 +47,7 @@ for i in range(n2):
 
 for j, long_track in enumerate(long_tracks):
     if (not long_track in kept_tracks):
-        tup.Fill(initial_vIDs[j], initial_N[j], init_X[j], init_Y[j], init_Z[j])
+        tup.Fill(initial_vIDs[j], initial_N[j], init_X[j], init_Y[j], init_Z[j], nlongs[vids.index(initial_vIDs[j])])
 
 outFile.cd()
 tup.Write()
