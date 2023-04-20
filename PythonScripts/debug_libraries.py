@@ -242,3 +242,21 @@ def PrintVertexTracksInfo(VtxFileName, vID, modality):
                     print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " \n")
 
     return 1 
+
+
+# -----------------------------------------------  #
+
+def PrintTrack(TrkFileName, s0plate, s0id):
+    
+    TrackFile = r.TFile(TrkFileName, "READ")
+    tracks = TrackFile.Get("tracks")
+    tracks.BuildIndex("s[0].Plate()", "s[0].ID()")
+
+    tracks.GetEntryWithIndex(int(s0plate), int(s0id))
+
+    for iseg, seg in enumerate(tracks.s):
+        print(" Seg # " + str(iseg) + " Plate " + str(seg.Plate()) + " ID " + str(seg.ID()) + " MCEvt " + str(seg.MCEvt()) + " W-70 " + str(seg.W()-70) + " X, Y, Z, TX, TY ")
+        print([seg.X(), seg.Y(), seg.Z(), seg.TX(), seg.TY()])
+        print("\n")
+
+    return 1
