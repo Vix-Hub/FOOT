@@ -259,6 +259,7 @@ int postvertex3_new_temp()
     
     TFile *inputfile_vtx;
     inputfile_vtx = TFile::Open("vertices.root","READ"); //vertices_AnaFake
+    if (FAST==1) inputfile_vtx = TFile::Open("vertices_merged.root", "READ");
     if(FAST>1 && FAST!=100) inputfile_vtx = TFile::Open("vertices_AnaFake.root","READ");
     else if(NITROGEN_SEARCH==2) inputfile_vtx = TFile::Open("vertices_improved.root","READ");
     if (inputfile_vtx == NULL) cout<<"ERROR: inputfile_vtx not found"<<endl;
@@ -284,6 +285,7 @@ int postvertex3_new_temp()
     TString output_vtxname;
     output_vtxname=Form("vertices_improved.root"); //vertices_improved
     if(NITROGEN_SEARCH==2) output_vtxname=Form("vertices_improved_Np.root");
+    if (FAST==0.5) output_vtxname=Form("vertices_merged.root");
     if(FAST==1) output_vtxname=Form("vertices_AnaFake.root");
     if(FAST>=3) output_vtxname=Form("vertices_improved_fast_%d_new_temp.root", FAST);
     if(FAST==100) output_vtxname=Form("vertices_AnaFake_%d.root", FAST);
@@ -298,6 +300,13 @@ int postvertex3_new_temp()
     t_tot.Start();
     
     FillZ_LAYER();
+
+    if (FAST==0.5) {  //extend tracks connected to vertices before checking for fake ones
+
+        FillTracksCells(*arrTRK);
+        FillVtxPlate(*arrVTX);
+        end_tracksS1 = UnisciTracce(final_varr, maximp_unione, max_deltatheta_unione);
+    }
     
     if((NITROGEN_SEARCH<2&&FAST==0)||FAST==1||FAST==4||FAST==100){
         cout << "AnalyseFakeVtxs" << endl;
@@ -307,7 +316,7 @@ int postvertex3_new_temp()
     
     cout << "merged_arrVTX " << merged_arrVTX->GetEntries() << endl;
     
-    if(FAST==1||FAST==100){
+    if(FAST==1||FAST==100||FAST==0.5){
         CreateTree(new_vtxtree, merged_arrVTX);
         mygEVR->eVTX = merged_arrVTX;
         cout << "At the end I have " << merged_arrVTX->GetEntries() << "\t" << new_vtxtree->GetEntries() << endl; //<< "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
