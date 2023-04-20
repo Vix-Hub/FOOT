@@ -21,9 +21,9 @@
 //BRAGGPLATE
 //int LASTLAYER[N_STACKS+1]
 
-#define BRICKID 222
+#define BRICKID 2
 #define BRAGGPLATE 26 //26 per oxy 200 (GSI 1 e 2), 30 per oxy 400 (GSI 3 e 4)
-#define FAST 3 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
+#define FAST 0.5 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
 #define EVERBOSE 101 //1 per Print EdbCell2 // 2 found beam //3 found dau // 4 Np // 5 merge 2p vtx // 6 remove beam // 7 unione tracce // 8 merge tracks // 9 merge vtx //10 print // 11 PrepareTrk // 12 Cosmici //13 findclosetracks //100 stampa un evento particolare secondo gli ID specificati dopo //101 timing
 //100 per un evento particolare // 14 show % // 15 merge checks // 16 grid occupancy checks
 #define DEBUG_MCEVT -99 //
@@ -33,8 +33,8 @@
 #define PULIZIA_EXTRA 0 // non funziona
 #define DIRECTION 1 // 9 = indietro, 1c = avanti
 #define N_STACKS 7
-#define DEBUG_S0_PLATE_END 12 //16
-#define DEBUG_S0_ID_END 7370 //563496
+#define DEBUG_S0_PLATE_END 10 //16
+#define DEBUG_S0_ID_END 1003510 //563496
 #define DEBUG_S0_PLATE_ST 31
 #define DEBUG_S0_ID_ST 7388
 #define ALLOW_LONGER_GAPS 1 
@@ -81,10 +81,10 @@ float maximp_beam=0, maximp_dau=0, maximp_Np=0,maximp_unione=0, max_deltatheta_u
 int minseg_Np=0;
 
 //min e max dell'area che prendo in considerazione per edbcell2
-const float xmin = 40000;//0;
-const float xmax = 85000;//125000;
-const float ymin = 30000;//0;
-const float ymax = 70000;//100000;
+const float xmin = 35000;//0;
+const float xmax = 90000;//125000;
+const float ymin = 25000;//0;
+const float ymax = 75000;//100000;
 
 //passive material thickness in S1
 float THICKNESS = 2000;
@@ -305,7 +305,8 @@ int postvertex3_new_temp()
 
         FillTracksCells(*arrTRK);
         FillVtxPlate(*arrVTX);
-        end_tracksS1 = UnisciTracce(final_varr, maximp_unione, max_deltatheta_unione);
+        end_tracksS1 = UnisciTracce(arrVTX, maximp_unione, max_deltatheta_unione);
+        merged_arrVTX = arrVTX;
     }
     
     if((NITROGEN_SEARCH<2&&FAST==0)||FAST==1||FAST==4||FAST==100){
@@ -317,12 +318,11 @@ int postvertex3_new_temp()
     cout << "merged_arrVTX " << merged_arrVTX->GetEntries() << endl;
 
     if(FAST==1||FAST==100||FAST==0.5){
-        if (FAST==0.5) merged_arrVTX = arrVTX;
         CreateTree(new_vtxtree, merged_arrVTX);
         mygEVR->eVTX = merged_arrVTX;
         cout << "At the end I have " << merged_arrVTX->GetEntries() << "\t" << new_vtxtree->GetEntries() << endl; //<< "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
     }
-    if(FAST!=1 && FAST!=100){
+    if(FAST!=1 && FAST!=100 && FAST!=0.5){
         cout << "FillTracksCells" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;; //prima lo facevo all'inizio di tutto
         FillTracksCells(*arrTRK);
         
@@ -1478,7 +1478,7 @@ TObjArray* UnisciTracce(TObjArray *varr, float maximp, float max_deltatheta){
     EdbTrackP *track;
     for (int ivtx = 0; ivtx < varr->GetEntries(); ivtx++){
         EdbVertex *vertex = (EdbVertex*)(varr->At(ivtx));
-        if(EVERBOSE==100 && vertex->ID()==DEBUG_VTXID) cout << vertex->ID() << "\tbefore unisci: " << vertex->N() << endl;
+        if((EVERBOSE==100||EVERBOSE==15) && vertex->ID()==DEBUG_VTXID) cout << vertex->ID() << "\tbefore unisci: " << vertex->N() << endl;
         float vx = vertex->VX();
         float vy = vertex->VY();
         float vz = vertex->VZ();
