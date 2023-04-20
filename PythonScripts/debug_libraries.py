@@ -229,10 +229,13 @@ def PrintVertexTracksInfo(VtxFileName, vID, modality):
     n_vertices = vrec.eVTX.GetEntries()
 
     if (modality == 1):
-        vertex = vrec.eVTX.At(vID)
-        for j in range(vertex.N()):
-            track = vertex.GetTrack(j)
-            print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " " + str(track.GetSegmentLast().Plate()) + " " + str(track.GetSegmentLast().ID()) + " \n")
+        for i in range(n_vertices):
+            vertex = vrec.eVTX.At(i)
+            if (vertex.ID()!=vID):
+                continue
+            for j in range(vertex.N()):
+                track = vertex.GetTrack(j)
+                print(" Track # " + str(j) + " TrackTrack " + str(track.Track()) + " First Plate " + str(track.GetSegmentFirst().Plate()) + " First Seg ID " + str(track.GetSegmentFirst().ID()) + " " + str(track.GetSegmentLast().Plate()) + " " + str(track.GetSegmentLast().ID()) + " \n")
     else:
         for i in range(n_vertices):
             vertex = vrec.eVTX.At(i)
