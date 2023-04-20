@@ -315,8 +315,9 @@ int postvertex3_new_temp()
     else if(FAST>1) merged_arrVTX=arrVTX; //c'era FAST>=1.. perché?
     
     cout << "merged_arrVTX " << merged_arrVTX->GetEntries() << endl;
-    
+
     if(FAST==1||FAST==100||FAST==0.5){
+        if (FAST==0.5) merged_arrVTX = arrVTX;
         CreateTree(new_vtxtree, merged_arrVTX);
         mygEVR->eVTX = merged_arrVTX;
         cout << "At the end I have " << merged_arrVTX->GetEntries() << "\t" << new_vtxtree->GetEntries() << endl; //<< "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
