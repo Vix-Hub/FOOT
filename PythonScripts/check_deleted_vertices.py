@@ -46,7 +46,7 @@ for i in range(n2):
             kept_tracks.append((track.GetSegmentFirst().Plate(), track.GetSegmentFirst().ID()))
 
 for j, long_track in enumerate(long_tracks):
-    if (not long_track in kept_tracks):
+    if (not (long_track in kept_tracks)):
         tup.Fill(initial_vIDs[j], initial_N[j], init_X[j], init_Y[j], init_Z[j], nlongs[vids.index(initial_vIDs[j])])
 
 outFile.cd()
