@@ -50,7 +50,7 @@ appended_vids = []
 for j, long_track in enumerate(long_tracks):
     if (not long_track in kept_tracks):
         if (not (initial_vIDs[j] in appended_vids)):
-            tup.Fill(initial_vIDs[j], initial_N[j], init_X[j], init_Y[j], init_Z[j], nlong[vids.index(initial_vIDs[j])])
+            tup.Fill(initial_vIDs[j], initial_N[j], init_X[j], init_Y[j], init_Z[j], nlongs[vids.index(initial_vIDs[j])])
             appended_vids.append(initial_vIDs[j])
 
 outFile.cd()
