@@ -34,7 +34,7 @@ for i in range(n1):
             init_Z.append(v1.Z())
             nlong += 1
     vids.append(v1.ID())
-    nlong.append(nlong)
+    nlongs.append(nlong)
 
 # find long tracks removed 
 
