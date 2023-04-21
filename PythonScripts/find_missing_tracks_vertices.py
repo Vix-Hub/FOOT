@@ -27,7 +27,7 @@ for i in range(n_vertices):
     vertex = vrec.eVTX.At(i)
     for j in range(vertex.N()):
         track = vertex.GetTrack(j)
-        for iseg in range(vertex.N()):
+        for iseg in range(track.N()):
             vertex_trk_couples.append((track.GetSegment(iseg).Plate(), track.GetSegment(iseg).ID()))
 
 for j, track in enumerate(tracks): 
