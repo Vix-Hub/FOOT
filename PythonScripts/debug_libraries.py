@@ -266,3 +266,17 @@ def PrintTrack(TrkFileName, s0plate, s0id, EVERBOSE=1):
             break
 
     return 1
+
+
+# --------------------------------------------  #
+
+def FillVertexMergedTracks(vrec):
+    n_vertices = vrec.eVTX.GetEntries()
+    out_list = []
+    for i in range(n_vertices):
+        vertex = vrec.eVTX.At(i)
+        for j in range(vertex.N()):
+            track = vertex.GetTrack(j)
+            if (track.GetSegmentFirst().Plate()<30 and track.GetSegmentLast().Plate()>30):
+                out_list.append((track.GetSegmentFirst().Plate(), track.GetSegmentFirst().ID()))
+    return out_list
