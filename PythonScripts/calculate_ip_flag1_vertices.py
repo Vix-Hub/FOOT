@@ -1,7 +1,7 @@
 import ROOT as r 
 import fedrarootlogon
 import numpy as np 
-from matplotlib import pyplot as plt
+from debug_libraries import FillVertexTracks
 
 #script to evaluate distance between flag=1 tracks (classified in check_missing_merged.py) with vertices to which they are linked
 
@@ -9,17 +9,27 @@ vertexFile = r.TFile("vertices.root", "READ")
 vrec = vertexFile.Get("EdbVertexRec")
 n_vertices = vrec.eVTX.GetEntries()
 
-checkFile = r.TFile("check_merged.root", "READ")
+checkFile = r.TFile("check_merged.root", "READ") #should sample from tracks also not in final vertex tree
 tup = checkFile.Get("tup")
 
-MC_events, track_couples, track_coordinates = [], [], []
+MC_events, track_couples, track_coordinates, tracks_recovered = [], [], [], []
 temp_vIDs = []
 
+# save which tracks are recovered in following postvertexing steps
+VertexFile2 = r.TFile("vertices_improved_fast_3_new_temp_2.root", "READ")
+vrec2 = VertexFile2.Get("EdbVertexRec")
+vtx_tracks_2 = FillVertexTracks(vrec2, 1, 1)
+
+# save FLAG=1 track info
 for trackflag in tup:
     if (trackflag.ev_flag==1):
         MC_events.append(trackflag.ev_ID)
         track_couples.append((trackflag.s0_plate, trackflag.s0_id))
         track_coordinates.append((trackflag.s0X, trackflag.s0Y, trackflag.s0Z, trackflag.s0TX, trackflag.s0TY))
+        if ((trackflag.s0_plate, trackflag.s0_id) in vtx_tracks_2):
+            tracks_recovered.append(1)
+        else:
+            tracks_recovered.append(0)
     
 unique_MC_events = list(np.unique(MC_events))
 MC_event_vertices = []  #list of vertices with tracks coming from the corresponding MC Event in unique_MC_Events list
@@ -53,7 +63,7 @@ for i in range(n_vertices):
 
 # now calculate distance from vertices 
 outFile = r.TFile("ip_flag1.root", "RECREATE")
-out_tup = r.TNtuple("tup", "IP of Flag=1 tracks with vertices", "b:DZ")
+out_tup = r.TNtuple("tup", "IP of Flag=1 tracks with vertices", "b:DZ:is_rec")
 
 for j, unconn_track in enumerate(track_coordinates):
     x, y, z, tx, ty = unconn_track[0], unconn_track[1], unconn_track[2], unconn_track[3], unconn_track[4]
@@ -71,7 +81,7 @@ for j, unconn_track in enumerate(track_coordinates):
         b = np.sqrt(xp*xp + yp*yp)
         bs.append(b)
         dzs.append(dz)
-    out_tup.Fill(min(bs), dzs[bs.index(min(bs))])
+    out_tup.Fill(min(bs), dzs[bs.index(min(bs))], tracks_recovered[j])
 
 outFile.cd()
 out_tup.Write()
