@@ -38,6 +38,7 @@
 #define DEBUG_S0_PLATE_ST 31
 #define DEBUG_S0_ID_ST 7388
 #define ALLOW_LONGER_GAPS 1 
+#define UNISCI_TRACCE_LARGER_CUT 1
 int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
@@ -389,6 +390,7 @@ int postvertex3_new_temp()
                 
         cout << "UnisciTracce" << endl; //"\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
         end_tracksS1 = UnisciTracce(final_varr, maximp_unione, max_deltatheta_unione);
+        if (UNISCI_TRACCE_LARGER_CUT) end_tracksS1 = UnisciTracce(final_varr, 2.*maximp_unione, 2.*max_deltatheta_unione);
         
         if (ALLOW_LONGER_GAPS == 1) UnisciTracceLongerGaps(end_tracksS1, maximp_unione, max_deltatheta_unione);    
                 
