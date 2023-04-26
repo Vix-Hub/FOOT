@@ -1086,7 +1086,7 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
         if(vertex->Flag()!=-99){
             for (int itrk = 0; itrk < vertex->N(); itrk++){
                 EdbTrackP *track = vertex->GetTrack(itrk);
-                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ()){
+                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ() && vertex->GetVTa(itrk)->Z_pos()==0 && track->N()<8){
                     COUNT_STRANGE++;
                     vertex->SetFlag(-99);
 					if(EVERBOSE==100 && (vID==DEBUG_VTXID||vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT)) { cout << "vertex deleted rigo 935" << endl; cout << " Track was " << itrk << " Seg " << track->GetSegmentFirst()->ID() << " " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentFirst()->Z() << " Last seg " << track->GetSegmentLast()->Plate() << " " << track->GetSegmentLast()->Z() << " vertex z " << vertex->VZ() << endl;}
@@ -1323,7 +1323,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             int modifiedvtx=0;
             int tempid=newvertex->ID();
             int tempflag=newvertex->Flag();
-            for(int iipl=ipl-2; iipl<ipl+3; iipl++){
+            for(int iipl=ipl-3; iipl<ipl+4; iipl++){
                 if(iipl>=BRAGGPLATE+1) break;
                 if(iipl<0) continue;
                 int ndau_grid = gridtr_DAU[iipl].SelectObjectsC( xy, r, tr_grid_dau);
