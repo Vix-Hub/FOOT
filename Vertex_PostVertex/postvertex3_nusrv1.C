@@ -260,7 +260,7 @@ int postvertex3_new_temp()
     
     TFile *inputfile_vtx;
     inputfile_vtx = TFile::Open("vertices.root","READ"); //vertices_AnaFake
-    if (FAST==1) inputfile_vtx = TFile::Open("vertices_merged.root", "READ");
+    if (FAST==1 || FAST==100) inputfile_vtx = TFile::Open("vertices_merged.root", "READ");
     if(FAST>1 && FAST!=100) inputfile_vtx = TFile::Open("vertices_AnaFake.root","READ");
     else if(NITROGEN_SEARCH==2) inputfile_vtx = TFile::Open("vertices_improved.root","READ");
     if (inputfile_vtx == NULL) cout<<"ERROR: inputfile_vtx not found"<<endl;
