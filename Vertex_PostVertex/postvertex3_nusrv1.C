@@ -1089,7 +1089,7 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
                 if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ()){
                     COUNT_STRANGE++;
                     vertex->SetFlag(-99);
-					if(EVERBOSE==100 && (vID==DEBUG_VTXID||vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT)) { cout << "vertex deleted rigo 935" << endl; cout << " Track was " << itrk << " Seg " << track->GetSegmentFirst()->ID() << " " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentFirst()->Z() << endl;}
+					if(EVERBOSE==100 && (vID==DEBUG_VTXID||vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT)) { cout << "vertex deleted rigo 935" << endl; cout << " Track was " << itrk << " Seg " << track->GetSegmentFirst()->ID() << " " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentFirst()->Z() << " Last seg " << track->GetSegmentLast()->Plate() << " " << track->GetSegmentLast()->Z() << " vertex z " << vertex->VZ() << endl;}
                     //if(EVERBOSE==5.5 || (EVERBOSE==100 && (vID==DEBUG_VTXID || (( First_ID==DEBUG_TRKID||Second_ID==DEBUG_TRKID) || firsttrack->MCEvt()==DEBUG_MCEVT || secondtrack->MCEvt()==DEBUG_MCEVT))))             cout << vertex->ID() << " strange" << endl;
                     
                     if((vertex->GetVTa(itrk)->Zpos()==1 && vertex->VZ()-track->GetSegmentLast()->Z()>200)|| (vertex->GetVTa(itrk)->Zpos()==0 && track->GetSegmentFirst()->Z()-vertex->VZ()>200)){
