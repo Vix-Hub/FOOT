@@ -1086,7 +1086,7 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
         if(vertex->Flag()!=-99){
             for (int itrk = 0; itrk < vertex->N(); itrk++){
                 EdbTrackP *track = vertex->GetTrack(itrk);
-                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ() && vertex->GetVTa(itrk)->Z_pos()==0 && track->N()<8){
+                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ() && vertex->GetVTa(itrk)->Zpos()==0 && track->N()<8){
                     COUNT_STRANGE++;
                     vertex->SetFlag(-99);
 					if(EVERBOSE==100 && (vID==DEBUG_VTXID||vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT)) { cout << "vertex deleted rigo 935" << endl; cout << " Track was " << itrk << " Seg " << track->GetSegmentFirst()->ID() << " " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentFirst()->Z() << " Last seg " << track->GetSegmentLast()->Plate() << " " << track->GetSegmentLast()->Z() << " vertex z " << vertex->VZ() << endl;}
