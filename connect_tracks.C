@@ -3,8 +3,8 @@
 #include<string>
 
 
-#define IDBRICK 2
-#define EVERBOSE 100
+#define IDBRICK 222
+#define EVERBOSE -99
 #define STOP_AT_FIRST_MERGE 1
 
 const int DEBUG_S0_PLATE=31; //31
@@ -13,10 +13,10 @@ const int DEBUG_S0_PLATE_S1=28;
 const int DEBUG_S0_ID_S1 = 1764;
 const int DEBUG_SL_PLATE_S1 = 30;
 
-const float xmin = 35000;//0;
-const float xmax = 90000;//125000;
-const float ymin = 25000;//0;
-const float ymax = 75000;//100000;
+const float xmin = 1000;//0;
+const float xmax = 101000;//125000;
+const float ymin = 1000;//0;
+const float ymax = 101000;//100000;
 
 const int PLMIN=0;
 const int PLMAX=66; 
@@ -25,137 +25,24 @@ const int START_PLATE_S2 = 30;
 EdbCell2 gridtr_S1[START_PLATE_S2+1]; 
 EdbCell2 gridtr_S2[int(PLMAX-START_PLATE_S2)+1];
 EdbCell2 gridtr_ALL[1+PLMAX]; //first cell left left empty
+EdbPVRec *ali = new EdbPVRec();
 
 TObjArray *arrTRK = new TObjArray();   // original tracks
 int MERGED=0, MERGED_FIRST_STEP=0;
 float Z_LAYER[PLMAX+1]={0};
 
 void bubbleSort(std::vector<double>& v);
+void checkpatterns();
 int findValuePosition(const std::vector<double>& myVector, double valueToFind);
 void FillTracksCells(TObjArray &arrt);
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
 int IsElementInVector(const std::vector<string>& myVector, string value);
 EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
 void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2);
-
-double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1){
-    //prendo il primo segmento della traccia, lo proietto alla z del vertice e calcolo la distanza
-    double dz=z1-z2;
-    double x=x1-dz*tx1;
-    double y=y1-dz*ty1;
-    
-    double dx=x-x2;
-    double dy=y-y2;
-    
-    return TMath::Sqrt(dx*dx+dy*dy);
-    
-}
-
-int IsElementInVector(const std::vector<string>& myVector, string value) {
-    for (int i = 0; i < myVector.size(); i++) {
-    if (myVector[i] == value) {
-      return i;
-    }
-  }
-
-  return -1; // return -1 if value is not found
-}
-
-
-
-
-EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs) {
-    
-    EdbSegP* start_seg = (EdbSegP*)start_trk->GetSegmentFirst(); //i segmenti fittati non hanno i piatti salvati bene
-    EdbSegP* start_segf = (EdbSegP*)start_trk->GetSegmentFFirst();
-    float xy[2] = {0,0};
-    if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
-    int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
-    float b=0, r=500., b_back=0;
-    
-    std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
-    std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
-    TObjArray candidate_tracks, tr_grid_s1;
-
-    for (int ipl=(s0_plate)-nplates; ipl<=s0_plate; ipl++) {  //look for candidates in 4 plates
-
-            xy[0] = start_segf->X();
-            xy[1] = start_segf->Y();
-
-            if (ipl+START_PLATE_S2-1<PLMIN) continue; //avoid plate < 0
-            if (ipl+START_PLATE_S2-1>START_PLATE_S2) continue;  // avoid plate >30 for S1 grid
-            double z_pos = Z_LAYER[ipl+START_PLATE_S2-1];
-            //cout << " z_pos " << z_pos << endl;
-            xy[0] = xy[0] - (start_segf->Z()-z_pos)*start_segf->TX();  //this can be further away if angles are large
-            xy[1] = xy[1] - (start_segf->Z()-z_pos)*start_segf->TY();
-
-            //cout << " nplate S1 " << ipl+START_PLATE_S2-1 << endl;
-            if (ipl+START_PLATE_S2-1<PLMIN) continue;
-            int n_trk_cell = gridtr_S1[ipl+START_PLATE_S2-1].SelectObjectsC(xy, r, tr_grid_s1); //tracce in S1
-            if(EVERBOSE==100) cout << " Checking Grid corresponding to plate # " << ipl+START_PLATE_S2-1 << ", found " << n_trk_cell << " objects " << endl;
-            if (EVERBOSE==100) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
-            for (int itrk1=0; itrk1<n_trk_cell; itrk1++) {
-                EdbTrackP* end_trk = (EdbTrackP*)tr_grid_s1.At(itrk1);
-                EdbSegP* end_seg = (EdbSegP*)end_trk->GetSegmentLast();
-                EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
-                b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
-                b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
-                if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back << endl;
-                if (b<MAX_B && b_back<MAX_B) {
-                    impact_parameters.push_back(b); 
-                    impact_parameters_back.push_back(b_back);
-                    impact_parameters_mean.push_back((double)(b+b_back)/2);
-                    merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
-                    merge_s0id_cand.push_back(end_trk->GetSegmentFirst()->ID());
-                    candidate_tracks.Add((EdbTrackP*)end_trk);
-                }
-                
-            }
-
-            tr_grid_s1.Clear();
-    }
-
-    sorted_IPs = impact_parameters_mean;
-    sorted_IPs_for = impact_parameters;
-    bubbleSort_NEW(sorted_IPs, sorted_IPs_for); //sort by (b+b_back)/2 
-    float current_b=0, current_b_back=0, current_b_mean=0;
-    int pos=0;
-    //cout << " after b calc sorted IP size " << sorted_IPs.size() <<  endl;
-
-    if (sorted_IPs.size()>0) {  //if at least one candidate was found
-        for (int icand=0; icand<sorted_IPs.size(); icand++) {
-            current_b = sorted_IPs_for[icand];
-            pos = findValuePosition(impact_parameters, current_b);
-            EdbTrackP *to_merge_trk = (EdbTrackP*)candidate_tracks.At(pos);
-            if (to_merge_trk==NULL) continue;
-            current_b_back = impact_parameters_back[pos];
-            //std::string tr_string = Form("%i_%i", merge_s0plate_cand[pos], merge_s0id_cand[pos]);
-            if (to_merge_trk->Flag()!=300 && current_b<MAX_B && current_b_back<MAX_B) { //if the candidate was not used
-
-                MERGED += 1;
-                to_merge_trk->SetFlag(300);
-                added_segs = added_segs + to_merge_trk->N();
-                //used_tracks[merge_s0plate_cand[pos]].push_back(tr_string);
-                int current_length = segments_new->GetEntries();
-                int back_position = to_merge_trk->N()-1;
-                for (int k = 0; k<to_merge_trk->N(); k++) {
-                    new((*segments_new)[k+current_length]) EdbSegP(*to_merge_trk->GetSegment(back_position));
-                    new((*fitted_segments_new)[k+current_length]) EdbSegP(*to_merge_trk->GetSegmentF(back_position));
-                    back_position = back_position - 1;
-                }
-                candidate_tracks.Clear();
-                return to_merge_trk;
-
-            } 
-            else continue; //go to the next best candidate
-        }
-    }
-
-    return NULL;
-
-
-}
-
+void FillZ_LAYER_SET();
+double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
+int IsElementInVector(const std::vector<string>& myVector, string value);
+EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
 
 
 int connect_tracks() {
@@ -178,7 +65,7 @@ int connect_tracks() {
     int PLATE_MAX_S2 = 40, thr = 3000, START_PLATE_S2_ALT=31;
 
     // Merge Cuts
-    float DT_MAX = 0.1, B_MAX=100;
+    float DT_MAX = 0.1, B_MAX=50;
 
     // Read Tracks (need XYZ s0 and sL and sfTX sfTY)
 
@@ -234,37 +121,8 @@ int connect_tracks() {
     cout << " --- Filling Z LAYER --- " << endl;
     double z_value=0;
     // Fill Z Layer (to be improved)
-    for (int i=2; i<=START_PLATE_S2; i++) {
-        z_value = 0;
-        for (int itrk=0; itrk<start_s2_position; itrk++){
-                tracks->GetEntry(itrk);
-		        //fill temptrack with segments
-		        for (int k = 0; k<nseg; k++) {
-		            EdbSegP* seg = (EdbSegP*)segments->At(k);
-                    if (seg->Plate()==i) { z_value = seg->Z(); break;}
-                }
-                if (z_value != 0) break;
-        }
-        Z_LAYER[i] = z_value;
-        //cout << " i " << i << endl;
-    }
-    for (int i=START_PLATE_S2+1; i<=PLMAX; i++) {
-        z_value = 0;
-        for (int itrk=start_s2_position; itrk<N; itrk++){
-                tracks->GetEntry(itrk);
-		        //fill temptrack with segments
-		        for (int k = 0; k<nseg; k++) {
-		            EdbSegP* seg = (EdbSegP*)segments->At(k);
-                    if (seg->Plate()==i) { z_value = seg->Z(); break;}
-                }
-                if (z_value != 0) break;
-        }
-        Z_LAYER[i] = z_value;
-        //cout << " i " << i << endl;
-    }
-    for (int i=1; i<=PLMAX;i++) {
-        cout << " ZLAYER " << i << " " << Z_LAYER[i] << endl;
-    }
+    checkpatterns();
+    FillZ_LAYER_SET();
     cout << endl;
     
 
@@ -559,4 +417,163 @@ void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2) {
             }
         }
     }
+}
+
+
+void FillZ_LAYER_SET(){
+
+    TFile *setfile = TFile::Open(Form("b%06d.0.0.0.set.root",IDBRICK));
+    EdbScanSet *set = (EdbScanSet*) setfile->Get("set");
+    
+    int j=0;
+    for(int i=0; i<PLMAX; i++) {
+        Z_LAYER[i] = set->eB.GetPlate(i)->Z();
+        cout << " Layer : " << i << " " << Z_LAYER[i] << endl;
+    } 
+    
+}
+
+void checkpatterns(){
+    //check for patterns, if there is one missing add it
+    int np = ali->Npatterns();
+    
+    TFile *setfile = TFile::Open(Form("b%06d.0.0.0.set.root",IDBRICK));
+    cout << "I'm checking patterns with set " << "b" << IDBRICK << ".0.0.0.set.root" << "\t np: " << np << "\tRunning on " << PLMAX << " plates" << endl;
+    EdbScanSet *set = (EdbScanSet*) setfile->Get("set");
+    
+    int j=0;
+    for(int i=0; i<PLMAX; i++) {
+        float zmissingPID = set->eB.GetPlate(i)->Z(); //note, set->eB->GetPlate(i) uses the PID, set->GetPlate(i) uses the number of plate, be careful!
+        EdbPattern *pat = new EdbPattern( 0., 0.,zmissingPID);
+        cout <<"missing pattern " << i << " now adding it. Z= " << zmissingPID << endl;
+        pat->SetID(i);
+        pat->SetScanID(0);
+        ali->AddPatternAt(pat,i);
+        // } //end if
+        
+    } //end for loop
+    
+    cout << "New n patters: " << ali->Npatterns() << endl;
+    
+}
+
+
+double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1){
+    //prendo il primo segmento della traccia, lo proietto alla z del vertice e calcolo la distanza
+    double dz=z1-z2;
+    double x=x1-dz*tx1;
+    double y=y1-dz*ty1;
+    
+    double dx=x-x2;
+    double dy=y-y2;
+    
+    return TMath::Sqrt(dx*dx+dy*dy);
+    
+}
+
+
+
+
+int IsElementInVector(const std::vector<string>& myVector, string value) {
+    for (int i = 0; i < myVector.size(); i++) {
+    if (myVector[i] == value) {
+      return i;
+    }
+  }
+
+  return -1; // return -1 if value is not found
+}
+
+
+
+EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs) {
+    
+    EdbSegP* start_seg = (EdbSegP*)start_trk->GetSegmentFirst(); //i segmenti fittati non hanno i piatti salvati bene
+    EdbSegP* start_segf = (EdbSegP*)start_trk->GetSegmentFFirst();
+    float xy[2] = {0,0};
+    if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
+    int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
+    float b=0, r=500., b_back=0;
+    
+    std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
+    std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
+    TObjArray candidate_tracks, tr_grid_s1;
+
+    for (int ipl=(s0_plate)-nplates; ipl<=s0_plate; ipl++) {  //look for candidates in 4 plates
+
+            xy[0] = start_segf->X();
+            xy[1] = start_segf->Y();
+
+            if (ipl+START_PLATE_S2-1<PLMIN) continue; //avoid plate < 0
+            if (ipl+START_PLATE_S2-1>START_PLATE_S2) continue;  // avoid plate >30 for S1 grid
+            double z_pos = Z_LAYER[ipl+START_PLATE_S2-1];
+            //cout << " z_pos " << z_pos << endl;
+            xy[0] = xy[0] - (start_segf->Z()-z_pos)*start_segf->TX();  //this can be further away if angles are large
+            xy[1] = xy[1] - (start_segf->Z()-z_pos)*start_segf->TY();
+
+            //cout << " nplate S1 " << ipl+START_PLATE_S2-1 << endl;
+            if (ipl+START_PLATE_S2-1<PLMIN) continue;
+            int n_trk_cell = gridtr_S1[ipl+START_PLATE_S2-1].SelectObjectsC(xy, r, tr_grid_s1); //tracce in S1
+            if(EVERBOSE==100) cout << " Checking Grid corresponding to plate # " << ipl+START_PLATE_S2-1 << ", found " << n_trk_cell << " objects " << endl;
+            if (EVERBOSE==100) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
+            for (int itrk1=0; itrk1<n_trk_cell; itrk1++) {
+                EdbTrackP* end_trk = (EdbTrackP*)tr_grid_s1.At(itrk1);
+                EdbSegP* end_seg = (EdbSegP*)end_trk->GetSegmentLast();
+                EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
+                b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
+                b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
+                if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back << endl;
+                if (b<MAX_B && b_back<MAX_B) {
+                    impact_parameters.push_back(b); 
+                    impact_parameters_back.push_back(b_back);
+                    impact_parameters_mean.push_back((double)(b+b_back)/2);
+                    merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
+                    merge_s0id_cand.push_back(end_trk->GetSegmentFirst()->ID());
+                    candidate_tracks.Add((EdbTrackP*)end_trk);
+                }
+                
+            }
+
+            tr_grid_s1.Clear();
+    }
+
+    sorted_IPs = impact_parameters_mean;
+    sorted_IPs_for = impact_parameters;
+    bubbleSort_NEW(sorted_IPs, sorted_IPs_for); //sort by (b+b_back)/2 
+    float current_b=0, current_b_back=0, current_b_mean=0;
+    int pos=0;
+    //cout << " after b calc sorted IP size " << sorted_IPs.size() <<  endl;
+
+    if (sorted_IPs.size()>0) {  //if at least one candidate was found
+        for (int icand=0; icand<sorted_IPs.size(); icand++) {
+            current_b = sorted_IPs_for[icand];
+            pos = findValuePosition(impact_parameters, current_b);
+            EdbTrackP *to_merge_trk = (EdbTrackP*)candidate_tracks.At(pos);
+            if (to_merge_trk==NULL) continue;
+            current_b_back = impact_parameters_back[pos];
+            //std::string tr_string = Form("%i_%i", merge_s0plate_cand[pos], merge_s0id_cand[pos]);
+            if (to_merge_trk->Flag()!=300 && current_b<MAX_B && current_b_back<MAX_B) { //if the candidate was not used
+
+                MERGED += 1;
+                to_merge_trk->SetFlag(300);
+                added_segs = added_segs + to_merge_trk->N();
+                //used_tracks[merge_s0plate_cand[pos]].push_back(tr_string);
+                int current_length = segments_new->GetEntries();
+                int back_position = to_merge_trk->N()-1;
+                for (int k = 0; k<to_merge_trk->N(); k++) {
+                    new((*segments_new)[k+current_length]) EdbSegP(*to_merge_trk->GetSegment(back_position));
+                    new((*fitted_segments_new)[k+current_length]) EdbSegP(*to_merge_trk->GetSegmentF(back_position));
+                    back_position = back_position - 1;
+                }
+                candidate_tracks.Clear();
+                return to_merge_trk;
+
+            } 
+            else continue; //go to the next best candidate
+        }
+    }
+
+    return NULL;
+
+
 }
