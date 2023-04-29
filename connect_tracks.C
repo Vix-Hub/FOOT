@@ -42,7 +42,7 @@ void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2);
 void FillZ_LAYER_SET();
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
 int IsElementInVector(const std::vector<string>& myVector, string value);
-EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
+EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs, const double MAX_DT);
 
 
 int connect_tracks() {
@@ -65,7 +65,7 @@ int connect_tracks() {
     int PLATE_MAX_S2 = 40, thr = 3000, START_PLATE_S2_ALT=31;
 
     // Merge Cuts
-    float DT_MAX = 0.1, B_MAX=50;
+    float DT_MAX = 0.05, B_MAX=50;
 
     // Read Tracks (need XYZ s0 and sL and sfTX sfTY)
 
@@ -210,7 +210,7 @@ int connect_tracks() {
             int added_segs=0;
 
             // Look for pieces to merge in S1
-            EdbTrackP* to_merge_trk = FindClosestCandidate(3+iplS2, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+            EdbTrackP* to_merge_trk = FindClosestCandidate(2+iplS2, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
             EdbTrackP* ausiliary=NULL;
             //cout << " FindClose 1 " << endl;
             if (EVERBOSE == 100) cout << " added segs after first search " << added_segs << endl;
@@ -223,7 +223,7 @@ int connect_tracks() {
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
-                    ausiliary = FindClosestCandidate(4, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
+                    ausiliary = FindClosestCandidate(3, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
                     //cout << " FindClose 2 " << endl;
                     if (EVERBOSE == 100) cout << " added segs after second search " << added_segs << endl;
                     if (ausiliary==NULL) { break; }
@@ -486,14 +486,14 @@ int IsElementInVector(const std::vector<string>& myVector, string value) {
 
 
 
-EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs) {
+EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs, const double MAX_DT) {
     
     EdbSegP* start_seg = (EdbSegP*)start_trk->GetSegmentFirst(); //i segmenti fittati non hanno i piatti salvati bene
     EdbSegP* start_segf = (EdbSegP*)start_trk->GetSegmentFFirst();
     float xy[2] = {0,0};
     if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
     int s0_plate = start_trk->GetSegmentFirst()->Plate() - START_PLATE_S2;
-    float b=0, r=500., b_back=0;
+    float b=0, r=500., b_back=0, dtx=0, dty=0;
     
     std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
@@ -522,9 +522,11 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
                 EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFLast();
                 b = CalcDist(end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX(), end_segf->TY());
                 b_back = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X(), end_segf->Y(), end_segf->Z(), start_segf->TX(), start_segf->TY());
+                dtx = end_segf->TX() - start_segf->TX();
+                dty = end_segf->TY() - start_segf->TY();
                 if (EVERBOSE==100) cout << " Calculated b with track with last seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back << endl;
-                if (b<MAX_B && b_back<MAX_B) {
-                    impact_parameters.push_back(b); 
+                if (b<MAX_B && TMath::Abs(dtx)<MAX_DT && TMath::Abs(dty)<MAX_DT) {
+                    impact_parameters.push_back(b);
                     impact_parameters_back.push_back(b_back);
                     impact_parameters_mean.push_back((double)(b+b_back)/2);
                     merge_s0plate_cand.push_back(end_trk->GetSegmentFirst()->Plate());
@@ -552,7 +554,7 @@ EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClones
             if (to_merge_trk==NULL) continue;
             current_b_back = impact_parameters_back[pos];
             //std::string tr_string = Form("%i_%i", merge_s0plate_cand[pos], merge_s0id_cand[pos]);
-            if (to_merge_trk->Flag()!=300 && current_b<MAX_B && current_b_back<MAX_B) { //if the candidate was not used
+            if (to_merge_trk->Flag()!=300 && current_b<MAX_B) { //if the candidate was not used, the cut was added before
 
                 MERGED += 1;
                 to_merge_trk->SetFlag(300);
