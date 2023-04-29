@@ -13,10 +13,10 @@ const int DEBUG_S0_PLATE_S1=28;
 const int DEBUG_S0_ID_S1 = 1764;
 const int DEBUG_SL_PLATE_S1 = 30;
 
-const float xmin = 35000;//0;
-const float xmax = 90000;//125000;
-const float ymin = 25000;//0;
-const float ymax = 75000;//100000;
+const float xmin = 1000;//0;
+const float xmax = 101000;//125000;
+const float ymin = 1000;//0;
+const float ymax = 101000;//100000;
 
 const int PLMIN=0;
 const int PLMAX=66; 
@@ -38,7 +38,6 @@ int findValuePosition(const std::vector<double>& myVector, double valueToFind);
 void FillTracksCells(TObjArray &arrt);
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
 int IsElementInVector(const std::vector<string>& myVector, string value);
-EdbTrackP* FindClosestCandidate(const int nplates, EdbTrackP* start_trk, TClonesArray *segments_new, TClonesArray *fitted_segments_new, const double MAX_B, int &added_segs);
 void bubbleSort_NEW(std::vector<double>& v, std::vector<double>& v2);
 void FillZ_LAYER_SET();
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
@@ -212,7 +211,7 @@ int connect_tracks_secondstep() {
             int added_segs=0;
 
             // Look for pieces to merge in S1
-            EdbTrackP* to_merge_trk = FindClosestCandidate(2+ADDED_GAPS+iplS2, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+            EdbTrackP* to_merge_trk = FindClosestCandidate(2+ADDED_GAPS+iplS2, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
             EdbTrackP* ausiliary=NULL;
             //cout << " FindClose 1 " << endl;
             if (EVERBOSE == 100) cout << " added segs after first search " << added_segs << endl;
@@ -225,7 +224,7 @@ int connect_tracks_secondstep() {
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
-                    ausiliary = FindClosestCandidate(3+ADDED_GAPS, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs);
+                    ausiliary = FindClosestCandidate(3+ADDED_GAPS, to_merge_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX);
                     //cout << " FindClose 2 " << endl;
                     if (EVERBOSE == 100) cout << " added segs after second search " << added_segs << endl;
                     if (ausiliary==NULL) { break; }
