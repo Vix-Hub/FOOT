@@ -177,6 +177,7 @@ int connect_tracks_new() {
         for (int itrk=0; itrk<N_trks_starting; itrk++) {
 
             EdbTrackP *start_trk = (EdbTrackP*)tr_grid_starting.At(itrk);
+            if (start_trk->Flag()==300) continue; //avoid merging same track more than once
             int start_plate = start_trk->GetSegmentFirst()->Plate();
             int last_plate = start_trk->GetSegmentLast()->Plate();
             int search = 1; //used to limit search in some cases (for example if I only want S1-S2)
