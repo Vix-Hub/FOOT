@@ -12,8 +12,8 @@ OutFile = r.TFile(OutFileName, "RECREATE")
 
 vtx2 = vtx.CloneTree(0)
 
-n_incoming = np.zeros(1, np.intc)
-vtx2.Branch("n_incoming", n_incoming, "n_incoming/I")
+n_outgoing = np.zeros(1, np.intc)
+vtx2.Branch("n_outgoing", n_outgoing, "n_outgoing/I")
 
 for i in range(vtx.GetEntries()):
     vtx.GetEntry(i)
@@ -21,7 +21,7 @@ for i in range(vtx.GetEntries()):
     for j in range(vtx.n):
         if (vtx.incoming[j] == 1):
             n_temp += 1
-    n_incoming[0] = n_temp
+    n_outgoing[0] = n_temp
     vtx2.Fill()
 
 OutFile.cd()
