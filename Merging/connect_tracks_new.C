@@ -1,12 +1,12 @@
-#define IDBRICK 2
+#define IDBRICK 222
 #define EVERBOSE -99
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
 #define STOP_AT_FIRST_MERGE 0
 #define BRAGGPLATE 26
-#define IS_SECOND_STEP 0
-#define LASTPLATEMIN -999 //27 for S1-S2 pieces
-#define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
+#define IS_SECOND_STEP 1
+#define LASTPLATEMIN 27 //27 for S1-S2 pieces
+#define FIRSTPLATEMAX 39 //39 for S1-S2 pieces
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
@@ -15,7 +15,7 @@ const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
 // Cuts to Apply to Tracks
-const int NSEG_MIN = 2;
+const int NSEG_MIN = 3;
 
 // Need Multiple Trees to save all tracks
 const int N_TREES = 20;
@@ -188,10 +188,12 @@ int connect_tracks_new() {
             }
             nseg_new = start_trk->N();
             int added_segs = 0;
+	    int start_nplates = NPLATES_S1;
 
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN) search = 0;
-            if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(NPLATES_S1, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+	    if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
+            if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
 
             EdbTrackP* ausiliary=NULL;
             if (EVERBOSE == 100) cout << " added segs after first search " << added_segs << endl;
@@ -294,7 +296,7 @@ int connect_tracks_new() {
     merge_file->Close();
 
     cout << " MERGED " << MERGED << endl;
-    cout << " Total Time " << total_time.RealTime() << " s " << endl;
+    cout << " Total Time " << total_time.RealTime() << " s " << endl; total_time.Reset(); total_time.Start();
 
     cout << " --- Merging the tracks trees --- " << endl;
     TString merge_file_name = Form("b%06i.0.%i.%i.trk_merged_new.root", IDBRICK, S0, SL);
