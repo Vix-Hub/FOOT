@@ -137,7 +137,7 @@ int merge_offsets() {
     t.Start();
 
     TFile *outfile = TFile::Open(Form("%i_S%i_S%i_offsets.root", IDBRICK, S0, SL), "RECREATE");
-    TNtuple *merge_all = new TNtuple("t_merge", "Impact Parameter between ALL selected tracks ", "b:DTX:DTY:DXp:DYp:b_back:DXp_back:DYp_back:DXp_middle:DYp_middle");
+    TNtuple *merge_all = new TNtuple("t_merge", "Impact Parameter between ALL selected tracks ", "b:DTX:DTY:DXp:DYp:b_back:DXp_back:DYp_back:DXp_middle:DYp_middle:X_S1:Y_S1:X_S2:Y_S2");
     TNtuple *merge_best = new TNtuple("merge_best", "Only Best Candidates (b+b_back / 2)", "b:s0_id:s0_plate:s0_idS1:s0_plateS1:DXp:DYp:DX_middle:DY_middle:DXp2:DYp2:s0TX:s0TY:b_back:s0_flag");
     TNtuple *merge_best_info = new TNtuple("merge_best_info", "Only Best Candidates (b+b_back / 2), other info", "s0_MCEvt:s0_MCEvtS1:s0_MCtrk:s0_MCtrkS1:ngap:s0X:s0Y:DTX:DTY");
     TNtuple *merge_comp = new TNtuple("merge_comp", "Comparing b forward, b back, b middle for best b middle candidates ", "b:b_back:b_middle");
@@ -212,7 +212,7 @@ int merge_offsets() {
             dx_middle = x1_middle-x2_middle;
             dy_middle = y1_middle-y2_middle;
 
-            if (b_for<MAX_B && b_back<MAX_B) merge_all->Fill(b_for, dtx, dty, dxp, dyp, b_back, dxp2, dyp2, dx_middle, dy_middle);
+            if (b_for<MAX_B && b_back<MAX_B) merge_all->Fill(b_for, dtx, dty, dxp, dyp, b_back, dxp2, dyp2, dx_middle, dy_middle, x1, y1, x0, y0);
             if ( (b_for+b_back)/2<b_min) { b_min = (b_for+b_back)/2; save_id = id2; save_plate = plate2; save_dxp=dxp; save_dyp=dyp; save_dx=dx_middle; save_dy=dy_middle; save_dyp2=dyp2; save_dxp2=dxp2;
                                 save_bback = b_back; save_bmid=b_middle; save_bf=b_for; save_mcevt=mcevt_S1; save_mctrk=mc_trkS1; save_ngap=ngap; save_dtx=dtx; save_dty=dty;}
 

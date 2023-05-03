@@ -6,6 +6,7 @@ import numpy as np
 VtxFileName = "vertices_improved_fast_3_new_temp_2.root"
 VtxFile = r.TFile(VtxFileName, "READ")
 vtx = VtxFile.Get("vtx")
+vrec = VtxFile.Get("EdbVertexRec")
 
 OutFileName = "vertices_incoming.root"
 OutFile = r.TFile(OutFileName, "RECREATE")
@@ -26,4 +27,5 @@ for i in range(vtx.GetEntries()):
 
 OutFile.cd()
 vtx2.Write("vtx")
+vrec.Write("EdbVertexRec")
 OutFile.Close()
