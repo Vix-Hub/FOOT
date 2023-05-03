@@ -321,6 +321,7 @@ int postvertex3_new_temp()
     if(FAST==1||FAST==100||FAST==0.5){
         CreateTree(new_vtxtree, merged_arrVTX);
         mygEVR->eVTX = merged_arrVTX;
+
         cout << "At the end I have " << merged_arrVTX->GetEntries() << "\t" << new_vtxtree->GetEntries() << endl; //<< "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
     }
     if(FAST!=1 && FAST!=100 && FAST!=0.5){
@@ -1292,6 +1293,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
                 if(found_cand){
                     
                     newvertex = AddBeamToVertex(vertex, found_cand, vrec);
+                    if (EVERBOSE==102) cout << " AddBeam " << endl;
                     
                     if(!(newvertex)) continue;
                     if(EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID)) cout << "\t FindCT-B " << newvertex->ID() << "\t" << newvertex->Flag() << "\t" << ipl << "\t" << newvertex->N() << "\t" << found_cand->MCTrack() << "\t" << newvertex->VZ() << endl;
@@ -1299,6 +1301,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             }
             else if(OXY_FOUND[idvtx]>1){
                 newvertex = SelectOneBeam(vertex, vrec);
+                if (EVERBOSE==102) cout << " SelectOneBeam " << endl;
                 if(!(newvertex)) continue;
                 if(EVERBOSE==100 && (newvertex->ID()==DEBUG_VTXID || vertex->ID()==DEBUG_VTXID)) cout << "\tFindCT remove oxy " << newvertex->ID() << "\t" << newvertex->N() << "\t" << newvertex->Flag() << endl;
                 
@@ -1333,6 +1336,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
                 else maximp_dau_plate=maximp_dau;
                 newvertex->SetFlag(-99);
                 modifiedvtx += DaughtersSearch(newvertex, tr_grid_dau, vrec, maximp_dau_plate);
+                if (EVERBOSE==102) cout << " DaughterSearch " << endl;
 				if (EVERBOSE == 100 && modifiedvtx) cout << " modified vertex " << modifiedvtx<< endl;
                 if(!(newvertex)) continue;
                 tr_grid_dau.Clear();
@@ -2129,7 +2133,7 @@ EdbVertex * SelectOneBeam(EdbVertex *vertex, EdbVertexRec *vrec){
             EdbVTA *vta1 = (EdbVTA*) vertex->GetVTa(itrk);
             if(vta->GetTrack()->Track()==vta1->GetTrack()->Track()){
                 vertex->SetFlag(-99);//add 8dec
-                vertex = vrec->RemoveVTAFromVertex(*vertex, *vta1);
+                if (vertex->N()>2) vertex = vrec->RemoveVTAFromVertex(*vertex, *vta1);
                 break;
             }}
     } //end loop of vta to remove
