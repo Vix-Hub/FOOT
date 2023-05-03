@@ -2117,7 +2117,7 @@ EdbVertex * SelectOneBeam(EdbVertex *vertex, EdbVertexRec *vrec){
             EdbVTA *vta1 = (EdbVTA*) vertex->GetVTa(itrk);
             if(vta->GetTrack()->Track()==vta1->GetTrack()->Track()){
                 vertex->SetFlag(-99);//add 8dec
-                vertex = vrec->RemoveVTAFromVertex(*vertex, *vta1);
+                if (vertex->N()>2) vertex = vrec->RemoveVTAFromVertex(*vertex, *vta1);
                 break;
             }}
     } //end loop of vta to remove
