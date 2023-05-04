@@ -1,5 +1,5 @@
 #define IDBRICK 222
-#define EVERBOSE -99
+#define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
 #define STOP_AT_FIRST_MERGE 0
@@ -31,8 +31,8 @@ int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 // Debugging
 const int DEBUG_S0_PLATE=31; //31
 const int DEBUG_S0_ID=1767; //91690
-const int DEBUG_S0_PLATE_S1=28;
-const int DEBUG_S0_ID_S1 = 1764;
+const int DEBUG_S0_PLATE_S1=1;
+const int DEBUG_S0_ID_S1 = 26102;
 const int DEBUG_SL_PLATE_S1 = 30;
 
 // X-Y Cut
@@ -177,6 +177,7 @@ int connect_tracks_new() {
         for (int itrk=0; itrk<N_trks_starting; itrk++) {
 
             EdbTrackP *start_trk = (EdbTrackP*)tr_grid_starting.At(itrk);
+            if (EVERBOSE==100 && (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID_S1 || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE_S1)) continue;
             if (start_trk->Flag()==300) continue; //avoid merging same track more than once
             int start_plate = start_trk->GetSegmentFirst()->Plate();
             int last_plate = start_trk->GetSegmentLast()->Plate();
@@ -196,7 +197,7 @@ int connect_tracks_new() {
             if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
 
             EdbTrackP* ausiliary=NULL;
-            if (EVERBOSE == 100) cout << " added segs after first search " << added_segs << endl;
+            if (EVERBOSE == 100 ) cout << " added segs after first search " << added_segs << endl;
             if (EVERBOSE==100 && start_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID && start_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE) {
                 if (to_merge_trk) cout << " Found Candidate " << endl;
                 else cout << " No Candidate Found! " << endl;
