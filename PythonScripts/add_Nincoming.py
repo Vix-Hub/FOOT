@@ -24,7 +24,7 @@ for i in range(vtx.GetEntries()):
     for j in range(vtx.n):
         if (vtx.incoming[j] == 1):
             n_temp += 1
-        if (vtx.npl[i] + vtx.plate[i] > 31):
+        if (vtx.npl[j] + vtx.plate[j] > 31):
             n_temp_s2 += 1
     n_outgoing[0] = n_temp
     n_S2[0] = n_temp_s2
