@@ -177,7 +177,7 @@ int connect_tracks_new() {
         for (int itrk=0; itrk<N_trks_starting; itrk++) {
 
             EdbTrackP *start_trk = (EdbTrackP*)tr_grid_starting.At(itrk);
-            if (EVERBOSE==100 && (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID_S1 || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE_S1)) continue;
+            if (EVERBOSE==100 && ( (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE) && (start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE_S1 || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_ID_S1))) continue;
             if (start_trk->Flag()==300) continue; //avoid merging same track more than once
             int start_plate = start_trk->GetSegmentFirst()->Plate();
             int last_plate = start_trk->GetSegmentLast()->Plate();
@@ -246,7 +246,8 @@ int connect_tracks_new() {
             
             if(to_merge_trk==NULL) to_merge_trk = start_trk;
             trid_new = to_merge_trk->ID(); //trid is first track ID
-            int final_plate = to_merge_trk->GetSegmentLast()->Plate();
+            EdbSegP *final_seg = (EdbSegP*)segments_new->At(segments_new->GetEntries()-1);
+            int final_plate = final_seg->Plate();
             npl_new = final_plate - start_plate;
             
             trk_new = (EdbSegP*)segments_new->At(0);
