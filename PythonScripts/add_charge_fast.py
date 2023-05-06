@@ -27,6 +27,8 @@ outVtx.Branch("Z_flag2", Z_rec, "Z_flag2[n]/I")
 
 # CHARGE INFO
 chargeName = "b" + str(IDBRICK).zfill(6) + ".2.0.0.trk.root"
+if (not MC):
+	chargeName = "b" + str(IDBRICK).zfill(6) + ".2.0.0.trk_updateV.root"
 chargeFile = r.TFile(chargeName, "READ")
 chargeTree = chargeFile.Get("tracks")
 
