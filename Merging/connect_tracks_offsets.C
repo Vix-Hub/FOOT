@@ -70,7 +70,7 @@ void MergeTrees(TString tempfilename, bool delete_tempfile);
 void merge_trees(const char* input_file_name, const char* output_file_name, int num_trees_per_step);
 int getIndex(int num);
 
-int connect_tracks_new() {
+int connect_tracks_offsets() {
 
     int MC = 0;
     if (IDBRICK < 10) MC = 1;
