@@ -1,12 +1,12 @@
-#define IDBRICK 222
+#define IDBRICK 2
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
 #define STOP_AT_FIRST_MERGE 0
 #define BRAGGPLATE 26
-#define IS_SECOND_STEP 1
-#define LASTPLATEMIN 27 //27 for S1-S2 pieces
-#define FIRSTPLATEMAX 39 //39 for S1-S2 pieces
+#define IS_SECOND_STEP 0
+#define LASTPLATEMIN -999 //27 for S1-S2 pieces
+#define FIRSTPLATEMAX 30 //39 for S1-S2 pieces
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
@@ -15,14 +15,14 @@ const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
 // Cuts to Apply to Tracks
-const int NSEG_MIN = 3;
+const int NSEG_MIN = 2;
 
 // Need Multiple Trees to save all tracks
 const int N_TREES = 20;
 
 // Merge Cuts
-float B_MAX = 50;
-float DT_MAX = 0.05;
+float B_MAX = 100;
+float DT_MAX = 0.07;
 
 int NPLATES_S1 = 4; // number of plates in which to look for candidates in S1
 int NPLATES_S2 = 8; // number of plates in which to look for candidates in S2
