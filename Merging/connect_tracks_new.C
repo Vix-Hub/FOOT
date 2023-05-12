@@ -194,7 +194,7 @@ int connect_tracks_new() {
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN) search = 0;
 	        if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
-            if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+            if (search) to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
 
             EdbTrackP* ausiliary=NULL;
             if (EVERBOSE == 100 ) cout << " added segs after first search " << added_segs << endl;

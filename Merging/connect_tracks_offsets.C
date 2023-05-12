@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+#define IDBRICK 333
+=======
 #define IDBRICK 2
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
@@ -6,6 +10,18 @@
 #define BRAGGPLATE 26
 #define IS_SECOND_STEP 0
 #define LASTPLATEMIN -999 //27 for S1-S2 pieces
+<<<<<<< HEAD
+#define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
+
+// Sections to Merge, from 1 to 7
+const int S0 = 1;
+const int SL = 3;
+//const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
+const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
+
+// Cuts to Apply to Tracks
+const int NSEG_MIN = 3;
+=======
 #define FIRSTPLATEMAX 30 //39 for S1-S2 pieces
 
 // Sections to Merge, from 1 to 7
@@ -16,6 +32,7 @@ const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200
 
 // Cuts to Apply to Tracks
 const int NSEG_MIN = 2;
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
 // Need Multiple Trees to save all tracks
 const int N_TREES = 20;
@@ -30,9 +47,15 @@ int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 
 // Debugging
 const int DEBUG_S0_PLATE=31; //31
+<<<<<<< HEAD
+const int DEBUG_S0_ID=248976; //91690
+const int DEBUG_S0_PLATE_S1=1;
+const int DEBUG_S0_ID_S1 = 208534;
+=======
 const int DEBUG_S0_ID=1767; //91690
 const int DEBUG_S0_PLATE_S1=1;
 const int DEBUG_S0_ID_S1 = 26102;
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 const int DEBUG_SL_PLATE_S1 = 30;
 
 // X-Y Cut
@@ -53,6 +76,10 @@ float Z_LAYER[PLMAX+1]={0};
 TTree *tracks_new = new TTree();
 TTree *tracks_new2 = new TTree();
 TNtuple *merge_offsets = 0;
+<<<<<<< HEAD
+float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
+=======
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
 // Function Declarations
 void bubbleSort(std::vector<double>& v);
@@ -149,7 +176,10 @@ int connect_tracks_offsets() {
     if (EVERBOSE==100||EVERBOSE==101) merge_file_name_temp = Form("b%06i.0.%i.%i.trk_long_EVERBOSE.root", IDBRICK, S0, SL);
     
     //accessing section offsets
+<<<<<<< HEAD
+=======
     float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
     TFile *offsets_file = TFile::Open(Form("%i_S%i_S%i_offsets_all.root", IDBRICK, S0, SL), "READ");
     merge_offsets = (TNtuple*)offsets_file->Get("merge_offsets");
@@ -206,7 +236,11 @@ int connect_tracks_offsets() {
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN) search = 0;
 	        if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
+<<<<<<< HEAD
+            if (search) to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+=======
             if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
             EdbTrackP* ausiliary=NULL;
             if (EVERBOSE == 100 ) cout << " added segs after first search " << added_segs << endl;
@@ -216,6 +250,10 @@ int connect_tracks_offsets() {
             }
             if (to_merge_trk!=NULL) {
                 MERGED_FIRST_STEP += 1;
+<<<<<<< HEAD
+                //cout << " hellou " << endl;
+=======
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
@@ -414,6 +452,10 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
 
             if (next_Section != start_Section) {
                 merge_offsets->GetEntry(next_Section-1); //get corresponding offsets
+<<<<<<< HEAD
+                //if (next_Section == 2) cout << " Using offsets " << Xoff << " for section " << next_Section << endl;
+=======
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
             } else {
                 Xoff = 0; Yoff = 0; TXoff = 0; TYoff = 0;
             }
@@ -423,6 +465,12 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
             xy[0] = xy[0] - (start_segf->Z()-z_pos)*start_segf->TX();  //this can be further away if angles are large
             xy[1] = xy[1] - (start_segf->Z()-z_pos)*start_segf->TY();
 
+<<<<<<< HEAD
+            xy[0] = xy[0] - Xoff;
+            xy[1] = xy[1] - Yoff;
+
+=======
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
             int n_trk_cell = gridtr_ALL[ipl].SelectObjectsC(xy, r, tr_grid_candidates); //tracce in S1
             if(EVERBOSE==100) cout << " Checking Grid corresponding to plate # " << ipl << ", found " << n_trk_cell << " objects " << endl;
             if (EVERBOSE==100) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
@@ -432,7 +480,11 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
                 EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFFirst();
 
                 b_back = CalcDist(end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX()+TXoff, end_segf->TY()+TYoff);
+<<<<<<< HEAD
+                b = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->TX(), start_segf->TY());
+=======
                 b = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->TX()+TXoff, start_segf->TY()+TYoff);
+>>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
                 
                 dtx = - (end_segf->TX()+TXoff) + start_segf->TX();
                 dty = - (end_segf->TY()+TYoff) + start_segf->TY();
