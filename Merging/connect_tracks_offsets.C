@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 #define IDBRICK 333
-=======
 #define IDBRICK 2
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
@@ -10,7 +7,6 @@
 #define BRAGGPLATE 26
 #define IS_SECOND_STEP 0
 #define LASTPLATEMIN -999 //27 for S1-S2 pieces
-<<<<<<< HEAD
 #define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
 
 // Sections to Merge, from 1 to 7
@@ -21,18 +17,6 @@ const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400
 
 // Cuts to Apply to Tracks
 const int NSEG_MIN = 3;
-=======
-#define FIRSTPLATEMAX 30 //39 for S1-S2 pieces
-
-// Sections to Merge, from 1 to 7
-const int S0 = 1;
-const int SL = 2;
-const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
-//int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
-
-// Cuts to Apply to Tracks
-const int NSEG_MIN = 2;
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
 // Need Multiple Trees to save all tracks
 const int N_TREES = 20;
@@ -47,15 +31,9 @@ int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 
 // Debugging
 const int DEBUG_S0_PLATE=31; //31
-<<<<<<< HEAD
 const int DEBUG_S0_ID=248976; //91690
 const int DEBUG_S0_PLATE_S1=1;
 const int DEBUG_S0_ID_S1 = 208534;
-=======
-const int DEBUG_S0_ID=1767; //91690
-const int DEBUG_S0_PLATE_S1=1;
-const int DEBUG_S0_ID_S1 = 26102;
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 const int DEBUG_SL_PLATE_S1 = 30;
 
 // X-Y Cut
@@ -236,11 +214,7 @@ int connect_tracks_offsets() {
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN) search = 0;
 	        if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
-<<<<<<< HEAD
             if (search) to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
-=======
-            if (search) EdbTrackP* to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
             EdbTrackP* ausiliary=NULL;
             if (EVERBOSE == 100 ) cout << " added segs after first search " << added_segs << endl;
@@ -250,10 +224,7 @@ int connect_tracks_offsets() {
             }
             if (to_merge_trk!=NULL) {
                 MERGED_FIRST_STEP += 1;
-<<<<<<< HEAD
                 //cout << " hellou " << endl;
-=======
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
@@ -436,12 +407,15 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
     float b=0, r=2000., b_back=0, dtx=0, dty=0;
     int next_Section = 0;
     
-    
     std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
     TObjArray candidate_tracks, tr_grid_candidates;
 
-    for (int ipl=s0_plate+1; ipl<=s0_plate+nplates; ipl++) {  //look for candidates in 4 plates
+    int extend_radius = 0;
+
+    while (impact_parameters.size() == 0 && extend_radius==0) 
+    {
+        for (int ipl=s0_plate+1; ipl<=s0_plate+nplates; ipl++) {  //look for candidates in 4 plates
 
             xy[0] = start_segf->X(); //last segment coordinates
             xy[1] = start_segf->Y();
@@ -452,25 +426,19 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
 
             if (next_Section != start_Section) {
                 merge_offsets->GetEntry(next_Section-1); //get corresponding offsets
-<<<<<<< HEAD
                 //if (next_Section == 2) cout << " Using offsets " << Xoff << " for section " << next_Section << endl;
-=======
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
             } else {
                 Xoff = 0; Yoff = 0; TXoff = 0; TYoff = 0;
             }
 
             double z_pos = Z_LAYER[ipl-1];
             //cout << " z_pos " << z_pos << endl;
-            xy[0] = xy[0] - (start_segf->Z()-z_pos)*start_segf->TX();  //this can be further away if angles are large
-            xy[1] = xy[1] - (start_segf->Z()-z_pos)*start_segf->TY();
+            //xy[0] = xy[0] - (start_segf->Z()-z_pos)*start_segf->TX();  //this can be further away if angles are large
+            //xy[1] = xy[1] - (start_segf->Z()-z_pos)*start_segf->TY();
 
-<<<<<<< HEAD
             xy[0] = xy[0] - Xoff;
             xy[1] = xy[1] - Yoff;
 
-=======
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
             int n_trk_cell = gridtr_ALL[ipl].SelectObjectsC(xy, r, tr_grid_candidates); //tracce in S1
             if(EVERBOSE==100) cout << " Checking Grid corresponding to plate # " << ipl << ", found " << n_trk_cell << " objects " << endl;
             if (EVERBOSE==100) cout << " i was looking with xy " << xy[0] << " " << xy[1] << endl;
@@ -480,11 +448,7 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
                 EdbSegP* end_segf = (EdbSegP*)end_trk->GetSegmentFFirst();
 
                 b_back = CalcDist(end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->TX()+TXoff, end_segf->TY()+TYoff);
-<<<<<<< HEAD
                 b = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->TX(), start_segf->TY());
-=======
-                b = CalcDist(start_segf->X(), start_segf->Y(), start_segf->Z(), end_segf->X()+Xoff, end_segf->Y()+Yoff, end_segf->Z(), start_segf->TX()+TXoff, start_segf->TY()+TYoff);
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
                 
                 dtx = - (end_segf->TX()+TXoff) + start_segf->TX();
                 dty = - (end_segf->TY()+TYoff) + start_segf->TY();
@@ -501,7 +465,13 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
             }
 
             tr_grid_candidates.Clear();
+        }
+
+        if(r!=r0) extend_radius = 1; //repeat search once 
+        r = r*5; 
     }
+
+    
 
     sorted_IPs = impact_parameters_mean;
     sorted_IPs_for = impact_parameters;
