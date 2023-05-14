@@ -12,7 +12,7 @@
 const int S0 = 1;
 const int SL = 2;
 const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
-//int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
+//const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
 // Cuts to Apply to Tracks
 const int NSEG_MIN = 2;
