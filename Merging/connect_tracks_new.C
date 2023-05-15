@@ -11,8 +11,8 @@
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
 const int SL = 2;
-const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
-//const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
+//const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
+const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
 // Cuts to Apply to Tracks
 const int NSEG_MIN = 2;
@@ -31,8 +31,8 @@ int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 // Debugging
 const int DEBUG_S0_PLATE=31; //31
 const int DEBUG_S0_ID=411561; //91690
-const int DEBUG_S0_PLATE_S1=17;
-const int DEBUG_S0_ID_S1 = 411550;
+const int DEBUG_S0_PLATE_S1=16;
+const int DEBUG_S0_ID_S1 = 47888;
 const int DEBUG_SL_PLATE_S1 = 30;
 
 // X-Y Cut
@@ -208,6 +208,7 @@ int connect_tracks_new() {
             }
             if (to_merge_trk!=NULL) {
                 MERGED_FIRST_STEP += 1;
+                if (EVERBOSE == 100) cout << " Found one candidate with first seg " << to_merge_trk->GetSegmentFirst()->ID() << " " << to_merge_trk->GetSegmentFirst()->Plate() << endl;
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
@@ -361,7 +362,7 @@ void FillTracksCells(TObjArray &arrt){
     const int cellsize=1000;
     const int ncellsX = (int)(xmax-xmin)/cellsize;//35;
     const int ncellsY = (int)(ymax-ymin)/cellsize;//50;
-    const long int maxpercell = 50000; 
+    const long int maxpercell = 100000; 
     for(int i=1; i<=PLMAX; i++) gridtr_ALL[i].InitCell(ncellsX, xmin, xmax, ncellsY, ymin, ymax, maxpercell );
     
     int ntr = arrt.GetEntries();
@@ -385,7 +386,10 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
     EdbSegP* start_seg = (EdbSegP*)start_trk->GetSegmentLast(); //use segments (not fitted segments) for plate info
     EdbSegP* start_segf = (EdbSegP*)start_trk->GetSegmentFLast();
     float xy[2] = {0,0};
-    if (EVERBOSE==100) cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
+    if (EVERBOSE==100) { 
+        cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
+        cout << " Start Seg f Coordinates " << start_segf->X() << " " << start_segf->Y() << " " << start_segf->Z() << " " << start_segf->TX() << " " << start_segf->TY() << " Plate ID " << start_segf->Plate() << " " << start_segf->ID() << endl;
+    }
     int s0_plate = start_trk->GetSegmentLast()->Plate();
     float b=0, r=2000., b_back=0, dtx=0, dty=0;
     float r0 = r;
@@ -423,7 +427,11 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
                 
                 dtx = - end_segf->TX() + start_segf->TX();
                 dty = - end_segf->TY() + start_segf->TY();
-                if (EVERBOSE==100) cout << " Calculated b with track with first seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back << endl;
+                if (EVERBOSE==100) { 
+                    cout << " Calculated b with track with first seg " << end_seg->Plate() << " " << end_seg->ID() << " : " << b << ", b_back: " << b_back;
+                    cout << " X Y TX TY " << end_seg->X() << " " << end_seg->Y() << " " << end_seg->TX() << " " << end_seg->TY() << endl;
+                    cout << " fitted X Y TX TY " << end_segf->X() << " " << end_segf->Y() << " " << end_segf->TX() << " " << end_segf->TY() << endl;
+                }
                 if (b<MAX_B && TMath::Abs(dtx)<MAX_DT && TMath::Abs(dty)<MAX_DT) {
                     impact_parameters.push_back(b);
                     impact_parameters_back.push_back(b_back);
