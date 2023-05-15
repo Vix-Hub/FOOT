@@ -1,5 +1,4 @@
 #define IDBRICK 333
-#define IDBRICK 2
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
@@ -54,10 +53,7 @@ float Z_LAYER[PLMAX+1]={0};
 TTree *tracks_new = new TTree();
 TTree *tracks_new2 = new TTree();
 TNtuple *merge_offsets = 0;
-<<<<<<< HEAD
 float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
-=======
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
 // Function Declarations
 void bubbleSort(std::vector<double>& v);
@@ -154,10 +150,6 @@ int connect_tracks_offsets() {
     if (EVERBOSE==100||EVERBOSE==101) merge_file_name_temp = Form("b%06i.0.%i.%i.trk_long_EVERBOSE.root", IDBRICK, S0, SL);
     
     //accessing section offsets
-<<<<<<< HEAD
-=======
-    float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
->>>>>>> 38cb6f0f8869bba9d4b0630ce9bc5f364bf7f777
 
     TFile *offsets_file = TFile::Open(Form("%i_S%i_S%i_offsets_all.root", IDBRICK, S0, SL), "READ");
     merge_offsets = (TNtuple*)offsets_file->Get("merge_offsets");
