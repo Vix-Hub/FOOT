@@ -398,6 +398,7 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
     int start_Section = getIndex(s0_plate); // Establish to which section the current last segment belongs to
     float b=0, r=2000., b_back=0, dtx=0, dty=0;
     int next_Section = 0;
+    float r0 = r;
     
     std::vector<double> impact_parameters, sorted_IPs, impact_parameters_back, impact_parameters_mean, sorted_IPs_for;
     std::vector<int> merge_s0plates, merge_s0ids, merge_s0plate_cand, merge_s0id_cand;
