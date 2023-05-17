@@ -280,10 +280,10 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     TNtuple *t_merge = merge_all;
     float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
 
-    TH1F *h_DXp = new TH1F("h_DXp", "", 300, -300, 300);
-    TH1F *h_DYp = new TH1F("h_DYp", "", 300, -300, 300);
-    TH1F *h_DTX = new TH1F("h_DTX", "", 500, -0.1, 0.1);
-    TH1F *h_DTY = new TH1F("h_DTY", "", 500, -0.1, 0.1);
+    TH1F *h_DXp = new TH1F("h_DXp", "", 800, -800, 800);
+    TH1F *h_DYp = new TH1F("h_DYp", "", 800, -800, 800);
+    TH1F *h_DTX = new TH1F("h_DTX", "", 300, -0.1, 0.1);
+    TH1F *h_DTY = new TH1F("h_DTY", "", 300, -0.1, 0.1);
 
     t_merge->Draw("DXp>>h_DXp");
     t_merge->Draw("DYp>>h_DYp");
@@ -292,16 +292,16 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
 
     //float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float sigma, float maximum, float prob_min, int N)
     float fit_mean = 0;
-    float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 100, 0.001, -99); //-99 non modifica offsets
+    //float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 100, 0.001, -99); //-99 non modifica offsets
     /*h_DXp->Delete();
     TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 100, fit_mean-fit_sigma, fit_mean+fit_sigma);
     t_merge->Draw("DXp>>h_DXp_new");
     fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, fit_sigma, fit_sigma, 100, 0.001, 0);*/
 
-    int bin_max = 0;
-    float binc = 0, fit_prob=0, mean=0;
+    /*int bin_max = 0;
+    float binc = 0, fit_prob=0, mean=0;*/
 
-    /*int bin_max = h_DXp->GetMaximumBin();
+    int bin_max = h_DXp->GetMaximumBin();
     float binc = h_DXp->GetXaxis()->GetBinCenter(bin_max);
     TF1 *g1 = new TF1("g1", "gaus(0)", binc-50, binc+50);
     g1->SetParameter(0, 100);
@@ -312,7 +312,7 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     float mean = g1->GetParameter(1);
     float fit_sigma = g1->GetParameter(2);
     if (fit_prob>0.0001)  offsets[0] = mean; 
-    else { offsets[0] = binc; cout << " Low Fit Probability: " << fit_prob << endl; }*/
+    else { offsets[0] = binc; cout << " Low Fit Probability: " << fit_prob << endl; }
 
     // --------------- DY
 
