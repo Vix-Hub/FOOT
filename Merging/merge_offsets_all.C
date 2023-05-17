@@ -280,10 +280,10 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     TNtuple *t_merge = merge_all;
     float Xoff=0, Yoff=0, TXoff=0, TYoff=0;
 
-    TH1F *h_DXp = new TH1F("h_DXp", "", 600, -300, 300);
-    TH1F *h_DYp = new TH1F("h_DYp", "", 600, -300, 300);
-    TH1F *h_DTX = new TH1F("h_DTX", "", 1000, -0.1, 0.1);
-    TH1F *h_DTY = new TH1F("h_DTY", "", 1000, -0.1, 0.1);
+    TH1F *h_DXp = new TH1F("h_DXp", "", 300, -300, 300);
+    TH1F *h_DYp = new TH1F("h_DYp", "", 300, -300, 300);
+    TH1F *h_DTX = new TH1F("h_DTX", "", 500, -0.1, 0.1);
+    TH1F *h_DTY = new TH1F("h_DTY", "", 500, -0.1, 0.1);
 
     t_merge->Draw("DXp>>h_DXp");
     t_merge->Draw("DYp>>h_DYp");
@@ -293,10 +293,10 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     //float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float sigma, float maximum, float prob_min, int N)
     float fit_mean = 0;
     float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 100, 0.001, -99); //-99 non modifica offsets
-    h_DXp->Delete();
+    /*h_DXp->Delete();
     TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 100, fit_mean-fit_sigma, fit_mean+fit_sigma);
     t_merge->Draw("DXp>>h_DXp_new");
-    fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, fit_sigma, fit_sigma, 100, 0.001, 0);
+    fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, fit_sigma, fit_sigma, 100, 0.001, 0);*/
 
     int bin_max = 0;
     float binc = 0, fit_prob=0, mean=0;
@@ -394,7 +394,7 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     TCanvas *c_merged = new TCanvas("report","offsets report",800,800);
     c_merged->Divide(2,2);
     c_merged->cd(1);
-    h_DXp_new->DrawClone();
+    h_DXp->DrawClone();
     c_merged->cd(2);
     h_DYp->DrawClone();
     c_merged->cd(3);
