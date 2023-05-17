@@ -42,8 +42,8 @@ void merge_offsets_all(int IDBRICK=222, int S0=1, int SL=2, int check=0) {
         if (iS+1 == 2) n_plates_plus = 9;
         else n_plates_plus = 4;
 
-        n_plates_plus = 0;
-        n_plates_minus = 0; //modifica temporanea
+        //n_plates_plus = 0;
+        //n_plates_minus = 0; //modifica temporanea
 
         cout << " Calculating Offsets between S" << S0 << " and S" << SL << endl;
         float *angular_offsets = merge_offsets_couple(tracks, IDBRICK, iS, iS+1, NSEG_MIN, n_plates_minus, n_plates_plus, 1, nullptr, check); //current angular offsets
