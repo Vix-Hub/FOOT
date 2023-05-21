@@ -6,7 +6,7 @@ double CalcDistMiddle(float x1, float y1, float z1, float tx1, float ty1, float 
 double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, float tx1, float ty1);
 float* merge_offsets(int IDBRICK=222, int S0=1, int SL=2, int NSEG_MIN=3, int n_plates_minus=5, int n_plates_plus=5);
 float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, int NSEG_MIN=3, int n_plates_minus=4, int n_plates_plus=9, int angle_correction=1, float *angular_offsets=0, int check=0) ;
-float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float sigma, float maximum, float prob_min, int N);
+float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float half_interval, float prob_min, int N);
 
 
 // merge_offsets_all calculates all offsets between each couple of section from S0 to S1
@@ -47,8 +47,8 @@ void merge_offsets_all(int IDBRICK=222, int S0=1, int SL=2, int check=0) {
 
         cout << " Calculating Offsets between S" << S0 << " and S" << SL << endl;
         float *angular_offsets = merge_offsets_couple(tracks, IDBRICK, iS, iS+1, NSEG_MIN, n_plates_minus, n_plates_plus, 1, nullptr, check); //current angular offsets
-        for (int i=2; i<4; i++ ) { offsets[i] += angular_offsets[i]; previous_offsets[i] = angular_offsets[i]; } //save angular offsets
-        for (int i=0; i<2; i++) { offsets[i] += angular_offsets[i]; } //temp
+        for (int i=2; i<4; i++ ) { offsets[i] = angular_offsets[i]; previous_offsets[i] = angular_offsets[i]; } //save angular offsets
+        for (int i=0; i<2; i++) { offsets[i] = angular_offsets[i]; } //temp
 
         /*if (!check) //mod temp
         {
@@ -290,18 +290,33 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     t_merge->Draw("DTX>>h_DTX");
     t_merge->Draw("DTY>>h_DTY");
 
-    //float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float sigma, float maximum, float prob_min, int N)
+    //float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float half_interval, float prob_min, int N)
     float fit_mean = 0;
-    //float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 100, 0.001, -99); //-99 non modifica offsets
-    /*h_DXp->Delete();
-    TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 100, fit_mean-fit_sigma, fit_mean+fit_sigma);
+    float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 0.001, -99); //-99 non modifica offsets
+    //h_DXp->Delete();
+    TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 4*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
     t_merge->Draw("DXp>>h_DXp_new");
-    fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, fit_sigma, fit_sigma, 100, 0.001, 0);*/
+    fit_sigma = fit_histogram(h_DXp_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 0);
 
     /*int bin_max = 0;
     float binc = 0, fit_prob=0, mean=0;*/
 
-    int bin_max = h_DXp->GetMaximumBin();
+    fit_sigma = fit_histogram(h_DYp, offsets, fit_mean, 5, 20, 0.001, -99); //-99 non modifica offsets
+    TH1F *h_DYp_new = new TH1F("h_DYp_new", "", 4*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
+    t_merge->Draw("DYp>>h_DYp_new");
+    fit_sigma = fit_histogram(h_DYp_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 1);
+
+    fit_sigma = fit_histogram(h_DTX, offsets, fit_mean, 5, 0.01, 0.001, -99); //-99 non modifica offsets
+    TH1F *h_DTX_new = new TH1F("h_DTX_new", "", 2000*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
+    t_merge->Draw("DTX>>h_DTX_new");
+    fit_sigma = fit_histogram(h_DTX_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 2);
+
+    fit_sigma = fit_histogram(h_DTY, offsets, fit_mean, 5, 0.01, 0.001, -99); //-99 non modifica offsets
+    TH1F *h_DTY_new = new TH1F("h_DTY_new", "", 2000*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
+    t_merge->Draw("DTY>>h_DTY_new");
+    fit_sigma = fit_histogram(h_DTY_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 3);
+
+    /*int bin_max = h_DXp->GetMaximumBin();
     float binc = h_DXp->GetXaxis()->GetBinCenter(bin_max);
     TF1 *g1 = new TF1("g1", "gaus(0)", binc-50, binc+50);
     g1->SetParameter(0, 100);
@@ -312,11 +327,11 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     float mean = g1->GetParameter(1);
     float fit_sigma = g1->GetParameter(2);
     if (fit_prob>0.0001)  offsets[0] = mean; 
-    else { offsets[0] = binc; cout << " Low Fit Probability: " << fit_prob << endl; }
+    else { offsets[0] = binc; cout << " Low Fit Probability: " << fit_prob << endl; }*/
 
     // --------------- DY
 
-    bin_max = h_DYp->GetMaximumBin();
+    /*bin_max = h_DYp->GetMaximumBin();
     binc = h_DYp->GetXaxis()->GetBinCenter(bin_max);
     TF1 *g2 = new TF1("g2", "gaus(0)", binc-50, binc+50);
     g2->SetParameter(0, 100);
@@ -362,7 +377,7 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     else { offsets[3] = binc; cout << " Low Fit Probability: " << fit_prob << endl; }
 
 
-    TCanvas *c_DXp = new TCanvas();
+    /*TCanvas *c_DXp = new TCanvas();
     c_DXp->cd();
     h_DXp->SetTitle("DXp;DXp[#mum];Entries");
     h_DXp->Draw("colz");
@@ -388,19 +403,27 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     h_DTY->SetTitle("DTY;DTY;Entries");
     h_DTY->Draw("colz");
     c_DTY->Write("c_DTY");
-    c_DTY->Close();
+    c_DTY->Close();*/
 
     // combine the canvas into one?
     TCanvas *c_merged = new TCanvas("report","offsets report",800,800);
-    c_merged->Divide(2,2);
+    c_merged->Divide(2,4);
     c_merged->cd(1);
     h_DXp->DrawClone();
     c_merged->cd(2);
-    h_DYp->DrawClone();
+    h_DXp_new->DrawClone();
     c_merged->cd(3);
-    h_DTX->DrawClone();
+    h_DYp->DrawClone();
     c_merged->cd(4);
+    h_DYp_new->DrawClone();
+    c_merged->cd(5);
+    h_DTX->DrawClone();
+    c_merged->cd(6);
+    h_DTX_new->DrawClone();
+    c_merged->cd(7);
     h_DTY->DrawClone();
+    c_merged->cd(8);
+    h_DTY_new->DrawClone();
    
     c_merged->Write("report");
 
@@ -762,17 +785,17 @@ double CalcDist(float x1, float y1, float z1, float x2, float y2, float z2, floa
 }
 
 
-float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float sigma, float maximum, float prob_min, int N) {
+float fit_histogram(TH1F* hist, float* offset, float &mean0, float sigma0, float half_interval, float prob_min, int N) {
   // Find the bin with the maximum content
   int bin_max = hist->GetMaximumBin();
   float binc = hist->GetXaxis()->GetBinCenter(bin_max);
 
   // Fit a Gaussian function to the histogram in the vicinity of the maximum bin
-  TF1* g1 = new TF1("g1", "gaus(0)", binc - sigma, binc + sigma);
-  g1->SetParameter(0, maximum);
+  TF1* g1 = new TF1("g1", "gaus(0)", binc - half_interval, binc + half_interval);
+  g1->SetParameter(0, bin_max);
   g1->SetParameter(1, binc);
   g1->SetParameter(2, sigma0);
-  hist->Fit("g1", "L", "", binc - sigma, binc + sigma);
+  hist->Fit("g1", "L", "", binc - half_interval, binc + half_interval);
 
   // Get the fit probability, mean, and sigma
   float fit_prob = g1->GetProb();
