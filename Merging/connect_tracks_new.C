@@ -271,7 +271,8 @@ int connect_tracks_new() {
 
             for (int i = 0; i < segments_new->GetEntries(); i ++) {
                 EdbSegP *temp_seg = (EdbSegP*)segments_new->At(i);
-                if (temp_seg->Plate()<=LASTLAYER[1] || temp_seg->Plate()>LASTLAYER[2]) temp_seg->SetFlag(first_S2_charge);
+                EdbSegP *temp_segf = (EdbSegP*)fitted_segments_new->At(i);
+                if (temp_seg->Plate()<=LASTLAYER[1] || temp_seg->Plate()>LASTLAYER[2]) { temp_seg->SetFlag(first_S2_charge); temp_segf->SetFlag(first_S2_charge); }
             }
 
             trk_new->SetVid( 0, tracks_new->GetEntries() ); 
