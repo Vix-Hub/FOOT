@@ -294,27 +294,27 @@ float* merge_offsets_couple(TTree* tracks, int IDBRICK=222, int S0=1, int SL=2, 
     float fit_mean = 0;
     float fit_sigma = fit_histogram(h_DXp, offsets, fit_mean, 5, 20, 0.001, -99); //-99 non modifica offsets
     //h_DXp->Delete();
-    TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 4*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
+    TH1F *h_DXp_new = new TH1F("h_DXp_new", "", 3*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
     t_merge->Draw("DXp>>h_DXp_new");
-    fit_sigma = fit_histogram(h_DXp_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 0);
+    fit_sigma = fit_histogram(h_DXp_new, offsets, fit_mean, fit_sigma, 0.8*fit_sigma, 0.001, 0);
 
     /*int bin_max = 0;
     float binc = 0, fit_prob=0, mean=0;*/
 
     fit_sigma = fit_histogram(h_DYp, offsets, fit_mean, 5, 20, 0.001, -99); //-99 non modifica offsets
-    TH1F *h_DYp_new = new TH1F("h_DYp_new", "", 4*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
+    TH1F *h_DYp_new = new TH1F("h_DYp_new", "", 3*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
     t_merge->Draw("DYp>>h_DYp_new");
-    fit_sigma = fit_histogram(h_DYp_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 1);
+    fit_sigma = fit_histogram(h_DYp_new, offsets, fit_mean, fit_sigma, 0.8*fit_sigma, 0.001, 1);
 
     fit_sigma = fit_histogram(h_DTX, offsets, fit_mean, 5, 0.01, 0.001, -99); //-99 non modifica offsets
     TH1F *h_DTX_new = new TH1F("h_DTX_new", "", 2000*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
     t_merge->Draw("DTX>>h_DTX_new");
-    fit_sigma = fit_histogram(h_DTX_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 2);
+    fit_sigma = fit_histogram(h_DTX_new, offsets, fit_mean, fit_sigma, 0.8*fit_sigma, 0.001, 2);
 
     fit_sigma = fit_histogram(h_DTY, offsets, fit_mean, 5, 0.01, 0.001, -99); //-99 non modifica offsets
     TH1F *h_DTY_new = new TH1F("h_DTY_new", "", 2000*TMath::Abs((fit_mean-4*fit_sigma)), fit_mean-4*fit_sigma, fit_mean+4*fit_sigma);
     t_merge->Draw("DTY>>h_DTY_new");
-    fit_sigma = fit_histogram(h_DTY_new, offsets, fit_mean, fit_sigma, fit_sigma, 0.001, 3);
+    fit_sigma = fit_histogram(h_DTY_new, offsets, fit_mean, fit_sigma, 0.8*fit_sigma, 0.001, 3);
 
     /*int bin_max = h_DXp->GetMaximumBin();
     float binc = h_DXp->GetXaxis()->GetBinCenter(bin_max);
