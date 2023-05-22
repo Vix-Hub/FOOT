@@ -259,6 +259,21 @@ int connect_tracks_new() {
             //cout << " hello it's me, new_trk " << new_trk->Theta() << " " << new_trk->X() << " npl " << new_trk->Npl() << " " << new_trk->MCEvt() <<endl;
             //cout << " hello it's me, trk_new " << trk_new->Theta() << " " << trk_new->X() << endl;
             //trk_new->ForceCOV(new_trk->COV());    //leads to segmentation violation maybe recalculate COV?
+
+            // establish charge in S2 and assign it to other segments outside of S2
+            int first_S2_charge = 0; 
+
+            for (int i = 0; i < segments_new->GetEntries(); i++) {
+                EdbSegP *temp_seg = (EdbSegP*)segments_new->At(i);
+                if (temp_seg->Plate()>LASTLAYER[1] && MC==0) { first_S2_charge = temp_seg->Flag(); break; }
+                if (temp_seg->Plate()>LASTLAYER[1] && MC==1) { first_S2_charge = temp_seg->W()-70; break; }
+            }
+
+            for (int i = 0; i < segments_new->GetEntries(); i ++) {
+                EdbSegP *temp_seg = (EdbSegP*)segments_new->At(i);
+                if (temp_seg->Plate()<=LASTLAYER[1] || temp_seg->Plate()>LASTLAYER[2]) temp_seg->SetFlag(first_S2_charge);
+            }
+
             trk_new->SetVid( 0, tracks_new->GetEntries() ); 
             tracks_new->Fill();
             
