@@ -4,6 +4,7 @@ import fedrarootlogon
 import numpy as np 
 from ROOT import EdbPattern
 import time
+from debug_libraries import*
 
 #DEBUG_TRKID = 94853
 
@@ -121,7 +122,8 @@ added_vids = []
 
 for entry in to_remove2:
 	old_vID = entry[0]
-	vertex = vrec.eVTX.At(old_vID)
+	#vertex = vrec.eVTX.At(old_vID)
+	vertex = get_vertex(vrec, old_vID)
 	itrks_to_remove = []
 	for i in range(len(entry)):
 		if (i!=0):
