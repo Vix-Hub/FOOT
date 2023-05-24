@@ -290,7 +290,7 @@ def FillVertexTracks(vrec, MERGED=1, INCLUDE_ALL_SEGS=1):
 
 
 def get_vertex(vertex_rec, id):
-    for i in range(vertex_rec.eVTX.N()):
+    for i in range(vertex_rec.eVTX.GetEntries()):
         vertex = vertex_rec.eVTX.At(i)
         if (vertex.ID() == id):
             return vertex 
