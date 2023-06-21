@@ -1,28 +1,28 @@
-#define IDBRICK 3
+#define IDBRICK 31
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
 #define STOP_AT_FIRST_MERGE 0
 #define BRAGGPLATE 26
-#define IS_SECOND_STEP 0
+#define IS_SECOND_STEP 1
 #define LASTPLATEMIN -999 //27 for S1-S2 pieces
 #define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
-#define FIRSTPLATEMIN 2 //avoid connecting 1 -> S2
+#define FIRSTPLATEMIN 1 //avoid connecting 1 -> S2
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
-const int SL = 2;
+const int SL = 7;
 //const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
-const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
+const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,130,140}; //esposizione Oxy@400MeV/n 2019
 
 // Cuts to Apply to Tracks
 const int NSEG_MIN = 2;
 
 // Need Multiple Trees to save all tracks
-const int N_TREES = 20;
+const int N_TREES = 100;
 
 // Merge Cuts
-float B_MAX = 100;
+float B_MAX = 70;
 float DT_MAX = 0.07;
 
 int NPLATES_S1 = 4; // number of plates in which to look for candidates in S1
@@ -72,7 +72,12 @@ void merge_trees(const char* input_file_name, const char* output_file_name, int 
 int connect_tracks_new() {
 
     int MC = 0;
-    if (IDBRICK < 10) MC = 1;
+    if (IDBRICK < 100) MC = 1;
+
+    int originalErrorLevel = gErrorIgnoreLevel;
+
+    // Set the error reporting level to suppress warnings
+    gErrorIgnoreLevel = kWarning; 
 
     TString file_name = Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL);
     if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.root", IDBRICK, S0, SL);
@@ -284,30 +289,31 @@ int connect_tracks_new() {
             fitted_segments_new->Clear();
 
             if (itrk%1000==0) { cout << " Completed " << 100.*itrk/N_trks_starting << " %, Iteration Time: " <<  t.RealTime() << " s " << endl; t.Reset(); t.Start();}  
-        }
 
-        counter += N_trks_starting;
+            counter++;
 
-        if (counter>N_TOT/N_TREES) {
-            counter = 0;
-            ntree += 1;
+            if (counter>N_TOT/N_TREES) {
+                counter = 0;
+                ntree += 1;
 
-            merge_file->cd();
-            TString name = Form("tracks%d", ntree);
-            tracks_new->Write(name);
+                merge_file->cd();
+                TString name = Form("tracks%d", ntree);
+                tracks_new->Write(name);
 
-            tracks_new->Delete();
-            TTree *tracks_new2 = new TTree();
+                tracks_new->Delete();
+                TTree *tracks_new2 = new TTree();
 
-            tracks_new2->Branch("trid", &trid_new, "trid/I"); 
-            tracks_new2->Branch("nseg", &nseg_new, "nseg/I"); 
-            tracks_new2->Branch("npl", &npl_new, "npl/I");
-            tracks_new2->Branch("t.", "EdbSegP", &trk_new); 
+                tracks_new2->Branch("trid", &trid_new, "trid/I"); 
+                tracks_new2->Branch("nseg", &nseg_new, "nseg/I"); 
+                tracks_new2->Branch("npl", &npl_new, "npl/I");
+                tracks_new2->Branch("t.", "EdbSegP", &trk_new); 
 
-            tracks_new2->Branch("s", &segments_new); 
-            tracks_new2->Branch("sf", &fitted_segments_new);
-            tracks_new = tracks_new2;
-            
+                tracks_new2->Branch("s", &segments_new); 
+                tracks_new2->Branch("sf", &fitted_segments_new);
+                tracks_new = tracks_new2;
+                
+            }
+
         }
 
         cout << " Completed Plate " << iipl << endl;
