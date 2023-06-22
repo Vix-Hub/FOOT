@@ -8,6 +8,8 @@
 #define LASTPLATEMIN -999 //27 for S1-S2 pieces
 #define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
 #define FIRSTPLATEMIN 1 //avoid connecting 1 -> S2
+#define BEAM_PLATES 2 
+#define BEAM_THETA 0.03
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
@@ -413,6 +415,14 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
         cout << " Start Seg Coordinates " << start_seg->X() << " " << start_seg->Y() << " " << start_seg->Z() << " " << start_seg->TX() << " " << start_seg->TY() << " Plate ID " << start_seg->Plate() << " " << start_seg->ID() << endl;
         cout << " Start Seg f Coordinates " << start_segf->X() << " " << start_segf->Y() << " " << start_segf->Z() << " " << start_segf->TX() << " " << start_segf->TY() << " Plate ID " << start_segf->Plate() << " " << start_segf->ID() << endl;
     }
+
+    EdbSegP* tempseg = (EdbSegP*)segments_new->At(0);
+    int starting_plate = tempseg->Plate();
+    float starting_theta = tempseg->Theta();
+ // avoid merging oxygens beyond Bragg Peak
+    if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA && ipl>=BRAGGPLATE) return NULL;
+
+
     int s0_plate = start_trk->GetSegmentLast()->Plate();
     float b=0, r=2000., b_back=0, dtx=0, dty=0;
     float r0 = r;
