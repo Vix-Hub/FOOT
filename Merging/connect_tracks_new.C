@@ -419,8 +419,6 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
     EdbSegP* tempseg = (EdbSegP*)segments_new->At(0);
     int starting_plate = tempseg->Plate();
     float starting_theta = tempseg->Theta();
- // avoid merging oxygens beyond Bragg Peak
-    if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA && ipl>=BRAGGPLATE) return NULL;
 
 
     int s0_plate = start_trk->GetSegmentLast()->Plate();
@@ -439,6 +437,9 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
 
             xy[0] = start_segf->X(); //last segment coordinates
             xy[1] = start_segf->Y();
+
+             // avoid merging oxygens beyond Bragg Peak
+            if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA && ipl>=BRAGGPLATE) return NULL;
 
             if (ipl<PLMIN) continue; //avoid plate < 0
             if (ipl>PLMAX) continue;  // avoid plate >PLMAX
