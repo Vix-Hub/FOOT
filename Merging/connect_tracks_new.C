@@ -1,19 +1,19 @@
-#define IDBRICK 31
+#define IDBRICK 222
 #define EVERBOSE -100
 #define NSTACKS 7
 #define DELETE_TEMP_FILE 1
 #define STOP_AT_FIRST_MERGE 0
 #define BRAGGPLATE 26
-#define IS_SECOND_STEP 1
+#define IS_SECOND_STEP 0
 #define LASTPLATEMIN -999 //27 for S1-S2 pieces
 #define FIRSTPLATEMAX 999 //39 for S1-S2 pieces
 #define FIRSTPLATEMIN 1 //avoid connecting 1 -> S2
-#define BEAM_PLATES 2 
-#define BEAM_THETA 0.03
+#define BEAM_PLATES 30 
+#define BEAM_THETA 0.03 //negative value = disabled
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
-const int SL = 7;
+const int SL = 2;
 //const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
 const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,130,140}; //esposizione Oxy@400MeV/n 2019
 
@@ -21,7 +21,7 @@ const int LASTLAYER[NSTACKS+1]={1,30,66,76,83,90,130,140}; //esposizione Oxy@400
 const int NSEG_MIN = 2;
 
 // Need Multiple Trees to save all tracks
-const int N_TREES = 100;
+const int N_TREES = 10;
 
 // Merge Cuts
 float B_MAX = 70;
@@ -32,8 +32,8 @@ int NPLATES_S2 = 8; // number of plates in which to look for candidates in S2
 int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 
 // Debugging
-const int DEBUG_S0_PLATE=31; //31
-const int DEBUG_S0_ID=411561; //91690
+const int DEBUG_S0_PLATE=1; //31
+const int DEBUG_S0_ID=1039039; //91690
 const int DEBUG_S0_PLATE_S1=16;
 const int DEBUG_S0_ID_S1 = 47888;
 const int DEBUG_SL_PLATE_S1 = 30;
@@ -76,13 +76,8 @@ int connect_tracks_new() {
     int MC = 0;
     if (IDBRICK < 100) MC = 1;
 
-    int originalErrorLevel = gErrorIgnoreLevel;
-
-    // Set the error reporting level to suppress warnings
-    gErrorIgnoreLevel = kWarning; 
-
     TString file_name = Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL);
-    if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.root", IDBRICK, S0, SL);
+    if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.split.root", IDBRICK, S0, SL);
 
     if (IS_SECOND_STEP) {
         B_MAX = 150; DT_MAX = 0.1;
@@ -147,7 +142,7 @@ int connect_tracks_new() {
     TObjArray tr_grid_starting;
 
     float xy[2] = {0,0};
-    float r = 2000., b=1000;
+    float r = 5000., b=1000;
     int counter = 0;
 
     TString merge_file_name_temp = Form("b%06i.0.%i.%i.trk_merged_temp.root", IDBRICK, S0, SL);
@@ -188,9 +183,13 @@ int connect_tracks_new() {
             if (EVERBOSE==100 && start_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_S1 && start_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " here S1 with flag " << start_trk->Flag() << endl;
             if (EVERBOSE==100 && ( (start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID || start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE) && (start_trk->GetSegmentFirst()->Plate()!=DEBUG_S0_PLATE_S1 || start_trk->GetSegmentFirst()->ID()!=DEBUG_S0_ID_S1))) continue;
             if (EVERBOSE==100 && start_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE_S1 && start_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID_S1) cout << " search S1 " <<  endl;
+
+	    if (EVERBOSE!=100 && ( (start_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID || start_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE) ) ) cout << " here debug track with flag " << start_trk->Flag() << endl;
+
             if (start_trk->Flag()==300) continue; //avoid merging same track more than once
             int start_plate = start_trk->GetSegmentFirst()->Plate();
             int last_plate = start_trk->GetSegmentLast()->Plate();
+	    float start_theta = start_trk->GetSegmentFirst()->Theta();
             int search = 1; //used to limit search in some cases (for example if I only want S1-S2)
             //add current segments to new track to save
             
@@ -205,6 +204,9 @@ int connect_tracks_new() {
 
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN || start_plate<FIRSTPLATEMIN) search = 0;
+	    if (start_plate<=BEAM_PLATES && start_theta<=BEAM_THETA) search = 0;
+
+
 	        if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
             if (search) to_merge_trk = FindClosestCandidate(start_nplates, start_trk, segments_new, fitted_segments_new, B_MAX, added_segs, DT_MAX); //+iplS2 è un modo per far sì che cerchi sempre almeno fino al piatto 26
         
@@ -219,6 +221,7 @@ int connect_tracks_new() {
                 if (EVERBOSE == 100) cout << " Found one candidate with first seg " << to_merge_trk->GetSegmentFirst()->ID() << " " << to_merge_trk->GetSegmentFirst()->Plate() << endl;
                 while(to_merge_trk!=NULL) {
                     if (STOP_AT_FIRST_MERGE) break;
+		    if (EVERBOSE!=100 && ( (to_merge_trk->GetSegmentFirst()->ID()==DEBUG_S0_ID || to_merge_trk->GetSegmentFirst()->Plate()==DEBUG_S0_PLATE) ) ) cout << " here debug track (to_merge_trk) with flag " << to_merge_trk->Flag() << endl;
                     //cout << " entered with to merge_trk plate " << to_merge_trk->GetSegmentFirst()->Plate() <<  endl;
                     int nplates = NPLATES_S1;
                     int last_plate = to_merge_trk->GetSegmentLast()->Plate();
@@ -325,6 +328,7 @@ int connect_tracks_new() {
 
     merge_file->cd();
     tracks_new->Write("tracks");
+    if (EVERBOSE==100) cout << " tracks_new entries " << tracks_new->GetEntries() << endl;
     merge_file->Close();
 
     cout << " MERGED " << MERGED << endl;
@@ -334,10 +338,10 @@ int connect_tracks_new() {
     TString merge_file_name = Form("b%06i.0.%i.%i.trk_merged_new.root", IDBRICK, S0, SL);
     if (IS_SECOND_STEP) merge_file_name = Form("b%06i.0.%i.%i.trk_merged_new_2.root", IDBRICK, S0, SL);
     if (EVERBOSE==100||EVERBOSE==101) merge_file_name = Form("b%06i.0.%i.%i.trk_merged_EVERBOSE.root", IDBRICK, S0, SL);
-    merge_trees(merge_file_name_temp, merge_file_name, 2);
+    merge_trees(merge_file_name_temp, merge_file_name, 1);
 
     cout << " Total Time " << total_time.RealTime() << " s " << endl;
-    if (DELETE_TEMP_FILE) std::remove(merge_file_name_temp);
+    if (DELETE_TEMP_FILE && EVERBOSE!=100) std::remove(merge_file_name_temp);
 
     return 1;
 }
@@ -439,7 +443,7 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
             xy[1] = start_segf->Y();
 
              // avoid merging oxygens beyond Bragg Peak
-            if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA && ipl>=BRAGGPLATE) return NULL;
+            if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA) return NULL;
 
             if (ipl<PLMIN) continue; //avoid plate < 0
             if (ipl>PLMAX) continue;  // avoid plate >PLMAX
