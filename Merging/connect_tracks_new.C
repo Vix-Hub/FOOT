@@ -10,6 +10,8 @@
 #define FIRSTPLATEMIN 1 //avoid connecting 1 -> S2
 #define BEAM_PLATES 30 
 #define BEAM_THETA 0.03 //negative value = disabled
+#define ONLY_BEAM 0 //used to reconnect ONLY beam pieces after first connection step
+#define USE_SPLIT 1 //option to use file with extra split step 
 
 // Sections to Merge, from 1 to 7
 const int S0 = 1;
@@ -77,7 +79,10 @@ int connect_tracks_new() {
     if (IDBRICK < 100) MC = 1;
 
     TString file_name = Form("b%06i.0.%i.%i.trk_trasl.root", IDBRICK, S0, SL);
-    if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.split.root", IDBRICK, S0, SL);
+    if (MC == 1) file_name = Form("b%06i.0.%i.%i.trk.root", IDBRICK, S0, SL);
+
+    if (USE_SPLIT) file_name = Form("b%06i.0.%i.%i.trk.split.root", IDBRICK, S0, SL);
+    if (ONLY_BEAM) { B_MAX=60; DT_MAX=0.025; file_name = Form("b%06i.0.%i.%i.trk_merged_new.root", IDBRICK, S0, SL); }
 
     if (IS_SECOND_STEP) {
         B_MAX = 150; DT_MAX = 0.1;
@@ -204,7 +209,9 @@ int connect_tracks_new() {
 
             EdbTrackP *to_merge_trk = NULL;
             if (start_plate>FIRSTPLATEMAX || last_plate<LASTPLATEMIN || start_plate<FIRSTPLATEMIN) search = 0;
-	    if (start_plate<=BEAM_PLATES && start_theta<=BEAM_THETA) search = 0;
+            if (start_plate<=BEAM_PLATES && start_theta<=BEAM_THETA && ONLY_BEAM==0) search = 0;
+            else if (start_plate<=BEAM_PLATES && start_theta<=BEAM_THETA && ONLY_BEAM==1) search = 1;
+            else if ((start_plate>BEAM_PLATES ||start_theta<=BEAM_THETA) && ONLY_BEAM==0) search = 0;
 
 
 	        if (last_plate>BRAGGPLATE && last_plate<=LASTLAYER[1]) start_nplates += NPLATES_S2;
@@ -337,6 +344,7 @@ int connect_tracks_new() {
     cout << " --- Merging the tracks trees --- " << endl;
     TString merge_file_name = Form("b%06i.0.%i.%i.trk_merged_new.root", IDBRICK, S0, SL);
     if (IS_SECOND_STEP) merge_file_name = Form("b%06i.0.%i.%i.trk_merged_new_2.root", IDBRICK, S0, SL);
+    if (ONLY_BEAM) merge_file_name = Form("b%06i.0.%i.%i.trk_merged.beam.root", IDBRICK, S0, SL);
     if (EVERBOSE==100||EVERBOSE==101) merge_file_name = Form("b%06i.0.%i.%i.trk_merged_EVERBOSE.root", IDBRICK, S0, SL);
     merge_trees(merge_file_name_temp, merge_file_name, 1);
 
@@ -443,8 +451,13 @@ EdbTrackP* FindClosestCandidate(int nplates, EdbTrackP* start_trk, TClonesArray 
             xy[1] = start_segf->Y();
 
              // avoid merging oxygens beyond Bragg Peak
+<<<<<<< HEAD
+            if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA && ONLY_BEAM==0) return NULL;
+    
+=======
             if (starting_plate<=BEAM_PLATES && starting_theta<=BEAM_THETA) return NULL;
 
+>>>>>>> parent of bcff769 ( Modified FindClosestCandidate to ensure only beam segments connection)
             if (ipl<PLMIN) continue; //avoid plate < 0
             if (ipl>PLMAX) continue;  // avoid plate >PLMAX
             double z_pos = Z_LAYER[ipl-1];
