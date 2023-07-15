@@ -39,6 +39,7 @@
 #define DEBUG_S0_ID_ST 7388
 #define ALLOW_LONGER_GAPS 1 
 #define UNISCI_TRACCE_LARGER_CUT 1
+#define MERGE_REC 0
 int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,110,120}; //esposizione Oxy@200MeV/n 2019
 //int LASTLAYER[N_STACKS+1]={1,30,66,76,83,90,120,140}; //esposizione Oxy@400MeV/n 2019
 
@@ -96,6 +97,7 @@ int CHECK_OXY = 0;
 TObjArray vtxPat[BRAGGPLATE+2];   //vertices grouped by patterns
 EdbPVRec *ali = new EdbPVRec();
 EdbVertexRec *mygEVR = new EdbVertexRec();
+EdbVertexRec *mygEVR2 = new EdbVertexRec();
 TObjArray *arrTRK=0;   // original tracks
 TObjArray *arrVTX=0;   // original vertices
 TObjArray *merged_arrVTX=0;   // vertices after 2prong merge
@@ -152,6 +154,7 @@ EdbVertex * MakeNpVertex(EdbTrackP *beam, EdbTrackP *proton, EdbVertexRec *vrec)
 void FillVertexCells(TObjArray &arrVTX);
 void LoopVertexCells_ToMerge(TObjArray &varr, EdbVertexRec *vrec);
 EdbVertex* MergeVertices(TObjArray *varr,EdbVertexRec *vrec);
+void bubbleSort_NEW(std::vector<double>& v, std::vector<int>& v2);
 
 
 
@@ -412,7 +415,34 @@ int postvertex3_new()
     
     if(FAST!=2){
         fvtx->cd();
-        mygEVR->Write();
+	cout << " final varr entries " << final_varr->GetEntries() << endl;
+
+	if (FAST==3) {
+	
+		TObjArray *new_final_varr= new TObjArray();
+		int num = (int)final_varr->GetEntries()/2;
+		for (int i = 0; i < num; i++) {
+
+			EdbVertex* v = (EdbVertex*)final_varr->At(i);
+			new_final_varr->Add(v);
+
+		}
+
+		mygEVR->eVTX=new_final_varr;
+
+		TObjArray *new_final_varr2 = new TObjArray();
+		for (int i = num; i < final_varr->GetEntries(); i++) {
+
+			EdbVertex* v = (EdbVertex*)final_varr->At(i);
+			new_final_varr2->Add(v);
+
+		}
+		mygEVR2->eVTX = new_final_varr2;
+	
+	}
+
+        if (FAST!=3) mygEVR->Write();
+	if (FAST==3) { mygEVR->Write("EdbVertexRec1"); mygEVR2->Write("EdbVertexRec2"); } 
         new_vtxtree->Write();
         fvtx->Close(); //close the file where vertices are saved
     }
@@ -470,7 +500,41 @@ int postvertex3_new()
     }
     if(FAST!=1) cout << "At the end I have " << final_varr->GetEntries() << " vertices" << "\tTime: " << t_tot.RealTime() << " s\t" << t_tot.RealTime()/60 << " min " << endl;
 
-    
+    if (FAST==3 && MERGE_REC) {
+
+        TFile *file = TFile::Open(output_vtxname, "READ");
+        EdbVertexRec *v1 = (EdbVertexRec*)file->Get("EdbVertexRec1");
+        TObjArray *arr1 = new TObjArray();
+        arr1 = v1->eVTX;
+
+        EdbVertexRec *v2 = (EdbVertexRec*)file->Get("EdbVertexRec2");
+        TObjArray *arr2 = new TObjArray();
+        arr2 = v2->eVTX;
+
+        TFile *file_out = TFile::Open("vertices_temp.root", "RECREATE");
+
+        EdbVertexRec *v3 = new EdbVertexRec();
+        TObjArray *arr3 = new TObjArray();
+        
+        for (int i = 0; i < arr1->GetEntries(); i ++) {
+            EdbVertex* v = (EdbVertex*)arr1->At(i);
+            arr3->Add(v);
+        }
+        for (int i = 0; i < arr2->GetEntries(); i ++) {
+            EdbVertex* v = (EdbVertex*)arr2->At(i);
+            arr3->Add(v);
+        }
+
+        TTree* vtx_new = (TTree*)file->Get("vtx");
+        v3->eVTX = arr3;
+
+        file_out->cd();
+        vtx_new->Write("vtx");
+        v3->Write("EdbVertexRec");
+        file_out->Close();
+    }    
+
+
     return 0;
     
 }
@@ -1087,7 +1151,7 @@ TObjArray* AnalyseFakeVtxs(TObjArray &arrv, EdbVertexRec *vrec){
         if(vertex->Flag()!=-99){
             for (int itrk = 0; itrk < vertex->N(); itrk++){
                 EdbTrackP *track = vertex->GetTrack(itrk);
-                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ() && vertex->GetVTa(itrk)->Zpos()==0 && track->N()<8){
+                if(track->GetSegmentFirst()->Z()<vertex->VZ() && track->GetSegmentLast()->Z()>vertex->VZ()){
                     COUNT_STRANGE++;
                     vertex->SetFlag(-99);
 					if(EVERBOSE==100 && (vID==DEBUG_VTXID||vertex->GetTrack(0)->MCEvt()==DEBUG_MCEVT)) { cout << "vertex deleted rigo 935" << endl; cout << " Track was " << itrk << " Seg " << track->GetSegmentFirst()->ID() << " " << track->GetSegmentFirst()->Plate() << " " << track->GetSegmentFirst()->Z() << " Last seg " << track->GetSegmentLast()->Plate() << " " << track->GetSegmentLast()->Z() << " vertex z " << vertex->VZ() << endl;}
@@ -1326,7 +1390,7 @@ TObjArray *FindCloseTracks(TObjArray *varr, EdbVertexRec *vrec){
             int modifiedvtx=0;
             int tempid=newvertex->ID();
             int tempflag=newvertex->Flag();
-            for(int iipl=ipl-3; iipl<ipl+4; iipl++){
+            for(int iipl=ipl-2; iipl<ipl+4; iipl++){
                 if(iipl>=BRAGGPLATE+1) break;
                 if(iipl<0) continue;
                 int ndau_grid = gridtr_DAU[iipl].SelectObjectsC( xy, r, tr_grid_dau);
@@ -2159,14 +2223,21 @@ void FindNitrogen(TObjArray *varr, EdbVertexRec *vrec, float maximp_Np, float ma
     
     TStopwatch t;
     t.Start();
+
+    std::vector<double> kinks;
+    std::vector<int> iplates;
     
     for(int ipl = PLMIN; ipl<=BRAGGPLATE; ipl++){
         int nbeam_grid = gridtr_OXY[ipl].SelectObjects(tr_grid_oxy);
+        //cout << " Started plate " << ipl << " with " << nbeam_grid << " tracks " << endl;
         for (int itrk = 0; itrk < nbeam_grid; itrk++){
             EdbTrackP *beam = (EdbTrackP*) tr_grid_oxy.At(itrk);
+            kinks.clear();
+            iplates.clear();
+            //cout << " itrk " << itrk << " out of " << nbeam_grid << endl;
             if(FAST==4 && ((beam->Track()!=DEBUG_TRKID)||beam->MCEvt()!=DEBUG_MCEVT)) continue;
             int nseg = beam->N();
-            if(beam->Npl()>15 && beam->GetSegmentLast()->Plate()>BRAGGPLATE){ //la traccia deve avere più di 15 piatti, angolo del fascio e terminare oltre il picco di bragg. Le flag evitano siano tracce già associate a qualcosa nel loop precedente
+            if(beam->Npl()>15 && beam->GetSegmentLast()->Plate()>BRAGGPLATE-2){ //BRAGGPLATE //la traccia deve avere più di 15 piatti, angolo del fascio e terminare oltre il picco di bragg. Le flag evitano siano tracce già associate a qualcosa nel loop precedente
                 EdbVertex *vtempS = beam->VertexS();
                 EdbVertex *vtempE = beam->VertexE();
                 if(!(vtempS) && !(vtempE)){ //controllo che la traccia non abbia vertici entranti o uscenti
@@ -2181,18 +2252,35 @@ void FindNitrogen(TObjArray *varr, EdbVertexRec *vrec, float maximp_Np, float ma
                         if(beam->GetSegment(iseg+1)->Plate()<BRAGGPLATE){
                             temp_kink=GetThetaKink(beam->GetSegment(iseg), beam->GetSegment(iseg+1));
                             mean_kink+=temp_kink;
-                            if(temp_kink>=kink) {
-                                kink=temp_kink;
-                                isplit=iseg;
-                            }
+                            kinks.push_back(temp_kink); 
+                            iplates.push_back(iseg);
                         }
                     }
+
+                    bubbleSort_NEW(kinks, iplates); //from lowest to biggest
+                    std::reverse(kinks.begin(), kinks.end()); //reverse
+                    std::reverse(iplates.begin(), iplates.end());
+                    kink = kinks[0];
+                    isplit = iplates[0];
+                    int counter = 0, found_vtx = 0;
+
                     if(isplit!=0){
                         if(EVERBOSE==4 || (EVERBOSE==100 && ((beam->Track()==DEBUG_TRKID) || beam->MCEvt()==DEBUG_MCEVT))) cout << "NP Debug kink: " << kink << "\t" << (double)mean_kink/(nseg-3) << "\t" <<  3*(double)mean_kink/(nseg-3) << "\t" << beam->GetSegment(isplit)->W()-70 << "\t" << beam->GetSegment(isplit+1)->W()-70 << "\t" << beam->GetSegment(isplit)->MCEvt() << "\t" << beam->GetSegment(isplit+1)->MCEvt() << "\t" << beam->GetSegmentLast()->Plate() << "\t" << beam->GetSegment(isplit)->Plate() << endl;
-                        if(kink>2*(double)mean_kink/(nseg-3)){
+                        
+                        while(found_vtx==0 && counter<3) { //at most look at 3 segments
+
+                            kink = kinks[counter];
+                            isplit = iplates[counter];
+                            counter++; 
+                            if (kink<2*(double)mean_kink/(nseg-3)) continue;
+                            //cout << " here kink " << kink << " isplit " << isplit << " counter " << counter << endl;
                             EdbTrackP *cand_proton = FindProton(beam, isplit, maximp_Np, minseg_Np);
                             if(cand_proton){
+                                if (cand_proton->N()<4) continue;
                                 EdbVertex *newvertex= new EdbVertex();
+                                //cout << " here cand_proton " << cand_proton->GetSegmentFirst()->Z() << " " << cand_proton->N() << endl;
+                                //cout << " here beam " << beam->GetSegmentFirst()->Z() << " last Z " << beam->GetSegmentLast()->Z() <<  endl;
+                                if (beam->GetSegmentLast()->Z()<cand_proton->GetSegmentFirst()->Z()) continue;
                                 newvertex = MakeNpVertex(beam, cand_proton, vrec);
                                 
                                 //se ho trovato un vertice non è detto che sia O->N+p, potrebbe anche essere O->X+nP (n>1). Cerco allora altri figli nei paraggi del vertice appena creato
@@ -2214,6 +2302,7 @@ void FindNitrogen(TObjArray *varr, EdbVertexRec *vrec, float maximp_Np, float ma
                                     }//for(int iipl=vplate-1; iipl<vplate+3; iipl++)
                                     if(vplate>= PLMIN && vplate<=BRAGGPLATE){ vtxPat[vplate].Add(newvertex);
                                         varr->Add(newvertex);
+                                        found_vtx = 1;
                                     }
                                     else newvertex->SetFlag(-99);
                                     if(MC==11){
@@ -2231,7 +2320,11 @@ void FindNitrogen(TObjArray *varr, EdbVertexRec *vrec, float maximp_Np, float ma
                                     }//if(MC==11){
                                 }//if(newvertex){
                             }//if(cand_proton)
-                        } //if(kink>2*(double)mean_kink/(nseg-3))
+                            
+
+
+                        }
+                     //if(kink>2*(double)mean_kink/(nseg-3))
                     }//if(isplit!=0)
                 }
             }//if(beam->Npl()>20 && beam->GetSegmentLast()->Plate()>BRAGGPLATE && (beam->Flag()!=8 && beam->Flag()!=9)
@@ -2254,7 +2347,8 @@ EdbTrackP *FindProton(EdbTrackP *beam, int iseg, float maximp, int minseg){
     float minimp=maximp;
     float imp=0;
     int splitatseg=0;
-    int r[2] = {2,2};
+    //int r[2] = {2,2};
+    float r = 2000;
     
     EdbTrackP *proton_candidate=new EdbTrackP();
     EdbSegP* seg;
@@ -2489,7 +2583,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
     Int_t n;
     Int_t v_flag;
     Int_t vplate;
-    const Int_t maxdim = 5000; //big arrays for containers of track variables
+    const Int_t maxdim = 20000; //big arrays for containers of track variables
     //
     Int_t vID=0;
     Int_t IDTrack[maxdim]={0};
@@ -2664,6 +2758,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
             
             if(EVERBOSE==10) cout << "\t\t" << MC_evID_first[itrk] << "\t" << MC_evID_last[itrk] << "\t" << incoming[itrk] << "\t" << track->N() << "\t" << track->Theta() << "\t" << track->GetSegmentFirst()->Plate() << "\t" << track->GetSegmentLast()->Plate() << "\t" << impactparameter[itrk] << "\t" << CalcIP(vertex, itrk) << "\t" << CalcDist(vertex, track) << "\t" << CalcDist3D(vertex, track) << endl;
         }
+	cout << " Made it here: ivtx " << ivtx << " N " << vertex->N() << endl;
         new_vtxtree->Fill();
         //}if(vplate<=30)
     }
@@ -3527,6 +3622,18 @@ void FixVertexVTA_Zpos(EdbVertex* vertex) {
 
 
 // -----------------------------------------------------------------------
+
+void bubbleSort_NEW(std::vector<double>& v, std::vector<int>& v2) {
+    int n = v.size();
+    for (int i = 0; i < n-1; i++) {
+        for (int j = 0; j < n-i-1; j++) {
+            if (v[j] > v[j+1]) {
+                std::swap(v[j], v[j+1]);
+                std::swap(v2[j], v2[j+1]);
+            }
+        }
+    }
+}
 
 //float CalcIP(EdbTrackP *tr, TVector3 V){
 //    //transverse distance (IP) from track to vertex (n.d.r. tranvserse with respect to beam z direction),
