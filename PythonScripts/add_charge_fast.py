@@ -23,7 +23,9 @@ vrec2 = vrec
 outVtx = inputVtx.CloneTree(0)
 
 Z_rec = np.zeros(1000, dtype = np.intc)
+Z_sum_out = np.zeros(1, dtype=np.intc)
 outVtx.Branch("Z_flag2", Z_rec, "Z_flag2[n]/I")
+outVtx.Branch("Z_sum", Z_sum_out, "Z_sum/I")
 
 # CHARGE INFO
 chargeName = "b" + str(IDBRICK).zfill(6) + ".2.0.0.trk.root"
@@ -49,6 +51,7 @@ Z = 0
 t0 = time.time()
 for ivtx in range(n_vertices):
 	vertex = vrec2.eVTX.At(ivtx)
+	zsum = 0
 	charges = []
 	for itrk in range(vertex.N()):
 		track = vertex.GetTrack(itrk)
@@ -63,6 +66,7 @@ for ivtx in range(n_vertices):
 			position = charge_couples.index((int(id0), int(pl0))) #find track in S2
 			Z = int(charges_S2[position])
 			charges.append(Z)
+			zsum += Z
 			for iseg in range(track.N()):
 				track.GetSegment(iseg).SetFlag(Z)
 				track.GetSegmentF(iseg).SetFlag(Z)
@@ -73,6 +77,7 @@ for ivtx in range(n_vertices):
 	inputVtx.GetEntryWithIndex(vertex.ID())
 	for j, charge in enumerate(charges):
 		Z_rec[j] = np.intc(charge)
+	Z_sum_out[0] = zsum
 	outVtx.Fill() #saving new Z in Ttree
 	if (ivtx%1000 == 0):
 		print("Completed " + str(round(100*ivtx/n_vertices, 2)) + " %")
