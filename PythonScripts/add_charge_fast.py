@@ -66,7 +66,7 @@ for ivtx in range(n_vertices):
 			position = charge_couples.index((int(id0), int(pl0))) #find track in S2
 			Z = int(charges_S2[position])
 			charges.append(Z)
-			zsum += min([Z, 0]) #do not count tracks with Z<0
+			zsum += max([Z, 0]) #do not count tracks with Z<0
 			for iseg in range(track.N()):
 				track.GetSegment(iseg).SetFlag(Z)
 				track.GetSegmentF(iseg).SetFlag(Z)
