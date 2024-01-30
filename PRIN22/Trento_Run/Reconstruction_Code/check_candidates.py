@@ -135,12 +135,26 @@ for i in range(N_canvas+1):
 
     c2 = r.TCanvas()
     c2.Divide(3,3)
+
+    counters = []
+    texts = []
+    for i2 in range(1, 10):
+        temp = r.TPaveText(0.6, 0.6, 0.8, 0.8)
+        temp.AddText(str(counter+i2-1))
+        texts.append(temp)
+
+
+    #text = r.TPaveText(0.1, 0.1, 0.9, 0.9)
     for j1 in range(1, 10):
         c.cd(j1)
+        
         if (counter==len(final_interaction_candidates)):
             break
         cut = WriteCut(final_interaction_candidates[counter])
         mtracks.Draw("grz:gry:grx", cut)
+        counters.append(counter)
+        
+        texts[j1-1].Draw()
 
         x_min, x_max, y_min, y_max = FindXY_Limits(final_interaction_candidates[counter], mtracks)
         ids = GetIds_with_Limits(mtracks, x_min-50, x_max+50, y_min-50, y_max+50)
@@ -149,10 +163,17 @@ for i in range(N_canvas+1):
         mtracks.Draw("grz:gry:grx", cut2)
 
         counter += 1
+        c.Update()
 
+    
+    temp_title = ""
+    for number in counters:
+        temp_title += " " + str(number) + " "
+    c.SetTitle(temp_title)
     canvas_list.append(c)
     canvas_list2.append(c2)
     print(" Drawing canvas # " + str(i) + " out of " + str(N_canvas))
+    #break
 
 outFile.cd()
 for j, canvas in enumerate(canvas_list):
