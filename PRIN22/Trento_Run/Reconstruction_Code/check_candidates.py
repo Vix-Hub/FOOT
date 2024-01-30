@@ -129,6 +129,12 @@ canvas_list = []
 canvas_list2 = []
 counter = 0
 
+texts = []
+for i2 in range(N):
+        temp = r.TPaveText(0.6, 0.6, 0.8, 0.8)
+        temp.AddText(str(i2))
+        texts.append(temp)
+
 for i in range(N_canvas+1):
     c = r.TCanvas()
     c.Divide(3,3)
@@ -137,12 +143,6 @@ for i in range(N_canvas+1):
     c2.Divide(3,3)
 
     counters = []
-    texts = []
-    for i2 in range(1, 10):
-        temp = r.TPaveText(0.6, 0.6, 0.8, 0.8)
-        temp.AddText(str(counter+i2-1))
-        texts.append(temp)
-
 
     #text = r.TPaveText(0.1, 0.1, 0.9, 0.9)
     for j1 in range(1, 10):
@@ -153,8 +153,8 @@ for i in range(N_canvas+1):
         cut = WriteCut(final_interaction_candidates[counter])
         mtracks.Draw("grz:gry:grx", cut)
         counters.append(counter)
-        
-        texts[j1-1].Draw()
+        idx = (i)*9 + j1-1
+        texts[idx].Draw()
 
         x_min, x_max, y_min, y_max = FindXY_Limits(final_interaction_candidates[counter], mtracks)
         ids = GetIds_with_Limits(mtracks, x_min-50, x_max+50, y_min-50, y_max+50)
@@ -170,10 +170,13 @@ for i in range(N_canvas+1):
     for number in counters:
         temp_title += " " + str(number) + " "
     c.SetTitle(temp_title)
+    c.Update()
+    print(counters)
     canvas_list.append(c)
     canvas_list2.append(c2)
     print(" Drawing canvas # " + str(i) + " out of " + str(N_canvas))
-    #break
+    #if (i==2):
+    #    break
 
 outFile.cd()
 for j, canvas in enumerate(canvas_list):
