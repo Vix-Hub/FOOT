@@ -4,6 +4,7 @@ import sys
 sys.path.append("..")  # Add the parent directory to the sys.path
 from functions import * 
 import numpy as np
+import pickle
 
 # confronto con tup->Scan("d1:id1:id2:d2:start1:start2", "imp<10 && TMath::Min(d1,d2)<10 && d1<30 && d2<30 ")
 
@@ -14,16 +15,8 @@ mtracks.BuildIndex("id")
 CheckFile2 = r.TFile("interaction_cand.root", "READ")
 tup = CheckFile2.Get("tup")
 
-manual_list =  [[1653, 3660], [3764, 3762], [2735, 2676, 2686],  [4839, 4841], [2666, 5540], [8209, 8205], [16252, 16995], [17723, 18926], [17919, 17915, 17922],
-  [17728, 18897, 18783], [20075, 20391], [21064, 21056, 21066], [21518, 21712], [22653, 22700], [23097, 23093, 23095], 
-  [26776, 29243], [31690, 31770, 33407], [23901, 23897], [31174, 31175, 31182], [31886, 33268, 33287], [34821, 34820],
-  [36753, 36726, 36730],  [40512, 40473], [42781, 42784, 42787], [43337, 44740], [43472, 44618], [43552, 41866], [44892, 44871],
-  [47102, 48517], [47770, 47803], [48264, 49661], [49726, 50381], [50665, 49453], [50691, 51383], [51336, 51338], [51702, 52181], 
-  [52202, 52179], [52975, 54333, 54338], [53206, 54062], [53975, 53982], [54130, 54131], [54363, 54707], [54827, 55873], [58272, 58285], [60788, 61049], [61027, 61022, 61028], [61200, 61199, 61204], [61400, 61404], [61488, 61844], [61717, 61586], [62242, 62482], [62510, 63499], [62702, 63288], [63814, 63812], [64600, 65221], [67079, 67078], [67717, 67719, 67724], [67774, 67777], [68145, 69125], [68751, 69641, 69642], [68816, 69585], [70771, 71069], [73877, 73878], [74061, 75211, 75212], [74894, 74895, 75533], [74915, 74914], 
-  [80697, 80695], [80075, 80078], [82373, 82370, 82374], [82419, 82421], [84296, 84297], [84495, 84403, 84496, 84500], [85217, 85643], [86363, 86364], [88046, 89104], [88879, 88245], [89072, 89169], [89077, 89076], [89439, 89660], [90033, 90037], [90279, 90274], 
-  [91596, 91595], [92481, 92480], [94196, 94198], [97566, 97560], [98626, 98623], [103351, 103651], [110346, 110347]]
-
-
+with open("manual_list.pkl", "rb") as file:
+    manual_list = pickle.load(file)
 
 all_list, all_counter = [], []
 
@@ -41,6 +34,7 @@ estimated_pvs = []  #this should be changed for better accuracy
 for event_number, event in enumerate(manual_list):
     test_segs = []
     for trackID in event:
+        trackID = int(trackID)
         mtracks.GetEntryWithIndex(trackID)
         all_list.append(trackID)
         all_counter.append(event_number)
@@ -87,6 +81,7 @@ vIDs = np.zeros(1, dtype=np.intc)
 trk_ID = np.zeros(1000, dtype=np.intc)
 lengths, thetas, phis, Ngrs = np.zeros(1000, dtype=np.float32), np.zeros(1000, dtype=np.float32), np.zeros(1000, dtype=np.float32), np.zeros(1000, dtype=np.intc)
 vx, vy = np.zeros(1, dtype=np.float32), np.zeros(1, dtype=np.float32)
+vz = np.zeros(1, dtype=np.float32)
 
 VtxTree.Branch("n", multi, "n/I")
 VtxTree.Branch("vID", vIDs, "vID/I")
@@ -98,6 +93,7 @@ VtxTree.Branch("phi", phis, "phi[n]/F")
 VtxTree.Branch("Ngr", Ngrs, "Ngr[n]/I")
 VtxTree.Branch("vx", vx, "vx/F")
 VtxTree.Branch("vy", vy, "vy/F")
+VtxTree.Branch("vz", vz, "vz/F")
 
 for iev, event in enumerate(manual_list):
     event = list(event)
@@ -117,6 +113,7 @@ for iev, event in enumerate(manual_list):
 
     vx[0] = estimated_pvs[iev][0]
     vy[0] = estimated_pvs[iev][1]
+    vz[0] = estimated_pvs[iev][2]
         
     VtxTree.Fill()
 
