@@ -1,0 +1,13 @@
+executable = condor_merge_mts.sh
+arguments = $(ClusterID) $(ProcId) $(VIEWID) 
+output = output/merge_mts.$(ClusterId).$(ProcId).out
+error = error/merge_mts.$(ClusterId).$(ProcId).err
+log = log/merge_mts.$(ClusterId).log
++JobFlavour = "microcentury"
+request_memory = 4GB
+notification = Never
+requirements = Machine =!= LastRemoteHost
+on_exit_remove          = (ExitBySignal == False) && (ExitCode == 0)
+max_retries             = 3
+queue VIEWID from seq 0 200 17493|
+ 
