@@ -3,6 +3,9 @@
 import ROOT as r 
 import fedrarootlogon
 import numpy as np 
+import pickle 
+
+DO_PLOTS = 1
 
 # Selection Cuts
 MAX_IMP, MAX_D1D2, MIN_D1D2 = 5, 20, 5
@@ -111,77 +114,85 @@ for i in range(len(interaction_candidates)):
 
 print(" Interaction Candidates ", final_interaction_candidates)
 
-counter = 0
-for candidate in final_interaction_candidates:
-    n[0] = len(candidate)
-    vID[0] = counter
-    for j, id in enumerate(candidate):
-        trk_ID[j] = id
-    vtxTree.Fill()
-
-    counter += 1
+with open("final_candidates.pkl", "wb") as file:
+    pickle.dump(final_interaction_candidates, file)
 
 
+if (DO_PLOTS):
+    outFile = r.TFile("interaction_cand_plots.root", "RECREATE")
+    vtxTree = r.TTree("vtx", "")
 
-N = len(final_interaction_candidates)
-N_canvas = int(N/9)
-canvas_list = []
-canvas_list2 = []
-counter = 0
+    vID = np.zeros(1, dtype=np.intc)
+    n = np.zeros(1, dtype=np.intc)
+    trk_ID = np.zeros(1000, dtype=np.intc)
 
-texts = []
-for i2 in range(N):
-        temp = r.TPaveText(0.6, 0.6, 0.8, 0.8)
-        temp.AddText(str(i2))
-        texts.append(temp)
+    vtxTree.Branch("vID", vID, "vID/I")
+    vtxTree.Branch("n", n, "n/I")
+    vtxTree.Branch("IDTrack", trk_ID, "IDTrack[n]/I")
 
-for i in range(N_canvas+1):
-    c = r.TCanvas()
-    c.Divide(3,3)
-
-    c2 = r.TCanvas()
-    c2.Divide(3,3)
-
-    counters = []
-
-    #text = r.TPaveText(0.1, 0.1, 0.9, 0.9)
-    for j1 in range(1, 10):
-        c.cd(j1)
-        
-        if (counter==len(final_interaction_candidates)):
-            break
-        cut = WriteCut(final_interaction_candidates[counter])
-        mtracks.Draw("grz:gry:grx", cut)
-        counters.append(counter)
-        idx = (i)*9 + j1-1
-        texts[idx].Draw()
-
-        x_min, x_max, y_min, y_max = FindXY_Limits(final_interaction_candidates[counter], mtracks)
-        ids = GetIds_with_Limits(mtracks, x_min-50, x_max+50, y_min-50, y_max+50)
-        cut2 = WriteCut(ids)
-        c2.cd(j1)
-        mtracks.Draw("grz:gry:grx", cut2)
+    counter = 0
+    for candidate in final_interaction_candidates:
+        n[0] = len(candidate)
+        vID[0] = counter
+        for j, id in enumerate(candidate):
+            trk_ID[j] = id
+        vtxTree.Fill()
 
         counter += 1
+
+    N = len(final_interaction_candidates)
+
+    texts = []
+    for i2 in range(N):
+            temp = r.TPaveText(0.6, 0.6, 0.8, 0.8)
+            temp.AddText(str(i2))
+            texts.append(temp)
+    N_canvas = int(N/9)
+    canvas_list = []
+    canvas_list2 = []
+    counter = 0
+
+    for i in range(N_canvas+1):
+        c = r.TCanvas()
+        c.Divide(3,3)
+
+        c2 = r.TCanvas()
+        c2.Divide(3,3)
+        counters = []
+        for j1 in range(1, 10):
+            c.cd(j1)
+            if (counter==len(final_interaction_candidates)):
+                break
+            cut = WriteCut(final_interaction_candidates[counter])
+            counters.append(counter)
+            mtracks.Draw("grz:gry:grx", cut)
+            idx = (i)*9 + j1-1
+            texts[idx].Draw()
+
+            x_min, x_max, y_min, y_max = FindXY_Limits(final_interaction_candidates[counter], mtracks)
+            ids = GetIds_with_Limits(mtracks, x_min-50, x_max+50, y_min-50, y_max+50)
+            cut2 = WriteCut(ids)
+            c2.cd(j1)
+            mtracks.Draw("grz:gry:grx", cut2)
+
+            counter += 1
+
+            temp_title = ""
+        for number in counters:
+            temp_title += " " + str(number) + " "
+        c.SetTitle(temp_title)
         c.Update()
+        canvas_list.append(c)
+        canvas_list2.append(c2)
+        print(" Drawing canvas # " + str(i) + " out of " + str(N_canvas))
 
-    
-    temp_title = ""
-    for number in counters:
-        temp_title += " " + str(number) + " "
-    c.SetTitle(temp_title)
-    c.Update()
-    print(counters)
-    canvas_list.append(c)
-    canvas_list2.append(c2)
-    print(" Drawing canvas # " + str(i) + " out of " + str(N_canvas))
-    #if (i==2):
-    #    break
+        if (i==1):
+            break
 
-outFile.cd()
-for j, canvas in enumerate(canvas_list):
-    canvas_list[j].Write("c"+str(j))
-    canvas_list2[j].Write("k"+str(j))
+    outFile.cd()
+    for j, canvas in enumerate(canvas_list):
+        canvas_list[j].Write("c"+str(j))
+        canvas_list2[j].Write("k"+str(j))
 
-vtxTree.Write()
-outFile.Close()
+    vtxTree.Write()
+    outFile.Close()
