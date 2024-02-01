@@ -186,8 +186,8 @@ if (DO_PLOTS):
         canvas_list2.append(c2)
         print(" Drawing canvas # " + str(i) + " out of " + str(N_canvas))
 
-        if (i==1):
-            break
+        #if (i==1):
+        #    break
 
     outFile.cd()
     for j, canvas in enumerate(canvas_list):
