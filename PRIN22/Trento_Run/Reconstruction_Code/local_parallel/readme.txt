@@ -10,4 +10,6 @@ Usage (starting from dm_tracks2.dm.root)
 8) MANUAL STEP
 9) save_manual_list_new.py
 
+Note that on nusrv1 one has to run python3 local_parallel.py instead of python
+
 
