@@ -1,6 +1,6 @@
 import numpy as np 
 #from matplotlib import pyplot as plt
-from scipy.spatial.distance import euclidean
+#from scipy.spatial.distance import euclidean
 
 ###### 
 def Calculate_Distances(coordinate_tuple):
@@ -200,7 +200,8 @@ def line_fit_and_properties(points, PLOTS=0):
     angle_xz = np.arctan(slope_xz)
 
     # Estimate the length of the fit line between the first and last points in 3D space
-    length_3d = euclidean(points_array[0, :], points_array[-1, :])
+    #length_3d = euclidean(points_array[0, :], points_array[-1, :])
+    length_3d = np.linalg.norm(points_array[0, :] - points_array[-1, :])
 
     return angle_yz, angle_xz, length_3d
 
