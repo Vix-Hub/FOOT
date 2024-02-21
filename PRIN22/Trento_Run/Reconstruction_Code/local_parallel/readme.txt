@@ -6,6 +6,8 @@ Usage (starting from dm_tracks2.dm.root)
 4) fix_mts_ids.py
 5) merge_mts_post_new.py
 6) find_interaction_candidates_new.py
-7) check_candidates.py
+7) check_candidates.py -> check_candidates_cut.py
+8) MANUAL STEP
+9) save_manual_list_new.py
 
 
