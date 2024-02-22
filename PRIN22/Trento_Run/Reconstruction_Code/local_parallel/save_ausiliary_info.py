@@ -24,6 +24,6 @@ dataset["views_y"] = views_y
 dataset["actual_views"] = actual_views
 
 with open("view_info.pkl", "wb") as file:
-	pickle.dump(dataset, file)
+	pickle.dump(dataset, file, protocol=2)
 	
 print(" Len Actual Views ", len(actual_views))
