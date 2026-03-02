@@ -23,7 +23,7 @@
 
 #define BRICKID 777
 #define BRAGGPLATE 30 //26 per oxy 200 (GSI 1 e 2), 30 per oxy 400 (GSI 3 e 4)
-#define FAST 3 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
+#define FAST 1 //1 prepara solo AnaFake //2 preparetrks // 3 parte da AnaFake e fa il resto // 4 fa un solo vertice (quindi se non si è fatto FAST 1 e FAST 2 non si può fare FAST 3)
 #define EVERBOSE 101 //1 per Print EdbCell2 // 2 found beam //3 found dau // 4 Np // 5 merge 2p vtx // 6 remove beam // 7 unione tracce // 8 merge tracks // 9 merge vtx //10 print // 11 PrepareTrk // 12 Cosmici //13 findclosetracks //100 stampa un evento particolare secondo gli ID specificati dopo //101 timing
 //100 per un evento particolare // 14 show % // 15 merge checks // 16 grid occupancy checks
 #define DEBUG_MCEVT -99 //
@@ -96,14 +96,6 @@ int CHECK_OXY = 0;
 TObjArray vtxPat[BRAGGPLATE+2];   //vertices grouped by patterns
 EdbPVRec *ali = new EdbPVRec();
 EdbVertexRec *mygEVR = new EdbVertexRec();
-
-// copied from foot_vertexing.C
-mygEVR->eDZmax = 4200; 
-mygEVR->eProbMin = 0.01;
-mygEVR->eImpMax = 30;
-mygEVR->eUseMom = false;
-mygEVR->eUseSegPar = false;
-mygEVR->eQualityMode = 1;
 
 TObjArray *arrTRK=0;   // original tracks
 TObjArray *arrVTX=0;   // original vertices
@@ -178,6 +170,14 @@ int postvertex3_new()
 {
     //GSI 1 (mc) 11 (dati) -> Oxy@200 MeV/n su C target 1mm
     //GSI 2 (mc) 22 (dati) -> Oxy@200 MeV/n su C2H4 target 2mm
+
+    // copied from foot_vertexing.C
+    mygEVR->eDZmax = 4200; 
+    mygEVR->eProbMin = 0.01;
+    mygEVR->eImpMax = 30;
+    mygEVR->eUseMom = false;
+    mygEVR->eUseSegPar = false;
+    mygEVR->eQualityMode = 1;
     
     if(BRICKID==777){ //111
         MC=0;
@@ -2521,6 +2521,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
     Float_t vx, vy, vz;
     Float_t maxaperture;
     Float_t probability;
+    Float_t chi2;
     Int_t n;
     Int_t v_flag;
     Int_t vplate;
@@ -2570,6 +2571,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
     new_vtxtree->Branch("v_flag",&v_flag,"v_flag/I");
     new_vtxtree->Branch("maxaperture",&maxaperture,"maxaperture/F");
     new_vtxtree->Branch("probability",&probability,"probability/F");
+    new_vtxtree->Branch("chi2", &chi2, "chi2/F");
     new_vtxtree->Branch("n",&n,"n/I");
     new_vtxtree->Branch("IDTrack",&IDTrack,"IDTrack[n]/I");
     new_vtxtree->Branch("TrackTrack",&TrackTrack,"TrackTrack[n]/I");
@@ -2628,6 +2630,7 @@ void CreateTree(TTree *new_vtxtree, TObjArray *varr){
         
         maxaperture = vertex->MaxAperture();
         probability = vertex->V()->prob();
+        chi2 = vertex->V()->chi2();
 	//cout << " here probability " << probability << endl;
         for (int itrk = 0; itrk < vertex->N(); itrk++){
             EdbTrackP *track = vertex->GetTrack(itrk);
