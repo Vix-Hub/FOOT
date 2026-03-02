@@ -96,6 +96,15 @@ int CHECK_OXY = 0;
 TObjArray vtxPat[BRAGGPLATE+2];   //vertices grouped by patterns
 EdbPVRec *ali = new EdbPVRec();
 EdbVertexRec *mygEVR = new EdbVertexRec();
+
+// copied from foot_vertexing.C
+mygEVR->eDZmax = 4200; 
+mygEVR->eProbMin = 0.01;
+mygEVR->eImpMax = 30;
+mygEVR->eUseMom = false;
+mygEVR->eUseSegPar = false;
+mygEVR->eQualityMode = 1;
+
 TObjArray *arrTRK=0;   // original tracks
 TObjArray *arrVTX=0;   // original vertices
 TObjArray *merged_arrVTX=0;   // vertices after 2prong merge
