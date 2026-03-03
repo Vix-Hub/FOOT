@@ -27,12 +27,12 @@ vrec.SetPVRec(gAli)
 # NEW EDBVERTEX REC
 vertexrec = r.EdbVertexRec()
 vertexrec.SetPVRec(gAli)
-#vertexrec.eDZmax=3000.
-#vertexrec.eProbMin=0.01
-#vertexrec.eImpMax=15.
+vertexrec.eDZmax=4200.
+vertexrec.eProbMin=0.01
+vertexrec.eImpMax=30.
 vertexrec.eUseMom=False
-vertexrec.eUseSegPar=True
-vertexrec.eQualityMode=0
+vertexrec.eUseSegPar=False
+vertexrec.eQualityMode=1
 EVERBOSE=100
 
 # FIND DUPLICATED TRACKS TO REMOVE FROM INPUT FILE
@@ -199,6 +199,7 @@ plate = np.zeros(max_dim, np.intc)
 X, Y, Z = np.zeros(max_dim, np.single), np.zeros(max_dim, np.single), np.zeros(max_dim, np.single)
 TX, TY = np.zeros(max_dim, np.single), np.zeros(max_dim, np.single)
 Theta, impactparameter = np.zeros(max_dim, np.single), np.zeros(max_dim, np.single)
+chi2 = np.zeros(max_dim, dtype=np.single)
 
 incoming, Z_flag = np.zeros(max_dim, np.intc), np.zeros(max_dim, np.intc)
 MC_Charge_first, MC_Charge_last, MC_Charge_S2 = np.zeros(max_dim, np.intc), np.zeros(max_dim, np.intc), np.zeros(max_dim, np.intc)
@@ -219,6 +220,7 @@ out_tree.Branch("vplate", vplate, "vplate/I")
 out_tree.Branch("v_flag", v_flag, "v_flag/I")
 out_tree.Branch("maxaperture", maxaperture, "maxaperture/F")
 out_tree.Branch("probability", probability, "probability/F")
+out_tree.Branch("chi2", chi2, "chi2/F")
 out_tree.Branch("n", n, "n/I")
 out_tree.Branch("IDTrack", IDTrack, "IDTrack[n]/I")
 out_tree.Branch("TrackTrack", TrackTrack, "TrackTrack[n]/I")
@@ -285,6 +287,7 @@ for ivtx in range(vertexrec.eVTX.GetEntries()):
 
     maxaperture[0] = vertex.MaxAperture()
     probability[0] = vertex.V().prob()
+    chi2[0] = vertex.V().chi2()
     for itrk in range(vertex.N()):
         track = vertex.GetTrack(itrk)
 
