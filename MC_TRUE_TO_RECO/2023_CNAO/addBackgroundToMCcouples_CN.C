@@ -59,6 +59,12 @@ void addBackgroundToMCcouples_plate(int plate) {
     }
     
     char path[200]; // Definisci un buffer di dimensione sufficiente per contenere il percorso del file
+    char tmpl_path[200];
+
+    snprintf(tmpl_path, sizeof(tmpl_path), "/home/foot/foot_sdb/2023_CNAO/CN%d/invert_angles/b%06i/p%03i/%i.%i.0.0.cp.root", 7, 777, 3, 777, 3); //temporary fix because of different couples structure
+    TFile* tmpl_file = TFile::Open(tmpl_path, "READ");
+    TTree* tmpl_tree = (TTree*)tmpl_file->Get("couples");
+
     char newpath[100], longCRpath[100];
     TString name = "rand";
 	if (ADD_LONGCR) name = "bisDZ2";    
@@ -171,7 +177,7 @@ void addBackgroundToMCcouples_plate(int plate) {
     // Continua con il codice per il file aperto correttamente
     
     
-    TTree *newtree = tree->CloneTree(0);
+    TTree *newtree = tmpl_tree->CloneTree(0);
     
     cout << "New path for bkg couples: " << newpath << endl;
     
@@ -183,16 +189,28 @@ void addBackgroundToMCcouples_plate(int plate) {
     cout << "Number of entries: " << nentries << endl;
     Float_t X_coord=0, Y_coord=0;
     Float_t Xmin=0, Xmax=0;
-    Xmin = tree->GetMinimum("s.eX")+2000;
-    Xmax = tree->GetMaximum("s.eX")-2000;
+    Float_t Ymin=0, Ymax=0;
+
+    tree->Draw("s.eX >> htmp", "", "goff");
+    TH1F *htmp = (TH1F*)gDirectory->Get("htmp");
+    Xmin = htmp->GetXaxis()->GetXmin() + 2000;
+    Xmax = htmp->GetXaxis()->GetXmax() + 2000;
     cout << "Xmin: " << Xmin << "\tXmax: " << Xmax << endl;
+
+    tree->Draw("s.eY >> htmpy", "", "goff");
+    TH1F *htmpy = (TH1F*)gDirectory->Get("htmpy");
+    Ymin = htmpy->GetXaxis()->GetXmin() + 2000;
+    Ymax = htmpy->GetXaxis()->GetXmax() + 2000;
+    cout << "Ymin: " << Ymin << "\tYmax: " << Ymax << endl;
     
     
     float shiftMin = cutMIN-Xmin;
     float shiftMax = Xmax-cutMAX;
     float shift = TMath::Max(shiftMin,shiftMax);
     float gap_size = (cutMAX-shiftMax)-(cutMIN+shiftMin);
-    int num_copies = static_cast<int>(std::ceil(gap_size / shift));
+    if (gap_size < 0) gap_size = cutMAX - cutMIN;
+
+    int num_copies = std::ceil(gap_size / shift);
 
     cout << "shiftMin = " << cutMIN << "-"<< Xmin << "=" << shiftMin << "\tshiftMax = "<< Xmax <<"-"<<cutMAX << "=" << shiftMax << "\tshift = " << shift << endl;
     cout << "gap_size " << gap_size << "\tnum_copies "<< num_copies << endl;
@@ -232,7 +250,7 @@ void addBackgroundToMCcouples_plate(int plate) {
                                     float expected_z = thickS2*(plate - LASTLAYER_S1 - 1) + (LASTLAYER_S1)*thickS1;
                                     float dx = (newcp->Z() - expected_z)*newcp->TX();
                                     float dy = (newcp->Z() - expected_z)*newcp->TY();
-									newcp->SetFlag(-450);
+									newcp->SetFlag(450);
 
                                     //cout << " For plate " << plate << " expected_z " << expected_z; 
                                     //cout << " old X " << newcp->X() << " dx " << dx << " old Z " << newcp->Z() << endl;
@@ -263,7 +281,7 @@ void addBackgroundToMCcouples_plate(int plate) {
                                     //cout << s->Plate() << "\t" << s->Flag() << "\t" << s->TX() << endl;
 
                                     *newcp = *s; //copy the segment
-									newcp->SetFlag(-450);
+									newcp->SetFlag(450);
                                     newcp->SetVid(800, 800);
                                     float expected_z = (plate-1)*thickS1;
                                     if (plate>LASTLAYER_S1) expected_z = thickS2*(plate - LASTLAYER_S1 - 1) + (LASTLAYER_S1)*thickS1;
@@ -295,76 +313,68 @@ void addBackgroundToMCcouples_plate(int plate) {
         
         cout << "Random cosmic rays taken from: " << path << endl;
         
+        int Nbkg = tree->GetEntries(Form(" ( s.eY >= %f && s.eY <= %f ) && ( (s.eX >= %f && s.eX <= %f) || (s.eX >= %f && s.eX <= %f) )", Ymin, Ymax, Xmin, cutMIN, cutMAX, Xmax));
+        cout << "Number of background entries: " << Nbkg << endl;
+        cout << Form(" ( s.eY >= %f && s.eY <= %f ) && ( (s.eX >= %f && s.eX <= %f) || (s.eX >= %f && s.eX <= %f) )", Ymin, Ymax, Xmin, cutMIN, cutMAX, Xmax) << endl;
         
-        for (Long64_t i=0;i<nentries; i++) {
-            X_coord=0;
-            Y_coord=0;
-            n=0;
-            tree->GetEntry(i);
-            if((s->eX<=cutMIN)||(s->eX>=cutMAX)){ //Zona da traslare
-				//cout << " here because " << s->eX << " cutMIN " << cutMIN << " cutMAX " << cutMAX << endl;
-                
-                *newcp = *s;
-                newcp->SetVid(700, 700);
-                newtree->Fill();//aggiungo la basetrack nella stessa posizione
-                COUNT++;
-                if(eVERBOSE==1) cout << endl << "ori " << s->eX << endl;
+        Float_t area = (Ymax - Ymin)* ( (cutMIN-Xmin) + (Xmax-cutMAX));
+        cout << "Density of background entries: " << Nbkg/area << " um^-2 " << endl;
 
-                if(s->eX<Xmax && s->eX>=cutMAX && s->eX-shiftMax>cutMIN) {X_coord=s->eX-shiftMax; countmax++;}
-                if(s->eX>Xmin && s->eX<=cutMIN && s->eX+shiftMin<cutMAX-shiftMax) {X_coord=s->eX+shiftMin; countmin++;}
+        int nBinsTX = 200;
+        int nBinsTY = 200;
 
-                if((s->eX>=cutMAX && s->eX-shiftMax>cutMIN)||(s->eX<=cutMIN && s->eX+shiftMin<cutMAX-shiftMax)){
-                    s->SetX(X_coord);
-                    if(eVERBOSE==1) cout << "shifted " << s->eX << endl;
-                    
-                    // s->SetY(Y_coord);
-                    if(s->eX>10 && X_coord>10) {
-						*newcp = *s;
-                         newcp->SetVid(700, 700);
-                        newtree->Fill();
-                    COUNT++;
-                    }
-                }
-                
-                while(n<=num_copies){
-                    //cout << "n " << n << "\tn copies " << num_copies << end
-                    bool addnew=0;
-                    if(shift==shiftMax && s->eX<Xmax && s->eX-shiftMax>cutMIN+shiftMin){
-                        if(eVERBOSE==1)  cout << "\tmax ori " << s->eX;
-                        X_coord=s->eX-shiftMax; countmax++;
-                        s->SetX(X_coord);
-                        if(eVERBOSE==1) cout << "\tnew " << X_coord << "\t" << cutMIN+n*shiftMin<< endl;
-                        addnew=1;
-                    }
-                    if(shift==shiftMin && s->eX>Xmin && s->eX+shiftMin<cutMAX-shiftMax) {
-                        if(eVERBOSE==1) cout << "\tmin ori " << s->eX;
-                        X_coord=s->eX+shiftMin; countmin++;
-                        s->SetX(X_coord);
-                        if(eVERBOSE==1) cout << "\tnew " << X_coord << " " << s->eX << endl;
-                        addnew=1;
-                    }
-                        n++;
-                    if(X_coord>10 && addnew==1) {
-                        if((shift==shiftMax && s->eX>cutMIN+n*shiftMin)||(shift==shiftMin && s->eX<cutMAX-n*shiftMax)){
-						*newcp = *s;
-                         newcp->SetVid(700, 700);
-                        newtree->Fill();
-                            if(eVERBOSE==1)   cout << "\t\tfilled " << endl;
-                        COUNT++;
-                        }
-                    }
-                }
-                
-            }
-            //}
-            //if( !(i%1000) ) printf("%d (%d\%)\n",i,100*i/nentries);
+        // Find TX and TY ranges
+        Float_t TXmin = -1; Float_t TXmax = 1;
+        Float_t TYmin = -1; Float_t TYmax = 1;
+
+        // 2D histogram of angular distribution
+        TH2F* hTXTY = new TH2F("hTXTY","Background TX-TY distribution", nBinsTX, TXmin, TXmax, nBinsTY, TYmin, TYmax);
+
+        // Fill histogram only for background tracks
+        tree->Draw(Form("s.TX():s.TY() >> hTXTY"), Form("( s.eY >= %f && s.eY <= %f ) && ( (s.eX >= %f && s.eX <= %f) || (s.eX >= %f && s.eX <= %f) )",
+                Ymin, Ymax, Xmin, cutMIN, cutMAX, Xmax), "goff");
+        
+        int N_sample = Nbkg/area * (Ymax - Ymin) * (Xmax - Xmin);
+        cout << " sampling " << N_sample << " random background base-tracks " << endl;
+
+        EdbScanCond* scancond = new EdbScanCond();
+        scancond->SetDefault();
+        scancond->SetDegrad(1); 
+        scancond->SetSigma0(5, 5, 0.005, 0.005); //to check
+
+        TMatrixD temp_cov_matrix = TMatrixD(5,5);
+
+        *newcp = *s;
+
+        Double_t newX = gRandom->Uniform(Xmin, Xmax);
+        cout << "Entries in hTXTY: " << hTXTY->GetEntries() << endl;
+
+        Double_t newTX, newTY;
+        hTXTY->GetRandom2(newTX,newTY);
+
+        for(int i=0; i<N_sample; i++){
+            float newX = gRandom->Uniform(Xmin, Xmax);
+            float newY = gRandom->Uniform(Ymin, Ymax);
+
+            // Sample TX, TY according to the original background distribution
+            Double_t newTX, newTY;
+            hTXTY->GetRandom2(newTX,newTY);
+
+            float tx = float(newTX); float ty = float(newTY);
+
+            // Create a new segment
+            newcp->SetX(newX);
+            newcp->SetY(newY);
+            newcp->SetTX(tx);
+            newcp->SetTY(ty);
+
+            newcp->SetVid(700,700);
+            scancond->FillErrorsCov(tx, ty, temp_cov_matrix);
+            newcp->SetCOV(temp_cov_matrix);
+            newtree->Fill();
         }
+
     }
-
-
-
-
-
 
     //newtree->Print();
     newtree->AutoSave();
