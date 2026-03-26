@@ -56,6 +56,7 @@ void TransformAngles(EdbSegP &segment, EdbAffine2D aff);
 
 int S0=1;
 int SL=2;
+int total_tracks = 0;
 
 int LASTLAYER[NSTACK+1]={3,33,71,76,83,90,110,120}; //CN7
 //int LASTLAYER[NSTACK+1]={0,30,66,76,83,90,110,120}; GSI 1 e GSI2
@@ -235,7 +236,7 @@ void add_stack(int S, TString folderpath)
         newtr = new EdbTrackP(nseg);
         newtr->SetNpl(npl);
         newtr->SetN0(n0);
-        newtr->SetID(trid);
+        newtr->SetID(total_tracks);
         newtr->SetW(w);
         newtr->SetFlag(tr->Flag());
         
@@ -248,7 +249,7 @@ void add_stack(int S, TString folderpath)
         for(int iseg=0; iseg<nseg; iseg++){
             
             seg=(EdbSegP *)segments->At(iseg);
-            seg->SetTrack(trid);
+            seg->SetTrack(total_tracks);
             seg->SetPlate(seg->Plate());
             seg->SetP(-999);
             //seg->SetDZ(300);
@@ -331,7 +332,7 @@ void add_stack(int S, TString folderpath)
             ///////segmenti fittati /////
             
             seg=(EdbSegP *)sf->At(iseg);
-            seg->SetTrack(trid);
+            seg->SetTrack(total_tracks);
             seg->SetP(-999);
             seg->SetID(tempid);
             
