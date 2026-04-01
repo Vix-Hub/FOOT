@@ -36,8 +36,8 @@ int NPLATES_S2 = 8; // number of plates in which to look for candidates in S2
 int NPLATES_S3 = 4; // number of plates in which to look for candidates in S3
 
 // Debugging
-const int DEBUG_S0_PLATE=1; //31
-const int DEBUG_S0_ID=1039039; //91690
+const int DEBUG_S0_PLATE=5; //31
+const int DEBUG_S0_ID=593099; //91690
 const int DEBUG_S0_PLATE_S1=16;
 const int DEBUG_S0_ID_S1 = 47888;
 const int DEBUG_SL_PLATE_S1 = 30;
@@ -131,6 +131,7 @@ int connect_tracks_new(int IS_SECOND_STEP=0) {
 		  temptrack->SetCounters();	
 
         }
+	temptrack->SetTrack(trid); //assign trid
         arrTRK->Add(temptrack);
     }
 
@@ -256,6 +257,7 @@ int connect_tracks_new(int IS_SECOND_STEP=0) {
                         seg_new->SetVid(seg->Vid(0), seg->Vid(1));
                         seg_new->SetAid(seg->Aid(0), seg->Aid(1));
                         seg_new->SetCOV(seg->COV());
+			seg_new->SetTrack(ausiliary->Track());
                         to_merge_trk->AddSegment(seg_new);
 
                         EdbSegP *segf = ausiliary->GetSegmentF(i);
@@ -266,6 +268,7 @@ int connect_tracks_new(int IS_SECOND_STEP=0) {
                         segf_new->SetVid(segf->Vid(0), segf->Vid(1));
                         segf_new->SetAid(segf->Aid(0), segf->Aid(1));
                         segf_new->SetCOV(segf->COV());
+			segf_new->SetTrack(ausiliary->Track());
                         to_merge_trk->AddSegmentF(segf_new);
                     }
                 }       
@@ -276,7 +279,8 @@ int connect_tracks_new(int IS_SECOND_STEP=0) {
             if (EVERBOSE==100)  cout << " nseg_new " << nseg_new << " added segs " << added_segs << endl;
             
             if(to_merge_trk==NULL) to_merge_trk = start_trk;
-            trid_new = to_merge_trk->ID(); //trid is first track ID
+            trid_new = start_trk->Track(); //trid is first track ID
+            if (EVERBOSE==100) cout << " trid_new " << trid_new << endl;
             EdbSegP *final_seg = (EdbSegP*)segments_new->At(segments_new->GetEntries()-1);
             int final_plate = final_seg->Plate();
             npl_new = final_plate - start_plate;
